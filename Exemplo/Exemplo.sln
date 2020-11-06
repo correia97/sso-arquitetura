@@ -3,11 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30330.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "src\API\API.csproj", "{4B1FA99D-60E3-4DB7-A680-99BF78C197E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API.KeyCloackProtect", "src\API.KeyCloackProtect\API.KeyCloackProtect.csproj", "{4B1FA99D-60E3-4DB7-A680-99BF78C197E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9F52609-C72C-4699-BCD2-6E52BE08454E}"
 	ProjectSection(SolutionItems) = preProject
 		..\docker-compose.yml = ..\docker-compose.yml
+		..\readme.md = ..\readme.md
 	EndProjectSection
 EndProject
 Global
