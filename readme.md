@@ -1,2 +1,1 @@
-# Exemplos de API protegida com serviços de SSO
-
+# Exemplos de projetos em .NET com algum SSO
