@@ -51,7 +51,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize("email")]
         [Route("authorization")]
         public IEnumerable<WeatherForecast> Get2()
         {

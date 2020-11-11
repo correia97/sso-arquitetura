@@ -17,6 +17,9 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using API.KeyCloackProtect.Configuration;
+using Microsoft.IdentityModel.Logging;
 
 namespace API
 {
@@ -34,8 +37,15 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            if (Environment.IsDevelopment())
+            {
+                IdentityModelEventSource.ShowPII = true;
+            }
             services.AddControllers();
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("email", policy => policy.Requirements.Add(new HasScopeRequirement("email", "http://localhost:8088/auth/realms/demo")));
+            });
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -45,7 +55,8 @@ namespace API
             {
                 o.Authority = "http://localhost:8088/auth/realms/demo";
                 o.Audience = "account";
-                o.RequireHttpsMetadata = false;                
+                o.RequireHttpsMetadata = false;
+                o.SaveToken = true;
                 o.Events = new JwtBearerEvents
                 {
                     OnAuthenticationFailed = c =>
@@ -61,21 +72,8 @@ namespace API
                     }
                 };
             });
-            //.AddOpenIdConnect(options =>
-            //{
-            //    options.SignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    options.ClientId = "client1";
-            //    options.ClientSecret = "05cc3181-c95c-45d1-a64e-12ddab855887";
-            //    options.Authority = "http://localhost:8088/auth/realms/master";
-            //    options.SignedOutRedirectUri = "https://localhost:44326/api/weatherforecast";
-            //    options.SaveTokens = true;
-            //    options.GetClaimsFromUserInfoEndpoint = true;
-            //    options.RequireHttpsMetadata = false;
-            //    options.ResponseType = OpenIdConnectResponseType.Code;
-            //    options.Scope.Add("email");
-            //    options.Scope.Add("profile");
-            //    options.Scope.Add("api1");
-            //});
+
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
