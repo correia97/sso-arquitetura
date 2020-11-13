@@ -37,6 +37,7 @@ namespace API.Controllers
             })
             .ToArray();
         }
+
         [HttpPost]
         public IEnumerable<WeatherForecast> Post()
         {
@@ -51,7 +52,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        [Authorize("email")]
+        [Authorize]
         [Route("authorization")]
         public IEnumerable<WeatherForecast> Get2()
         {

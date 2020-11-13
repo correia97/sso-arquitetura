@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using MVC.KeyCloackProtect.Interfaces;
+using MVC.KeyCloackProtect.Services;
 
 namespace MVC.KeyCloackProtect
 {
@@ -52,6 +54,7 @@ namespace MVC.KeyCloackProtect
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
                 options.RequireHttpsMetadata = false;
+                options.SaveTokens = true;
 
                 // Set the callback path, so Auth0 will call back to http://localhost:3000/callback
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
@@ -65,7 +68,7 @@ namespace MVC.KeyCloackProtect
 
             services.AddControllersWithViews();
 
-
+            services.AddScoped<IApiService, ApiService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

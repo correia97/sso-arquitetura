@@ -2,42 +2,32 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MVC.KeyCloackProtect.Interfaces;
 using MVC.KeyCloackProtect.Models;
-using System;
 using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MVC.KeyCloackProtect.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IApiService _apiService;
+        public HomeController(ILogger<HomeController> logger, IApiService apiService)
         {
             _logger = logger;
+            _apiService = apiService;
         }
 
         public async Task<IActionResult> Index()
         {
             if (User.Identity.IsAuthenticated)
             {
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("User Claims");
-                foreach (var item in User.Claims)
-                {
-                    Debug.WriteLine($"{item.Type}:{item.Value}");
-                }
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("------------------------------------------------------------");
-                Debug.WriteLine("------------------------------------------------------------");
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var IdToken = await HttpContext.GetTokenAsync("id_token");
+                var expire = await HttpContext.GetTokenAsync("expires_at");
+                var forecast = await _apiService.GetWeatherForecast(accessToken);
+                ViewBag.forecast = forecast;
             }
 
             return View();

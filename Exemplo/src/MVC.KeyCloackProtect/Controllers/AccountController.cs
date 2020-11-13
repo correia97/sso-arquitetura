@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MVC.KeyCloackProtect.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         public async Task Login(string returnUrl = "/")
         {
