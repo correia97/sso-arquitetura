@@ -1,0 +1,69 @@
+version: '3'
+services: 
+  db:
+    image: correia97/mssql-server-linux:2019-latest
+    ports:
+      - 1435:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=Mudar12345
+      - MSSQL_DATABASE=db01
+      - MSSQL_DATABASE_COLLATE=SQL_Latin1_General_CP1_CI_AI
+      - MSSQL_USER=myUser
+      - MSSQL_PASSWORD=myPa55W0d 
+    volumes:
+      - dbData:/var/opt/mssql/data
+      - dbLog:/var/opt/mssql/log
+      - dbSecrets:/var/opt/mssql/secrets   
+    networks:
+      - base
+  keycloak:
+    image: quay.io/keycloak/keycloak:11.0.1 
+    ports:
+      - 8088:8080
+      - 9990:9090
+    environment:
+      - DB_VENDOR=mssql
+      - DB_USER=myUser 
+      - DB_PASSWORD=myPa55W0d  
+      - DB_ADDR=db
+      - DB_DATABASE=db01
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      #- KEYCLOAK_IMPORT=./realm-export.json
+    depends_on:
+      - db
+    networks:
+      - base 
+      - externo
+  api:
+    image: api
+    build: 
+      context: API.KeyCloackProtect/
+      dockerfile: dockerfile
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Docker
+    depends_on: 
+      - db 
+    networks:
+      - base 
+      - externo  
+  mvc:
+    image: mvc
+    build: 
+      context: MVC.KeyCloackProtect/
+      dockerfile: dockerfile
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Docker
+    depends_on: 
+      - api 
+    networks:
+      - externo       
+networks:
+  base:  
+  externo: 
+volumes:
+  dbData:
+  dbLog:
+  dbSecrets:       
