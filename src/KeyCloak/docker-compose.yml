@@ -55,7 +55,7 @@ services:
       context: MVC.KeyCloakProtect/
       dockerfile: Dockerfile
     environment: 
-      - ASPNETCORE_ENVIRONMENT=Development 
+      - ASPNETCORE_ENVIRONMENT=Prod 
     depends_on: 
       - api 
     networks:
