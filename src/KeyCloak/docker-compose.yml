@@ -26,7 +26,9 @@ services:
       - DB_DATABASE=db01
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
-      #- KEYCLOAK_IMPORT=./realm-export.json
+      - KEYCLOAK_IMPORT=./realm-export.json
+    volumes: 
+      - ./realm-export.json:/realm-export.json
     depends_on:
       - db
     networks:
@@ -41,7 +43,7 @@ services:
       context: API.KeyCloakProtect/
       dockerfile: Dockerfile
     environment: 
-      - ASPNETCORE_ENVIRONMENT=Prod 
+      - ASPNETCORE_ENVIRONMENT=Development 
     depends_on: 
       - db 
     networks:
@@ -55,7 +57,7 @@ services:
       context: MVC.KeyCloakProtect/
       dockerfile: Dockerfile
     environment: 
-      - ASPNETCORE_ENVIRONMENT=Prod 
+      - ASPNETCORE_ENVIRONMENT=Development 
     depends_on: 
       - api 
     networks:
