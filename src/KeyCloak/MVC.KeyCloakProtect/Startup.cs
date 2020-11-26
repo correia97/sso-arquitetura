@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json;
 
 namespace MVC.KeyCloakProtect
 {
@@ -42,7 +43,7 @@ namespace MVC.KeyCloakProtect
                 IdentityModelEventSource.ShowPII = true;
             }
 
-           
+
             var authUrl = Configuration.GetValue<string>("authUrl");
             var redirecBaseUrl = Configuration.GetValue<string>("redirecBasetUrl");
             var clientId = Configuration.GetValue<string>("clientId");
@@ -71,12 +72,24 @@ namespace MVC.KeyCloakProtect
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.Events = new Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents
                 {
-                    OnRedirectToIdentityProvider = async context =>
-                    {
+                    //OnRedirectToIdentityProvider = async context =>
+                    //{
 
-                        context.ProtocolMessage.IssuerAddress = $"{redirecBaseUrl}/auth/realms/Sample/protocol/openid-connect/auth";
-                        context.Options.ClaimsIssuer = $"{redirecBaseUrl}/auth/realms/Sample/";
-                        context.Options.Authority = $"{redirecBaseUrl}/auth/realms/Sample/";
+                    //    context.ProtocolMessage.IssuerAddress = $"{redirecBaseUrl}/auth/realms/Sample/protocol/openid-connect/auth";
+                    //    context.Options.ClaimsIssuer = $"{redirecBaseUrl}/auth/realms/Sample/";
+                    //    context.Options.Authority = $"{redirecBaseUrl}/auth/realms/Sample/";
+                    //},
+                    OnTicketReceived = async context =>
+                    {
+                        var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
+                        if (!string.IsNullOrEmpty(token.Value))
+                        {
+                            var paylod = token.Value.Split('.')[1];
+                            var json = System.Text.ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(paylod));
+                            var data = JsonConvert.DeserializeObject(json);
+
+                        }
+
                     }
                 };
 
