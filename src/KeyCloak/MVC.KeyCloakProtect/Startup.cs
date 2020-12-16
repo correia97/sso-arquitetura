@@ -72,13 +72,11 @@ namespace MVC.KeyCloakProtect
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.Events = new Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents
                 {
-                    //OnRedirectToIdentityProvider = async context =>
-                    //{
+                    OnRedirectToIdentityProvider = async context =>
+                    {
 
-                    //    context.ProtocolMessage.IssuerAddress = $"{redirecBaseUrl}/auth/realms/Sample/protocol/openid-connect/auth";
-                    //    context.Options.ClaimsIssuer = $"{redirecBaseUrl}/auth/realms/Sample/";
-                    //    context.Options.Authority = $"{redirecBaseUrl}/auth/realms/Sample/";
-                    //},
+                        context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri;
+                    },
                     OnTicketReceived = async context =>
                     {
                         var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
