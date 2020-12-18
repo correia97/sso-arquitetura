@@ -48,8 +48,10 @@ Na Senha do usuário desmaque a opção de temporario
 Navege até a url do projeto MVC **http://localhost:8085**
 Clique no menu Privacy
 ![HomeMVC](asset/07%20HomeDoMVC.PNG)
+
 Faça o Login com o usuário que foi criado no Keycloak
-![LoginUsuario](asset/02%20LoginKeycloak.PNG)
+![LoginUsuario](asset/02%20LoginKeyCloak.PNG)
+
 Navegue na aplicação autenticada
 ![HomeAutenticada](asset/09%20HomeAutenticada.PNG)
 
