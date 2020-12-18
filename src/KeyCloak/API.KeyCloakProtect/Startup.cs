@@ -42,7 +42,7 @@ namespace API
                 IdentityModelEventSource.ShowPII = true;
             }
 
-            var authUrl = Configuration.GetValue<string>("AuthUrl");
+            var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}/auth/realms/Sample/";
             services.AddControllers();
             services.AddAuthorization(options =>
             {

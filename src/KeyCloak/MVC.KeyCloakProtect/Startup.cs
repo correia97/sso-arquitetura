@@ -1,25 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.AspNetCore.Http;
 using MVC.KeyCloakProtect.Interfaces;
 using MVC.KeyCloakProtect.Services;
-using System.IO;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authentication;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
 
 namespace MVC.KeyCloakProtect
 {
@@ -44,10 +36,9 @@ namespace MVC.KeyCloakProtect
             }
 
 
-            var authUrl = Configuration.GetValue<string>("authUrl");
-            var redirecBaseUrl = Configuration.GetValue<string>("redirecBasetUrl");
-            var clientId = Configuration.GetValue<string>("clientId");
-            var clientSecret = Configuration.GetValue<string>("clientSecret");
+            var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}/auth/realms/Sample/";
+            var clientId = Configuration.GetValue<string>("ClientId");
+            var clientSecret = Configuration.GetValue<string>("ClientSecret");
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -72,11 +63,6 @@ namespace MVC.KeyCloakProtect
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.Events = new Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents
                 {
-                    OnRedirectToIdentityProvider = async context =>
-                    {
-
-                        context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri;
-                    },
                     OnTicketReceived = async context =>
                     {
                         var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
