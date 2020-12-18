@@ -21,38 +21,32 @@ docker-compose build
 docker-compose up -d 
 ```
 
-Navegue até a url **http://localhost:8080**
+> Navegue até a url **http://localhost:8080**
 ![home](asset/01%20HomeKeycloak.PNG)
 
-Faça login no Keycloak
-
+> Faça login no Keycloak
 ![Login](asset/02%20LoginKeyCloak.PNG)
 
-Altere para o realm Sample
-
+> Altere para o realm Sample
 ![Realm](asset/03%20RealmKeyCloak.PNG)
 
-Navega até a opção Usuários
-
+> Navega até a opção Usuários
 ![Usuarios](asset/04%20UsuariosKeycloak.PNG)
 
-Cadastre um novo usuário
-
+> Cadastre um novo usuário
 ![Novousuario](asset/05%20RegistroUsuariosKeycloak.PNG)
 
-Na Senha do usuário desmaque a opção de temporario
-
+> Na Senha do usuário desmaque a opção de temporario
 ![Senhausuario](asset/06%20SenhaUsuariosKeycloak.PNG)
 
 
-Navege até a url do projeto MVC **http://localhost:8085**
-Clique no menu Privacy
+> Navege até a url do projeto MVC **http://localhost:8085** e clique no menu Privacy
 ![HomeMVC](asset/07%20HomeDoMVC.PNG)
 
-Faça o Login com o usuário que foi criado no Keycloak
+> Faça o Login com o usuário que foi criado no Keycloak
 ![LoginUsuario](asset/02%20LoginKeyCloak.PNG)
 
-Navegue na aplicação autenticada
+> Navegue na aplicação autenticada
 ![HomeAutenticada](asset/09%20HomeAutenticada.PNG)
 
 <br/>
@@ -81,8 +75,6 @@ Microsoft.AspNetCore.Authentication.OpenIdConnect
 
 
 ### Referências
-[Keycloak](https://www.keycloak.org/docs/latest/getting_started/)
-
-[Exemplo Auth0 API](https://auth0.com/docs/quickstart/backend/aspnet-core-webapi)
-
+[Keycloak](https://www.keycloak.org/docs/latest/getting_started/) <br/>
+[Exemplo Auth0 API](https://auth0.com/docs/quickstart/backend/aspnet-core-webapi) <br/>
 [Exemplo Auth0 MVC](https://auth0.com/docs/quickstart/webapp/aspnet-core-3)

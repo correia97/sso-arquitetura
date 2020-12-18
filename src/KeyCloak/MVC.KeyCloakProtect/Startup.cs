@@ -11,6 +11,7 @@ using MVC.KeyCloakProtect.Interfaces;
 using MVC.KeyCloakProtect.Services;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MVC.KeyCloakProtect
@@ -73,8 +74,15 @@ namespace MVC.KeyCloakProtect
                             var data = JsonConvert.DeserializeObject(json);
 
                         }
-
-                    }
+                    },
+                    OnRedirectToIdentityProvider = async context =>
+                    {
+                        Debug.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
+                        Console.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
+                        
+                        if (context.ProtocolMessage.RedirectUri.IndexOf("8088") <= 0)
+                            context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace(authUrl.Replace(":8088", ""), authUrl);
+                    },
                 };
 
             });
@@ -83,7 +91,6 @@ namespace MVC.KeyCloakProtect
             services.AddControllersWithViews();
 
             services.AddScoped<IApiService, ApiService>();
-
             /// Tentativa de correção para erro de correlationid no chrome 
             /// https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
             /// https://github.com/dotnet/aspnetcore/issues/14996

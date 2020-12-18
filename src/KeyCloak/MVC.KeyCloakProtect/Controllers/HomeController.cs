@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MVC.KeyCloakProtect.Interfaces;
 using MVC.KeyCloakProtect.Models;
@@ -13,14 +14,17 @@ namespace MVC.KeyCloakProtect.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IApiService _apiService;
-        public HomeController(ILogger<HomeController> logger, IApiService apiService)
+        private readonly IConfiguration _configuration;
+        public HomeController(ILogger<HomeController> logger, IApiService apiService, IConfiguration configuration)
         {
             _logger = logger;
             _apiService = apiService;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
         {
+            ViewBag.BaseAuthUrl = _configuration.GetValue<string>("BaseAuthUrl");
             if (User.Identity.IsAuthenticated)
             {
                 var accessToken = await HttpContext.GetTokenAsync("access_token");
