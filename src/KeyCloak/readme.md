@@ -36,7 +36,7 @@ docker-compose up -d
 > Cadastre um novo usuário
 ![Novousuario](asset/05%20RegistroUsuariosKeycloak.PNG)
 
-> Na Senha do usuário desmaque a opção de temporario
+> Crie uma Senha para o usuário e desmaque a opção de temporario
 ![Senhausuario](asset/06%20SenhaUsuariosKeycloak.PNG)
 
 
