@@ -22,6 +22,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Oo]ut/
+[Nn]ode_modules/
+[Dd]ist/
 # Test Result
 [Rr]esult
 # Visual Studio 
@@ -37,6 +39,7 @@ bld/
 # NUNIT
 *.VisualState.xml
 TestResult.xml
+*-lock.json
 
 # Build Results of an ATL Project
 [Dd]ebugPS/

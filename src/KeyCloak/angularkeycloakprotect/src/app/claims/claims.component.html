@@ -1,0 +1,20 @@
+<div class="content" role="main">
+
+    <div class="card-container">
+
+        <b>Usuário:</b> {{payload.name}}
+
+    </div>
+
+    <div class="card-container">
+        <b>E-mail:</b> {{payload.email}}
+    </div>
+    <div class="card-container">
+        <b>JWT:</b>
+        <pre> {{jwt | json}}</pre>
+    </div>
+    <div class="card-container">
+        <b>Id Token:</b>
+        <pre> {{jwt | json}}</pre>
+    </div>
+</div>
