@@ -1,23 +1,50 @@
-<div class="content" role="main">  
-    <div class="card-container">
-      <button class="card" (click)="login()">
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
-  
-        <span>Login</span>
-  
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>    </button>
-  
-        <button class="card" (click)="logout()">
-            <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+<div class="content" role="main">
+  <div class="card-container">
+    <button class="card" (click)="login()" *ngIf="!isAuthenticated">
+   
       
-            <span>Logout</span>
-      
-            <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>    </button>
-      
-    
-  
-    </div>
-  
 
-  
+      <span>Login</span>
+
+    
+      
+    </button>
+
+    <button class="card" (click)="logout()" *ngIf="isAuthenticated">
+   
+
+      <span>Logout</span>
+
+
+
+    </button>
+
+
+
   </div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col">
+          <h2>Temperatura</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">Data</div>
+        <div class="col">Temperatura ºC</div>
+        <div class="col">Temperatura ºF </div>
+        <div class="col">Descrição</div>
+      </div>
+
+
+      <div class="row" *ngFor="let item of forecast">
+        <div class="col">{{item.date  | date:'dd/MM/yyyy'}}</div>
+        <div class="col">{{item.temperatureC}}</div>
+        <div class="col">{{item.temperatureF}}</div>
+        <div class="col">{{item.summary}}</div>
+      </div>
+
+    </div>
+
+
+
+</div>
