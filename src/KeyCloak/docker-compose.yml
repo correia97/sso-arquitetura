@@ -91,6 +91,22 @@ services:
       - externo 
     ports:
       - 8085:80    
+  angular:
+    image: angularkeycloak
+    build: 
+      context: angularkeycloakprotect/
+      dockerfile: Dockerfile
+    container_name: angularkeycloak 
+    environment: 
+      - authBaseUrl='http://192.168.0.5:8088'
+      - clientAuth='exemplo1'
+      - apiBaseUrl='http://api'
+    depends_on: 
+      - api 
+    networks:
+      - externo 
+    ports:
+      - 4200:80  
 
 networks:
   base:  
