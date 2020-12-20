@@ -30,7 +30,7 @@ namespace API
             Configuration = configuration;
             Environment = env;
         }
-
+readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
 
@@ -75,6 +75,17 @@ namespace API
                 };
             });
 
+             services.AddCors(options =>
+        {
+            options.AddPolicy(name: MyAllowSpecificOrigins,
+                              builder =>
+                              {
+                                  builder.WithOrigins("http://localhost:4200")
+                                  .AllowAnyHeader()
+                                                  .AllowAnyMethod();
+                              });
+        });
+
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
         }
 
@@ -93,6 +104,7 @@ namespace API
 
             app.UseRouting();
 
+        app.UseCors(MyAllowSpecificOrigins);
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
