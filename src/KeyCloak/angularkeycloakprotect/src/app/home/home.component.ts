@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
     this.oidcSecurityService.isAuthenticated$.subscribe({
       next: x => {
         this.isAuthenticated = x
-        if (this.oidcSecurityService.isAuthenticated$) {
+        if (this.isAuthenticated) {
           this.service.getWeatherForecast()
             .subscribe({
               next: result => this.forecast = result,

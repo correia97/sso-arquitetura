@@ -1,26 +1,26 @@
-version: '3'
-services:  
+version: "3"
+services:
   # proxy:
   #   image: nginx:1.19.5
   #   container_name: sampleKeycloakNginx
   #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf 
-  #     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf 
-  #     - ./nginx/api.conf:/etc/nginx/conf.d/api.conf 
-  #     - ./nginx/mvc.conf:/etc/nginx/conf.d/mvc.conf 
-  #     - ./nginx/keycloak.conf:/etc/nginx/conf.d/keycloak.conf 
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+  #     - ./nginx/api.conf:/etc/nginx/conf.d/api.conf
+  #     - ./nginx/mvc.conf:/etc/nginx/conf.d/mvc.conf
+  #     - ./nginx/keycloak.conf:/etc/nginx/conf.d/keycloak.conf
   #   networks:
-  #     - base 
+  #     - base
   #     - externo
   #   ports:
-  #     - 80:80 
-  #     - 8081:8081 
-  #     - 8088:8088 
-  #     - 8085:8085 
+  #     - 80:80
+  #     - 8081:8081
+  #     - 8088:8088
+  #     - 8085:8085
   #   depends_on:
   #     - mvc
   #     - api
-  #     - keycloak  
+  #     - keycloak
   db:
     image: correia97/mssql-server-linux:2019-latest
     container_name: sampleKeycloakDB
@@ -31,87 +31,83 @@ services:
       - MSSQL_DATABASE=db01
       - MSSQL_DATABASE_COLLATE=SQL_Latin1_General_CP1_CI_AI
       - MSSQL_USER=myUser
-      - MSSQL_PASSWORD=myPa55W0d 
+      - MSSQL_PASSWORD=myPa55W0d
     volumes:
       - dbData:/var/opt/mssql/data
       - dbLog:/var/opt/mssql/log
-      - dbSecrets:/var/opt/mssql/secrets   
+      - dbSecrets:/var/opt/mssql/secrets
     networks:
       - base
   keycloak:
-    image: quay.io/keycloak/keycloak:11.0.1 
+    image: quay.io/keycloak/keycloak:11.0.1
     container_name: sampleKeycloak
     environment:
       - DB_VENDOR=mssql
-      - DB_USER=myUser 
-      - DB_PASSWORD=myPa55W0d  
+      - DB_USER=myUser
+      - DB_PASSWORD=myPa55W0d
       - DB_ADDR=db
       - DB_DATABASE=db01
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
       - KEYCLOAK_IMPORT=./realm-export.json
-    volumes: 
+    volumes:
       - ./realm-export.json:/realm-export.json
     depends_on:
       - db
     networks:
-      - base 
+      - base
       - externo
     ports:
       - 8088:8080
-      - 9099:9090  
+      - 9099:9090
   api:
     image: api
-    build: 
+    build:
       context: API.KeyCloakProtect/
       dockerfile: Dockerfile
     container_name: sampleKeycloakAPI
-    environment: 
-      - ASPNETCORE_ENVIRONMENT=Development 
-      - BaseAuthUrl=http://192.168.0.5:8088
-    depends_on: 
-      - db 
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - BaseAuthUrl=http://192.168.0.17:8088
+    depends_on:
+      - db
     networks:
-      - base 
-      - externo 
+      - base
+      - externo
     ports:
       - 8081:80
   mvc:
     image: mvc
-    build: 
+    build:
       context: MVC.KeyCloakProtect/
       dockerfile: Dockerfile
-    container_name: sampleKeycloakMVC  
-    environment: 
+    container_name: sampleKeycloakMVC
+    environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - BaseAuthUrl=http://192.168.0.5:8088
-    depends_on: 
-      - api 
+      - BaseAuthUrl=http://192.168.0.17:8088
+    depends_on:
+      - api
     networks:
-      - externo 
+      - externo
     ports:
-      - 8085:80    
+      - 8085:80
   angular:
     image: angularkeycloak
-    build: 
+    build:
       context: angularkeycloakprotect/
       dockerfile: Dockerfile
-    container_name: angularkeycloak 
-    environment: 
-      - authBaseUrl='http://192.168.0.5:8088'
-      - clientAuth='exemplo1'
-      - apiBaseUrl='http://api'
-    depends_on: 
-      - api 
+    container_name: angularkeycloak
+    depends_on:
+      - api
     networks:
-      - externo 
+      - externo
     ports:
-      - 4200:80  
+      - 4200:80
 
 networks:
-  base:  
-  externo: 
+  base:
+  externo:
 volumes:
   dbData:
   dbLog:
-  dbSecrets:       
+  dbSecrets:

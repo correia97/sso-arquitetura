@@ -50,6 +50,15 @@
   .toolbar #twitter-logo:hover {
     opacity: 0.8;
   }
+  .toolbar a, 
+  .toolbar a:visited,  
+  .toolbar a:active,
+  .toolbar a span {
+    text-decoration: none;
+    color: #fff;
+    margin-right: 10px;
+    padding: 5px;;
+  }
 
   .content {
     display: flex;

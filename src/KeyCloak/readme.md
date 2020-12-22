@@ -49,6 +49,20 @@ docker-compose up -d
 > Navegue na aplicação autenticada
 ![HomeAutenticada](asset/09%20HomeAutenticada.PNG)
 
+
+> Navege até a url do projeto Angular **http://localhost:4200** e clique no botão login
+![HomeMVC](asset/10%20AngularHome.PNG)
+
+> Faça o Login com o usuário que foi criado no Keycloak
+![LoginUsuario](asset/02%20LoginKeyCloak.PNG)
+
+
+> Navegue na aplicação autenticada
+![HomeAutenticada](asset/11%20AngularClaims.PNG)
+
+> Home consumindo a API
+![HomeAutenticada](asset/12%20AngularHomeAutenticada.PNG)
+
 <br/>
 <br/>
 
@@ -68,6 +82,14 @@ Microsoft.AspNetCore.Authentication.OpenIdConnect
 ```
 
 
+
+#### Angular
+```bash
+Angular
+angular-auth-oidc-client
+jwt-decode
+bootstrap
+```
 
 
 <br/>
