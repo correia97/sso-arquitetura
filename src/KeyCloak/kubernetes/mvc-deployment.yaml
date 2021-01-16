@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: mvc
+  name: mvc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mvc
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/externo: "true"
+        io.kompose.service: mvc
+    spec:
+      containers:
+      - env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        - name: BaseAuthUrl
+          value: http://192.168.0.17:8088
+        image: mvc
+        name: samplekeycloakmvc
+        ports:
+        - containerPort: 80
+      restartPolicy: Always

@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- externo-networkpolicy.yaml
+- base-networkpolicy.yaml
+- dbSecrets-persistentvolumeclaim.yaml
+- dbData-persistentvolumeclaim.yaml
+- dbLog-persistentvolumeclaim.yaml
+- keycloak-deployment.yaml
+- keycloak-service.yaml
+- api-deployment.yaml
+- api-service.yaml
+- mvc-deployment.yaml
+- mvc-service.yaml
+- angular-deployment.yaml
+- angular-service.yaml

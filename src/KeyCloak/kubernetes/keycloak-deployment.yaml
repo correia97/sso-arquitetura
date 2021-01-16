@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: keycloak
+  name: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: keycloak
+  template:
+    metadata:
+      labels:
+        io.kompose.network/base: "true"
+        io.kompose.network/externo: "true"
+        io.kompose.service: keycloak
+    spec:
+      containers:
+      - env:
+        - name: DB_ADDR
+          value: db
+        - name: DB_DATABASE
+          value: db01
+        - name: DB_PASSWORD
+          value: myPa55W0d
+        - name: DB_USER
+          value: myUser
+        - name: DB_VENDOR
+          value: mssql
+        - name: KEYCLOAK_IMPORT
+          value: ./realm-export.json
+        - name: KEYCLOAK_PASSWORD
+          value: admin
+        - name: KEYCLOAK_USER
+          value: admin
+        image: quay.io/keycloak/keycloak:11.0.1
+        imagePullPolicy: ""
+        name: samplekeycloak
+        ports:
+        - containerPort: 8080
+        - containerPort: 9090
+      restartPolicy: Always
