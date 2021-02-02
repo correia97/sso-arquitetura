@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using MVC.KeyCloakProtect.Interfaces;
 using MVC.KeyCloakProtect.Models;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,9 +17,25 @@ namespace MVC.KeyCloakProtect.Services
         }
         public async Task<List<Forecast>> GetWeatherForecast(string authToken)
         {
-            return await $"{ServiceUrl}/api/weatherforecast/authorization".WithOAuthBearerToken(authToken)
-                 .AllowAnyHttpStatus()
-                 .GetJsonAsync<List<Forecast>>();
+            try
+            {
+                var result = await $"{ServiceUrl}/api/weatherforecast/authorization".WithOAuthBearerToken(authToken)
+                                 .AllowAnyHttpStatus()
+                                 .GetAsync();
+                if (result.ResponseMessage.IsSuccessStatusCode)
+                {
+                    return JsonConvert.DeserializeObject<List<Forecast>>(await result.ResponseMessage.Content.ReadAsStringAsync());
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
         }
     }
 }

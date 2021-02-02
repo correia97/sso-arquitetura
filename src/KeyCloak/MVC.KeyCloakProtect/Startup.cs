@@ -31,13 +31,12 @@ namespace MVC.KeyCloakProtect
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            if (Environment.IsDevelopment())
-            {
-                IdentityModelEventSource.ShowPII = true;
-            }
+
+            IdentityModelEventSource.ShowPII = true;
 
 
-            var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}/auth/realms/Sample/";
+            var complement = Configuration.GetValue<string>("UrlComplement");
+            var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}{complement}";
             var clientId = Configuration.GetValue<string>("ClientId");
             var clientSecret = Configuration.GetValue<string>("ClientSecret");
             services.AddAuthentication(options =>
@@ -67,7 +66,7 @@ namespace MVC.KeyCloakProtect
                     OnTicketReceived = async context =>
                     {
                         var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
-                        if (!string.IsNullOrEmpty(token.Value))
+                        if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".")>0)
                         {
                             var paylod = token.Value.Split('.')[1];
                             var json = System.Text.ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(paylod));
@@ -77,11 +76,11 @@ namespace MVC.KeyCloakProtect
                     },
                     OnRedirectToIdentityProvider = async context =>
                     {
-                        Debug.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
-                        Console.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
-                        
-                        if (context.ProtocolMessage.RedirectUri.IndexOf("8088") <= 0)
-                            context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace(authUrl.Replace(":8088", ""), authUrl);
+                        //Debug.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
+                        //Console.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
+
+                        //if (context.ProtocolMessage.RedirectUri.IndexOf("8088") <= 0)
+                        //    context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace(authUrl.Replace(":8088", ""), authUrl);
                     },
                 };
 
@@ -107,16 +106,18 @@ namespace MVC.KeyCloakProtect
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+
+            app.UseDeveloperExceptionPage();
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Home/Error");
+            //    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            //    app.UseHsts();
+            //}
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

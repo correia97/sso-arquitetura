@@ -30,19 +30,20 @@ namespace API
             Configuration = configuration;
             Environment = env;
         }
-readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            if (Environment.IsDevelopment())
-            {
+           // if (Environment.IsDevelopment())
+           // {
                 IdentityModelEventSource.ShowPII = true;
-            }
+           // }
 
-            var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}/auth/realms/Sample/";
+            var complement = Configuration.GetValue<string>("UrlComplement");
+            var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}{complement}";
             services.AddControllers();
             services.AddAuthorization(options =>
             {
@@ -56,7 +57,7 @@ readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
             .AddJwtBearer(o =>
             {
                 o.Authority = authUrl;
-                o.Audience = "account";
+                o.Audience = Configuration.GetValue<string>("Audience");
                 o.RequireHttpsMetadata = false;
                 o.SaveToken = true;
                 o.Events = new JwtBearerEvents
@@ -75,16 +76,16 @@ readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
                 };
             });
 
-             services.AddCors(options =>
-        {
-            options.AddPolicy(name: MyAllowSpecificOrigins,
-                              builder =>
-                              {
-                                  builder.WithOrigins("http://localhost:4200")
-                                  .AllowAnyHeader()
-                                                  .AllowAnyMethod();
-                              });
-        });
+            services.AddCors(options =>
+       {
+           options.AddPolicy(name: MyAllowSpecificOrigins,
+                             builder =>
+                             {
+                                 builder.WithOrigins("http://localhost:4200")
+                                 .AllowAnyHeader()
+                                                 .AllowAnyMethod();
+                             });
+       });
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
         }
@@ -92,10 +93,10 @@ readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
+           // if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
-            }
+           // }
 
             app.UseAuthorization();
             app.UseAuthentication();
@@ -104,7 +105,7 @@ readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
             app.UseRouting();
 
-        app.UseCors(MyAllowSpecificOrigins);
+            app.UseCors(MyAllowSpecificOrigins);
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
