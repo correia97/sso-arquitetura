@@ -1,15 +1,22 @@
-FROM mcr.microsoft.com/dotnet/aspnet:3.1-buster-slim AS base
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
-
-FROM mcr.microsoft.com/dotnet/sdk:3.1-buster AS build
-WORKDIR /src
-COPY ./MVC.KeyCloakProtect.csproj .
-RUN dotnet restore MVC.KeyCloakProtect.csproj
-COPY . .
-RUN dotnet build MVC.KeyCloakProtect.csproj -c Release -o /app/build
-RUN dotnet publish MVC.KeyCloakProtect.csproj -c Release -o /app/publish
-
-FROM base as final
-COPY --from=build /app/publish .
 EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+WORKDIR /src
+COPY ["src/KeyCloak/MVC.KeyCloakProtect/MVC.KeyCloakProtect.csproj", "src/KeyCloak/MVC.KeyCloakProtect/"]
+RUN dotnet restore "src/KeyCloak/MVC.KeyCloakProtect/MVC.KeyCloakProtect.csproj"
+COPY . .
+WORKDIR "/src/src/KeyCloak/MVC.KeyCloakProtect"
+RUN dotnet build "MVC.KeyCloakProtect.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "MVC.KeyCloakProtect.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "MVC.KeyCloakProtect.dll"]

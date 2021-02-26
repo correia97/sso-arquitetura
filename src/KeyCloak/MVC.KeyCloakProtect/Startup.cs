@@ -1,17 +1,17 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MVC.KeyCloakProtect.Interfaces;
 using MVC.KeyCloakProtect.Services;
 using Newtonsoft.Json;
 using System;
-using System.Diagnostics;
 using System.Linq;
 
 namespace MVC.KeyCloakProtect
@@ -43,14 +43,16 @@ namespace MVC.KeyCloakProtect
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
             .AddCookie()
-            .AddOpenIdConnect("auth", options =>
+            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
+                options.ClaimsIssuer = "https://correia97.auth0.com/api/v2/";
                 options.Authority = authUrl;
                 options.ClientId = clientId;
                 options.ClientSecret = clientSecret;
+                // Para o fusionAuth só vai o code
                 options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
                 options.Scope.Clear();
                 options.Scope.Add("openid");
@@ -58,29 +60,45 @@ namespace MVC.KeyCloakProtect
                 options.Scope.Add("email");
                 options.RequireHttpsMetadata = false;
                 options.SaveTokens = true;
-                options.CallbackPath = new PathString("/callback");
+                // options.CallbackPath = new PathString("/callback");
                 options.ClaimsIssuer = authUrl;
                 options.GetClaimsFromUserInfoEndpoint = true;
-                options.Events = new Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents
+                options.Events = new OpenIdConnectEvents
                 {
                     OnTicketReceived = async context =>
                     {
-                        var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
-                        if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".")>0)
-                        {
-                            var paylod = token.Value.Split('.')[1];
-                            var json = System.Text.ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(paylod));
-                            var data = JsonConvert.DeserializeObject(json);
+                        //var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
+                        //if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
+                        //{
+                        //    var paylod = token.Value.Split('.')[1];
+                        //    var json = System.Text.ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(paylod));
+                        //    var data = JsonConvert.DeserializeObject(json);
 
-                        }
+                        //}
                     },
                     OnRedirectToIdentityProvider = async context =>
                     {
-                        //Debug.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
-                        //Console.WriteLine($"Redirect UrI {context.ProtocolMessage.RedirectUri}");
+                        context.ProtocolMessage.SetParameter("audience", "https://correia97.auth0.com/api/v2/");
+                    },
+                    OnAuthorizationCodeReceived = async context =>
+                    {
 
-                        //if (context.ProtocolMessage.RedirectUri.IndexOf("8088") <= 0)
-                        //    context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace(authUrl.Replace(":8088", ""), authUrl);
+                    },
+                    OnMessageReceived = async context =>
+                    {
+
+                    },
+                    OnTokenResponseReceived = async context =>
+                    {
+
+                    },
+                    OnTokenValidated = async context =>
+                    {
+
+                    },
+                    OnUserInformationReceived = async context =>
+                    {
+
                     },
                 };
 
