@@ -26,15 +26,19 @@ export class ClaimsComponent implements OnInit {
       next: x => {
         this.isAuthenticated = x
         if (this.isAuthenticated) {
-          let pay =  this.oidcSecurityService.getPayloadFromIdToken();
+          
+          console.log('-----------------------------------------this.oidcSecurityService---------------------------------------------');
+          console.log(this.oidcSecurityService);
+          let pay =  this.oidcSecurityService?.getPayloadFromIdToken();
  
-          console.log( 'payload' );
-          console.log( pay );
-         
-          this.jwt = jwd_decode(this.oidcSecurityService.getToken());
-          this.idToken = jwd_decode(this.oidcSecurityService.getIdToken());
-          console.log( 'jwt');
-          console.log(  this.jwt );
+          console.log('------------------------------payload------------------------------------------------------' );
+          console.log(pay );
+          console.log(this.oidcSecurityService?.getToken());
+          console.log(this.oidcSecurityService?.getIdToken());
+          this.jwt = jwd_decode(this.oidcSecurityService?.getToken());
+          this.idToken = jwd_decode(this.oidcSecurityService?.getIdToken());
+          console.log('----------------------------------------jwt----------------------------------------------------');
+          console.log(this.jwt );
           this.payload = pay;
         } else {
           this.router.navigate(['/unauthorized']);

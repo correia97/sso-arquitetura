@@ -12,6 +12,8 @@ using MVC.KeyCloakProtect.Interfaces;
 using MVC.KeyCloakProtect.Services;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 
 namespace MVC.KeyCloakProtect
@@ -33,41 +35,48 @@ namespace MVC.KeyCloakProtect
         {
 
             IdentityModelEventSource.ShowPII = true;
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 
             var complement = Configuration.GetValue<string>("UrlComplement");
             var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}{complement}";
             var clientId = Configuration.GetValue<string>("ClientId");
             var clientSecret = Configuration.GetValue<string>("ClientSecret");
+            var audience = Configuration.GetValue<string>("Audience");
             services.AddAuthentication(options =>
             {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
-            .AddCookie()
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+            })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
-                options.ClaimsIssuer = "https://correia97.auth0.com/api/v2/";
                 options.Authority = authUrl;
                 options.ClientId = clientId;
                 options.ClientSecret = clientSecret;
                 // Para o fusionAuth só vai o code
-                options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
+                options.ResponseType = OpenIdConnectResponseType.Code;
                 options.Scope.Clear();
                 options.Scope.Add("openid");
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
                 options.RequireHttpsMetadata = false;
                 options.SaveTokens = true;
-                // options.CallbackPath = new PathString("/callback");
+               // options.CallbackPath = new PathString("/callback");
                 options.ClaimsIssuer = authUrl;
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.Events = new OpenIdConnectEvents
                 {
                     OnTicketReceived = async context =>
                     {
-                        //var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
+                        var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
+                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
+                        Debug.WriteLine(token);
+                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
                         //if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
                         //{
                         //    var paylod = token.Value.Split('.')[1];
@@ -78,27 +87,43 @@ namespace MVC.KeyCloakProtect
                     },
                     OnRedirectToIdentityProvider = async context =>
                     {
-                        context.ProtocolMessage.SetParameter("audience", "https://correia97.auth0.com/api/v2/");
+                        if (!string.IsNullOrEmpty(audience))
+                            context.ProtocolMessage.SetParameter("audience", audience);
                     },
                     OnAuthorizationCodeReceived = async context =>
                     {
-
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                            context.ProtocolMessage.IssuerAddress = authUrl;
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                            context.ProtocolMessage.Iss = authUrl;
                     },
                     OnMessageReceived = async context =>
                     {
-
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                            context.ProtocolMessage.IssuerAddress = authUrl;
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                            context.ProtocolMessage.Iss = authUrl;
                     },
                     OnTokenResponseReceived = async context =>
-                    {
-
-                    },
+                        {
+                            if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                                context.ProtocolMessage.IssuerAddress = authUrl;
+                            if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                                context.ProtocolMessage.Iss = authUrl;
+                        },
                     OnTokenValidated = async context =>
                     {
-
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                            context.ProtocolMessage.IssuerAddress = authUrl;
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                            context.ProtocolMessage.Iss = authUrl;
                     },
                     OnUserInformationReceived = async context =>
                     {
-
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                            context.ProtocolMessage.IssuerAddress = authUrl;
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                            context.ProtocolMessage.Iss = authUrl;
                     },
                 };
 

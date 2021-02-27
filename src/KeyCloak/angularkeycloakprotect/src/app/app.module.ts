@@ -16,16 +16,19 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 export function configureAuth(oidcConfigService: OidcConfigService) {
   return () =>
       oidcConfigService.withConfig({
-          stsServer: environment.authBaseUrl + '/auth/realms/Sample',
+          stsServer: environment.authBaseUrl,
           redirectUrl: window.location.origin,
           postLogoutRedirectUri: window.location.origin,
           clientId: environment.clientAuth,
           scope: 'openid profile email offline_access',
           responseType: 'id_token token',
           silentRenew: true,
-            silentRenewUrl: `${window.location.origin}/silent-renew.html`,
+          silentRenewUrl: `${window.location.origin}/silent-renew.html`,
           logLevel: LogLevel.Debug,
-          postLoginRoute: 'claims'
+          postLoginRoute: 'claims',
+          customParams: {
+            audience: environment.audience
+          },
       });
 }
 

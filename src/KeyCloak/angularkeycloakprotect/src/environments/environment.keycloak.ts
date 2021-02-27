@@ -4,11 +4,9 @@
 
 export const environment = {
   production: false,
-  authBaseUrl : 'https://correia97.auth0.com',
-  clientAuth: '8uC6CB3835SiNeOyG5kxEKDRP6BjpBVV',
-  apiBaseUrl: 'https://localhost:44395',
-  complement: '/auth/realms/Sample',
-  audience: 'https://correia97.auth0.com/api/v2/'
+  authBaseUrl : 'http://192.168.0.5:8088',
+  clientAuth: 'exemplo1',
+  apiBaseUrl: 'http://192.168.0.5:8081'
 };
 
 /*
