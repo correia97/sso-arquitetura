@@ -42,7 +42,7 @@ services:
   api:
     image: api
     build:
-      context: API.KeyCloakProtect/
+      context: API/
       dockerfile: Dockerfile
     container_name: sampleKeycloakAPI
     environment:
@@ -58,7 +58,7 @@ services:
   mvc:
     image: mvc
     build:
-      context: MVC.KeyCloakProtect/
+      context: MVC/
       dockerfile: Dockerfile
     container_name: sampleKeycloakMVC
     environment:

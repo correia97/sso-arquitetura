@@ -1,0 +1,48 @@
+version: "3"
+services:
+  db:
+    image: correia97/mssql-server-linux:2019-latest
+    container_name: samplewsoDB
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=Mudar12345
+      - MSSQL_DATABASE=db01
+      - MSSQL_DATABASE_COLLATE=SQL_Latin1_General_CP1_CI_AI
+      - MSSQL_USER=myUser
+      - MSSQL_PASSWORD=myPa55W0d
+    volumes:
+      - dbData:/var/opt/mssql/data
+      - dbLog:/var/opt/mssql/log
+      - dbSecrets:/var/opt/mssql/secrets
+    networks:
+      - base
+    ports:
+      - 1433:1433  
+  wso:
+    image: correia97/wso2ismssql:5.11.0
+    container_name: wso2
+    environment:
+      - DB_TYPE=mssql
+      - DB_USERNAME=myUser
+      - DB_PASSWORD=myPa55W0d
+      - DB_HOST=db
+      - DB_NAME=db01
+      - DB_PORT=1433
+    depends_on:
+      - db
+    networks:
+      - base
+      - externo
+    ports:
+      - 9443:9443
+      - 9763:9763
+  
+
+networks:
+  base:
+  externo:
+volumes:
+  dbData:
+  dbLog:
+  dbSecrets:
