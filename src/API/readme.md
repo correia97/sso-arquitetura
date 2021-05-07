@@ -1,2 +1,2 @@
-# Exemplos de API protegida com Keycloak
+# Exemplos de API protegida
 

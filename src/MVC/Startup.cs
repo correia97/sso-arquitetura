@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using MVC.Interfaces;
 using MVC.Services;
 using Newtonsoft.Json;
@@ -15,6 +17,8 @@ using System;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MVC
 {
@@ -43,6 +47,10 @@ namespace MVC
             var clientId = Configuration.GetValue<string>("ClientId");
             var clientSecret = Configuration.GetValue<string>("ClientSecret");
             var audience = Configuration.GetValue<string>("Audience");
+
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(clientSecret)) { KeyId = clientId };
+
+            // "b7983e28-b53a-4c40-b11a-a1bcfe0d2d34"
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -52,6 +60,7 @@ namespace MVC
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
+                options.Cookie.Name = Environment.EnvironmentName;
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
@@ -66,14 +75,17 @@ namespace MVC
                 options.Scope.Add("email");
                 options.RequireHttpsMetadata = false;
                 options.SaveTokens = true;
-               // options.CallbackPath = new PathString("/callback");
-                options.ClaimsIssuer = authUrl;
-                options.GetClaimsFromUserInfoEndpoint = true;
-                options.TokenValidationParameters.ValidateIssuerSigningKey = false;
-                
+
+
+                options.TokenValidationParameters.IssuerSigningKey = key;
+                // options.CallbackPath = new PathString("/callback");
+                // options.ClaimsIssuer = authUrl;
+                // options.GetClaimsFromUserInfoEndpoint = true;
+
+
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnTicketReceived = async context =>
+                    OnTicketReceived =  context =>
                     {
                         var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
                         Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
@@ -85,46 +97,59 @@ namespace MVC
                         //    var json = System.Text.ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(paylod));
                         //    var data = JsonConvert.DeserializeObject(json);
                         //}
+                        return Task.CompletedTask;
                     },
-                    OnRedirectToIdentityProvider = async context =>
+                    OnRedirectToIdentityProvider = context =>
                     {
                         if (!string.IsNullOrEmpty(audience))
                             context.ProtocolMessage.SetParameter("audience", audience);
+
+                        return Task.CompletedTask;
                     },
-                    OnMessageReceived = async context =>
+                    OnMessageReceived =  context =>
                     {
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
                             context.ProtocolMessage.IssuerAddress = authUrl;
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
                             context.ProtocolMessage.Iss = authUrl;
+
+                        return Task.CompletedTask;
                     },
-                    OnAuthorizationCodeReceived = async context =>
+                    OnAuthorizationCodeReceived =  context =>
                     {
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
                             context.ProtocolMessage.IssuerAddress = authUrl;
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
                             context.ProtocolMessage.Iss = authUrl;
+
+                        return Task.CompletedTask;
                     },
-                    OnTokenResponseReceived = async context =>
-                    {
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                             context.ProtocolMessage.IssuerAddress = authUrl;
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                             context.ProtocolMessage.Iss = authUrl;
-                    },
-                    OnTokenValidated = async context =>
+                    OnTokenResponseReceived =  context =>
                     {
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
                             context.ProtocolMessage.IssuerAddress = authUrl;
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
                             context.ProtocolMessage.Iss = authUrl;
+
+                        return Task.CompletedTask;
                     },
-                    OnUserInformationReceived = async context =>
+                    OnTokenValidated =  context =>
                     {
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
                             context.ProtocolMessage.IssuerAddress = authUrl;
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
                             context.ProtocolMessage.Iss = authUrl;
+
+                        return Task.CompletedTask;
+                    },
+                    OnUserInformationReceived = context =>
+                    {
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                            context.ProtocolMessage.IssuerAddress = authUrl;
+                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                            context.ProtocolMessage.Iss = authUrl;
+
+                        return Task.CompletedTask;
                     },
                 };
 

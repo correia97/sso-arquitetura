@@ -20,6 +20,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using API.Configuration;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Claims;
+using Newtonsoft.Json;
 
 namespace API
 {
@@ -37,41 +41,49 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           // if (Environment.IsDevelopment())
-           // {
-                IdentityModelEventSource.ShowPII = true;
-           // }
+            // if (Environment.IsDevelopment())
+            // {
+            IdentityModelEventSource.ShowPII = true;
+            // }
+
+            var clientId = Configuration.GetValue<string>("ClientId");
+            var clientSecret = Configuration.GetValue<string>("ClientSecret");
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(clientSecret)) { KeyId = clientId };
 
             var complement = Configuration.GetValue<string>("UrlComplement");
             var authUrl = $"{Configuration.GetValue<string>("BaseAuthUrl")}{complement}";
+            var audience = Configuration.GetValue<string>("Audience");
             services.AddControllers();
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("email", policy => policy.Requirements.Add(new HasScopeRequirement("email", authUrl)));
             });
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(o =>
             {
                 o.Authority = authUrl;
-                o.Audience = Configuration.GetValue<string>("Audience");
+                if (!string.IsNullOrEmpty(audience))
+                    o.Audience = audience;
                 o.RequireHttpsMetadata = false;
                 o.SaveToken = true;
+                o.ClaimsIssuer = "acme.com";
+                //  o.TokenValidationParameters.IssuerSigningKey = key;
+                o.TokenValidationParameters.NameClaimType = ClaimTypes.NameIdentifier;
+                o.TokenValidationParameters.ValidateIssuerSigningKey = false;
+                o.TokenValidationParameters.ValidateIssuer = false;
+                o.TokenValidationParameters.ValidIssuer = "acme.com";
                 o.Events = new JwtBearerEvents
                 {
-                    OnAuthenticationFailed = c =>
+                    OnAuthenticationFailed = context =>
                     {
-                        c.NoResult();
-                        c.Response.StatusCode = 401;
-                        c.Response.ContentType = "text/plain";
+                        context.NoResult();
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "text/plain";
                         if (Environment.IsDevelopment())
                         {
-                            return c.Response.WriteAsync(c.Exception.ToString());
+                            return context.Response.WriteAsync(context.Exception.ToString());
                         }
-                        return c.Response.WriteAsync("An error occured processing your authentication.");
+                        return context.Response.WriteAsync("An error occured processing your authentication.");
                     }
                 };
             });
@@ -93,10 +105,10 @@ namespace API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-           // if (env.IsDevelopment())
+            // if (env.IsDevelopment())
             //{
-                app.UseDeveloperExceptionPage();
-           // }
+            app.UseDeveloperExceptionPage();
+            // }
 
             app.UseAuthorization();
             app.UseAuthentication();
