@@ -1,29 +1,27 @@
 version: "3"
 services:
   db:
-    image: correia97/mssql-server-linux:2019-latest
-    container_name: sampleKeycloakDB
+    image: postgres:13.3-alpine
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_PID=Express
-      - SA_PASSWORD=Mudar12345
-      - MSSQL_DATABASE=db01
-      - MSSQL_DATABASE_COLLATE=SQL_Latin1_General_CP1_CI_AI
-      - MSSQL_USER=myUser
-      - MSSQL_PASSWORD=myPa55W0d
-    volumes:
-      - dbData:/var/opt/mssql/data
-      - dbLog:/var/opt/mssql/log
-      - dbSecrets:/var/opt/mssql/secrets
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db01
+    # Un-comment to access the db service directly
+    ports:
+     - 5432:5432
     networks:
       - base
+    restart: unless-stopped
+    volumes:
+      - dbData:/var/lib/postgresql/data
   keycloak:
-    image: quay.io/keycloak/keycloak:11.0.1
+    image: quay.io/keycloak/keycloak:14.0.0
     container_name: sampleKeycloak
     environment:
-      - DB_VENDOR=mssql
-      - DB_USER=myUser
-      - DB_PASSWORD=myPa55W0d
+      - DB_VENDOR=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
       - DB_ADDR=db
       - DB_DATABASE=db01
       - KEYCLOAK_USER=admin
@@ -33,6 +31,7 @@ services:
       - ./realm-export.json:/realm-export.json
     depends_on:
       - db
+      #- nginx
     networks:
       - base
       - externo
@@ -42,7 +41,7 @@ services:
   api:
     image: api
     build:
-      context: API/
+      context: ./../API/
       dockerfile: Dockerfile
     container_name: sampleKeycloakAPI
     environment:
@@ -58,7 +57,7 @@ services:
   mvc:
     image: mvc
     build:
-      context: MVC/
+      context: ./../MVC/
       dockerfile: Dockerfile
     container_name: sampleKeycloakMVC
     environment:
@@ -73,7 +72,7 @@ services:
   angular:
     image: angularkeycloak
     build:
-      context: angularkeycloakprotect/
+      context: ./../angular/
       dockerfile: Dockerfile
     container_name: angularkeycloak
     depends_on:
@@ -82,6 +81,17 @@ services:
       - externo
     ports:
       - 4200:80
+  nginx:
+    image: nginx:1.21.0-alpine
+    volumes:
+       - ./nginxconfig:/etc/nginx/conf.d/
+    ports:
+       - "8080:80"
+    environment:
+       - NGINX_HOST=localhost
+       - NGINX_PORT=80
+    networks:
+      - externo
 
 networks:
   base:

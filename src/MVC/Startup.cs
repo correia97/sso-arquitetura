@@ -91,12 +91,14 @@ namespace MVC
                         Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
                         Debug.WriteLine(token);
                         Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-                        //if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
-                        //{
-                        //    var paylod = token.Value.Split('.')[1];
-                        //    var json = System.Text.ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(paylod));
-                        //    var data = JsonConvert.DeserializeObject(json);
-                        //}
+                        if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
+                        {
+
+                            var handler = new JwtSecurityTokenHandler();
+                            var userToken = handler.ReadJwtToken(token.Value);
+                            //TODO: Pegar os dados do usuário do token e verificar se existe caso não cadastrar
+                           
+                        }
                         return Task.CompletedTask;
                     },
                     OnRedirectToIdentityProvider = context =>

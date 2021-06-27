@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace API.Configuration
 {
+
+    /// <summary>
+    ///  https://github.com/auth0-samples/auth0-aspnetcore-webapi-samples/tree/master/Quickstart/01-Authorization
+    /// </summary>
     public class HasScopeHandler : AuthorizationHandler<HasScopeRequirement>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, HasScopeRequirement requirement)

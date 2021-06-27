@@ -89,15 +89,15 @@ namespace API
             });
 
             services.AddCors(options =>
-       {
-           options.AddPolicy(name: MyAllowSpecificOrigins,
-                             builder =>
-                             {
-                                 builder.AllowAnyOrigin()
-                                 .AllowAnyHeader()
-                                 .AllowAnyMethod();
-                             });
-       });
+               {
+                   options.AddPolicy(name: MyAllowSpecificOrigins,
+                                     builder =>
+                                     {
+                                         builder.AllowAnyOrigin()
+                                                 .AllowAnyHeader()
+                                                 .AllowAnyMethod();
+                                     });
+               });
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
         }
