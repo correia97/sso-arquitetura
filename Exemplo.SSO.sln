@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30330.147
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31423.177
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.API", "src\API\Cadastro.API.csproj", "{4B1FA99D-60E3-4DB7-A680-99BF78C197E5}"
 EndProject
@@ -11,7 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\FusionAuth\docker-compose.yml = src\FusionAuth\docker-compose.yml
 		src\KeyCloak\docker-compose.yml = src\KeyCloak\docker-compose.yml
 		..\readme.md = ..\readme.md
-		src\KeyCloak\stack-deploy.yml = src\KeyCloak\stack-deploy.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.MVC", "src\MVC\Cadastro.MVC.csproj", "{E8008076-B2D5-4FF8-833C-2CF28FBCACF9}"
@@ -22,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Data", "src\Data\C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Test", "test\Cadastro.Test\Cadastro.Test.csproj", "{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.WorkerService", "src\Cadastro.WorkerService\Cadastro.WorkerService.csproj", "{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.WorkerService", "src\Cadastro.WorkerService\Cadastro.WorkerService.csproj", "{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
