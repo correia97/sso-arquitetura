@@ -1,6 +1,6 @@
-﻿namespace Domain.ValueObject
+﻿namespace Domain.Entities
 {
-    public  class Telefone
+    public  class Telefone: EntityBase<int>
     {
         public Telefone(string ddi, string ddd, string numeroTelefone)
         {
@@ -8,10 +8,9 @@
             DDD = ddd;
             NumeroTelefone = numeroTelefone;
         }
-
-        public string NumeroTelefone { get; private set; }
-        public string DDD { get; private set; }
-        public string DDI { get; private set; }
+        public string NumeroTelefone { get; protected set; }
+        public string DDD { get; protected set; }
+        public string DDI { get; protected set; }
 
         public override string ToString()
         {

@@ -10,15 +10,15 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ./MVC.csproj MVC/
-RUN dotnet restore ./MVC/MVC.csproj
+COPY ./Cadastro.MVC.csproj MVC/
+RUN dotnet restore ./MVC/Cadastro.MVC.csproj
 COPY . MVC/
-RUN dotnet build ./MVC/MVC.csproj -c Release -o /app/build
+RUN dotnet build ./MVC/Cadastro.MVC.csproj -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish ./MVC/MVC.csproj -c Release -o /app/publish
+RUN dotnet publish ./MVC/Cadastro.MVC.csproj -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "MVC.dll"]
+ENTRYPOINT ["dotnet", "Cadastro.MVC.dll"]

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30330.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "src\API\API.csproj", "{4B1FA99D-60E3-4DB7-A680-99BF78C197E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.API", "src\API\Cadastro.API.csproj", "{4B1FA99D-60E3-4DB7-A680-99BF78C197E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9F52609-C72C-4699-BCD2-6E52BE08454E}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,11 +14,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\KeyCloak\stack-deploy.yml = src\KeyCloak\stack-deploy.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVC", "src\MVC\MVC.csproj", "{E8008076-B2D5-4FF8-833C-2CF28FBCACF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.MVC", "src\MVC\Cadastro.MVC.csproj", "{E8008076-B2D5-4FF8-833C-2CF28FBCACF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\Domain\Domain.csproj", "{A2F9F6BD-167E-4CF7-8536-8BE66C345BB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Domain", "src\Domain\Cadastro.Domain.csproj", "{A2F9F6BD-167E-4CF7-8536-8BE66C345BB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "src\Data\Data.csproj", "{22014A3C-B77E-4307-AAD4-EB19C9AE3974}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Data", "src\Data\Cadastro.Data.csproj", "{22014A3C-B77E-4307-AAD4-EB19C9AE3974}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Test", "test\Cadastro.Test\Cadastro.Test.csproj", "{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.WorkerService", "src\Cadastro.WorkerService\Cadastro.WorkerService.csproj", "{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +46,14 @@ Global
 		{22014A3C-B77E-4307-AAD4-EB19C9AE3974}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22014A3C-B77E-4307-AAD4-EB19C9AE3974}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22014A3C-B77E-4307-AAD4-EB19C9AE3974}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

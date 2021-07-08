@@ -24,6 +24,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
 using Newtonsoft.Json;
+using Microsoft.OpenApi.Models;
 
 namespace API
 {
@@ -88,6 +89,11 @@ namespace API
                 };
             });
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = $"Cadastro API - {Environment.EnvironmentName}", Version = "v1" });
+            });
+
             services.AddCors(options =>
                {
                    options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -109,6 +115,12 @@ namespace API
             //{
             app.UseDeveloperExceptionPage();
             // }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", $"Cadastro API - {Environment.EnvironmentName} V1");
+            });
 
             app.UseAuthorization();
             app.UseAuthentication();

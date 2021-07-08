@@ -10,15 +10,15 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ./API.csproj API/
-RUN dotnet restore ./API/API.csproj
+COPY ./Cadastro.API.csproj API/
+RUN dotnet restore ./API/Cadastro.API.csproj
 COPY . API/
-RUN dotnet build ./API/API.csproj -c Release -o /app/build
+RUN dotnet build ./API/Cadastro.API.csproj -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish ./API/API.csproj -c Release -o /app/publish
+RUN dotnet publish ./API/Cadastro.API.csproj -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "API.dll"]
+ENTRYPOINT ["dotnet", "Cadastro.API.dll"]

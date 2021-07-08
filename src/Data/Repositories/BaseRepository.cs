@@ -1,14 +1,10 @@
-﻿using API.Interfaces;
+﻿using Cadastro.Domain.Interfaces;
+using Domain.Entities;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-
-using Npgsql;
-using Microsoft.Extensions.Configuration;
-using Dapper;
-using Domain.Entities;
 
 namespace API.Repositories
 {
@@ -19,22 +15,22 @@ namespace API.Repositories
         {
             connection = new NpgsqlConnection(configuration.GetConnectionString("PostgresConnection"));
         }
-        public Task<IEnumerable<T>> GetAll()
+        public Task<IEnumerable<T>> RecuperarTodos()
         {
             throw new NotImplementedException();
         }
 
-        public Task<T> GetById(U id)
+        public Task<T> RecuperarPorId(U id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<U> Insert(T data)
+        public Task<U> Inserir(T data)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> Update(T data)
+        public Task<bool> Atualizar(T data)
         {
             throw new NotImplementedException();
         }

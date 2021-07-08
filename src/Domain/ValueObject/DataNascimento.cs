@@ -11,7 +11,7 @@ namespace Domain.ValueObject
 
             Date = date;
         }
-        public DateTime Date { get; private set; }
+        public DateTime Date { get; protected set; }
 
         public override string ToString()
         {
