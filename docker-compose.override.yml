@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  cadastro.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Keycloak
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  cadastro.mvc:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Keycloak
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
