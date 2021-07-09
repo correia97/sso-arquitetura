@@ -60,6 +60,60 @@
                   "maximumError": "4kb"
                 }
               ]
+            },
+            "keycloak": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.keycloak.ts"
+                }
+              ],
+              "optimization": false,
+              "outputHashing": "none",
+              "sourceMap": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ]
+            },
+            "auth0": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.auth0.ts"
+                }
+              ],
+              "optimization": false,
+              "outputHashing": "none",
+              "sourceMap": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ]
             }
           }
         },
@@ -71,6 +125,12 @@
           "configurations": {
             "production": {
               "browserTarget": "angularkeycloakprotect:build:production"
+            },
+            "keycloak": {
+              "browserTarget": "angularkeycloakprotect:build:keycloak"
+            },
+            "auth0": {
+              "browserTarget": "angularkeycloakprotect:build:auth0"
             }
           }
         },
@@ -119,6 +179,13 @@
           "configurations": {
             "production": {
               "devServerTarget": "angularkeycloakprotect:serve:production"
+            },
+            
+            "keycloak": {
+              "devServerTarget": "angularkeycloakprotect:serve:keycloak"
+            },
+            "auth0": {
+              "devServerTarget": "angularkeycloakprotect:serve:auth0"
             }
           }
         }

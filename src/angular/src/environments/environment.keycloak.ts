@@ -4,9 +4,11 @@
 
 export const environment = {
   production: false,
-  authBaseUrl : 'http://192.168.0.5:8088',
+  authBaseUrl : 'http://192.168.0.143:8088',
   clientAuth: 'exemplo1',
-  apiBaseUrl: 'http://192.168.0.5:8081'
+  apiBaseUrl: 'http://192.168.0.143:8081',
+  audience: '',
+  complement: '/auth/realms/Sample'
 };
 
 /*

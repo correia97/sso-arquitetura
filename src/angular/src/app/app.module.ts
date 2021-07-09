@@ -13,24 +13,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-export function configureAuth(oidcConfigService: OidcConfigService) {
-  return () =>
-      oidcConfigService.withConfig({
-          stsServer: environment.authBaseUrl,
-          redirectUrl: window.location.origin,
-          postLogoutRedirectUri: window.location.origin,
-          clientId: environment.clientAuth,
-          scope: 'openid profile email offline_access',
-          responseType: 'id_token token',
-          silentRenew: true,
-          silentRenewUrl: `${window.location.origin}/silent-renew.html`,
-          logLevel: LogLevel.Debug,
-          postLoginRoute: 'claims',
-          customParams: {
-            audience: environment.audience
-          },
-      });
-}
+
+
 
 @NgModule({
   declarations: [
@@ -42,15 +26,31 @@ export function configureAuth(oidcConfigService: OidcConfigService) {
   imports: [
     BrowserModule,
     AppRoutingModule,
-    AuthModule.forRoot(), HttpClientModule, NgbModule
+    AuthModule.forRoot({
+      config: {
+        authority: environment.authBaseUrl,
+        authWellknownEndpointUrl:environment.authBaseUrl+environment.complement+'/.well-known/openid-configuration',
+        redirectUrl: window.location.origin,
+        postLogoutRedirectUri: window.location.origin,
+        clientId: environment.clientAuth,
+        scope: 'openid profile email offline_access',
+        responseType: 'id_token token',
+        silentRenew: true,
+        silentRenewUrl: `${window.location.origin}/silent-renew.html`,
+        logLevel: LogLevel.Debug,
+        postLoginRoute: 'claims',
+        customParamsAuthRequest: {
+          audience: environment.audience
+        },
+        customParamsRefreshTokenRequest: {
+          scope: 'openid profile email offline_access',
+        },
+      }
+    }),
+    HttpClientModule,
+    NgbModule
   ],
-  providers: [OidcConfigService,
-    {
-        provide: APP_INITIALIZER,
-        useFactory: configureAuth,
-        deps: [OidcConfigService],
-        multi: true,
-    }],
+  exports: [AuthModule],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

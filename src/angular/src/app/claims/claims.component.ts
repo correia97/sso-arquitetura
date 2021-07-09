@@ -24,7 +24,7 @@ export class ClaimsComponent implements OnInit {
 
     this.oidcSecurityService.isAuthenticated$.subscribe({
       next: x => {
-        this.isAuthenticated = x
+        this.isAuthenticated = x.isAuthenticated
         if (this.isAuthenticated) {
           
           console.log('-----------------------------------------this.oidcSecurityService---------------------------------------------');
@@ -33,9 +33,9 @@ export class ClaimsComponent implements OnInit {
  
           console.log('------------------------------payload------------------------------------------------------' );
           console.log(pay );
-          console.log(this.oidcSecurityService?.getToken());
+          console.log(this.oidcSecurityService?.getAccessToken());
           console.log(this.oidcSecurityService?.getIdToken());
-          this.jwt = jwd_decode(this.oidcSecurityService?.getToken());
+          this.jwt = jwd_decode(this.oidcSecurityService?.getAccessToken());
           this.idToken = jwd_decode(this.oidcSecurityService?.getIdToken());
           console.log('----------------------------------------jwt----------------------------------------------------');
           console.log(this.jwt );

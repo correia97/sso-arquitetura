@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.oidcSecurityService.isAuthenticated$.subscribe({
       next: x => {
-        this.isAuthenticated = x
+        this.isAuthenticated = x.isAuthenticated
         if (this.isAuthenticated) {
           this.service.getWeatherForecast()
             .subscribe({

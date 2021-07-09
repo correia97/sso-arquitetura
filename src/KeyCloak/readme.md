@@ -11,7 +11,7 @@ Um usuário previamente cadastrado no Keycloak efetua o login e a aplicação ut
 ## Executando o Projeto
 Altere o IP na variavél *BaseAuthUrl* no arquivo *docker-compose.yml* por seu IP local
 ```bash
-BaseAuthUrl=http://192.168.0.10:8088
+BaseAuthUrl=http://192.168.0.143:8088
 ```
 
 

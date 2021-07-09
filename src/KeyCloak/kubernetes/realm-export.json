@@ -581,16 +581,16 @@
         "http://localhost:8185",
         "http://local.paulocorreia.dev.br:8085/signout-callback-oidc",
         "http://localhost:8185/signout-callback-oidc",
-        "http://192.168.0.10:8085",
+        "http://192.168.0.143:8085",
         "http://local.paulocorreia.dev.br:8085/callback",
-        "http://192.168.0.10:8085/callback",
-        "http://192.168.0.10:8085/signout-callback-oidc",
+        "http://192.168.0.143:8085/callback",
+        "http://192.168.0.143:8085/signout-callback-oidc",
         "http://localhost:8085/callback",
         "http://localhost:8185/callback",
         "http://local.paulocorreia.dev.br:8085"
       ],
       "webOrigins": [
-        "http://192.168.0.10/*",
+        "http://192.168.0.143/*",
         "http://local.paulocorreia.dev.br/*",
         "http://localhost/*"
       ],

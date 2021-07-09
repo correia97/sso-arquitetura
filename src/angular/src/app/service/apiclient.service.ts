@@ -14,20 +14,20 @@ export class ApiclientService {
 
   constructor(private http: HttpClient, public oidcSecurityService: OidcSecurityService) { }
 
-private getHeader(): any {
-  
-const httpOptions = {
-  headers: new HttpHeaders({
-    'Content-Type':  'application/json',
-    Authorization: 'bearer '+ this.oidcSecurityService.getToken()
-  })
-};
-return httpOptions;
-}
-  
+  private getHeader(): any {
+
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: 'bearer ' + this.oidcSecurityService.getAccessToken()
+      })
+    };
+    return httpOptions;
+  }
+
 
   getWeatherForecast(): Observable<any> {
-    return this.http.get(environment.apiBaseUrl + '/api/weatherforecast/authorization',  this.getHeader())
+    return this.http.get(environment.apiBaseUrl + '/api/weatherforecast/authorization', this.getHeader())
       .pipe(
         catchError(this.handleError)
       );

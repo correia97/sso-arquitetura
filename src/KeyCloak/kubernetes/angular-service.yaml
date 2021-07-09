@@ -12,4 +12,4 @@ spec:
   selector:
     io.kompose.service: angular
   externalIPs:
-    - 192.168.0.220
+    - 192.168.0.143
