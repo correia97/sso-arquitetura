@@ -4,9 +4,9 @@
 
 export const environment = {
   production: false,
-  authBaseUrl : 'http://192.168.0.143:8088',
+  authBaseUrl : 'http://keycloak.localhost',
   clientAuth: 'exemplo1',
-  apiBaseUrl: 'http://192.168.0.143:8081',
+  apiBaseUrl: 'http://cadastro.api.localhost',
   audience: '',
   complement: '/auth/realms/Sample'
 };
