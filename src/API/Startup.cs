@@ -103,6 +103,7 @@ namespace API
                                                  .AllowAnyHeader()
                                                  .AllowAnyMethod();
                                      });
+                   options.DefaultPolicyName = MyAllowSpecificOrigins;
                });
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();

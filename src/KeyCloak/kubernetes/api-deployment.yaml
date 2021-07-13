@@ -21,7 +21,7 @@ spec:
         - name: ASPNETCORE_ENVIRONMENT
           value: Development
         - name: BaseAuthUrl
-          value: http://192.168.0.143:8088
+          value: http://keycloak.localhost
         image: api
         name: samplekeycloakapi
         ports:

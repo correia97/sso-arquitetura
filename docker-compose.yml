@@ -8,15 +8,6 @@ services:
       dockerfile: src/API/Dockerfile
     networks:
       - externo 
-      - externo1
-    # hostname: cadastro.api
-    labels:
-      - "traefik.enable=true"
-      # - "traefik.http.routers.cadastro_api.entrypoints=http://cadastro_api"
-      - "traefik.http.routers.cadastro_api.rule=Host(`cadastro.api.localhost`)"
-      - "traefik.docker.network=externo1"
-      - "traefik.http.services.cadastro_api.loadbalancer.server.port=80"
-      - "traefik.port=80"
 
   cadastro.mvc:
     image: ${DOCKER_REGISTRY-}cadastromvc
@@ -26,19 +17,9 @@ services:
       dockerfile: src/MVC/Dockerfile
     networks:
       - externo
-      - externo1
-    # hostname: cadastro.mvc
-    labels:
-      - "traefik.enable=true"
-      # - "traefik.http.routers.cadastro_mvc.entrypoints=http://cadastro_mvc"
-      - "traefik.http.routers.cadastro_mvc.rule=Host(`cadastro.mvc.localhost`)"
-      - "traefik.docker.network=externo1"
-      - "traefik.http.services.cadastro_mvc.loadbalancer.server.port=80"
-      - "traefik.port=80"
 
   db:
     image: postgres:13.3-alpine
-    container_name: db
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_USER: postgres
@@ -52,112 +33,39 @@ services:
     restart: unless-stopped
     volumes:
       - dbData:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   angular:
-    image: cadastroangular
-    container_name: angular
+    image: angular
     build:
       context: ./src/angular/
       dockerfile: Dockerfile
+    container_name: angular
     depends_on:
       - cadastro.api
     networks:
-      - externo      
-      - externo1
+      - externo
     ports:
       - 4200:80
-    # hostname: angular.localhost
-    labels:
-      - "traefik.enable=true"
-      # - "traefik.http.routers.angular.entrypoints=http://angular"
-      - "traefik.http.routers.angular.rule=Host(`angular.localhost`)"
-      - "traefik.docker.network=externo1"
-      - "traefik.http.services.angular.loadbalancer.server.port=80"
-      - "traefik.port=80"
-
-  #nginx:
-  #  image: nginx:1.21.0-alpine
-  #  container_name: nginx
-  #  domainname: localhost
-  #  volumes:
-  #     - ./src/KeyCloak/nginx.conf:/etc/nginx/nginx.conf
-  #     - ./src/KeyCloak/nginxconfig:/etc/nginx/conf.d/
-  #  ports:
-  #     - 80:80
-  #     - 90:90
-  #  networks:
-  #    - externo
-  #  depends_on:
-  #    - fusionauth
-  #    - cadastro.mvc
-  #    - angular      
-  #    - cadastro.api      
-  #    - keycloak
-  #  environment: 
-  #    - NGINX_HOST=localhost
-  #    - NGINX_PORT=80  
   
-  traefik:
-    image: traefik:v2.5
-    container_name: "traefik"
-    # hostname: "traefik"
-    ports:
-      - "80:80"
-      - "8089:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./src/KeyCloak/traefik.yml:/traefik.yml:ro"
-    networks:
-      - externo
-      - externo1
-    depends_on:
-      - fusionauth
-      - cadastro.mvc
-      - angular      
-      - cadastro.api      
-      - keycloak
-  
-  keycloak:
-   image: quay.io/keycloak/keycloak:14.0.0
-   container_name: keycloak
-   environment:
-    - DB_VENDOR=postgres
-    - DB_USER=postgres
-    - DB_PASSWORD=postgres
-    - DB_ADDR=db
-    - DB_DATABASE=db01
-    - KEYCLOAK_USER=admin
-    - KEYCLOAK_PASSWORD=admin
-    - KEYCLOAK_IMPORT=./realm-export.json
-   volumes:
-    - ./src/KeyCloak/realm-export.json:/realm-export.json
-   depends_on:
-    db:
-        condition: service_healthy
-        #- nginx
-   networks:
-    - base
-    - externo
-    - externo1
-   ports:
-    - 8088:8080
-    - 9099:9090
-      # hostname: keycloak.localhost
-   labels:
-    - "traefik.enable=true"
-    # - "traefik.http.routers.keycloak.entrypoints=http://keycloak:8080"
-    - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
-    - "traefik.docker.network=externo1"
-    - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
-    - "traefik.port=80"
-    - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
-    - "traefik.frontend.auth.forward.authResponseHeaders=X-Forwarded-User"
-    - "traefik.frontend.auth.forward.trustForwardHeader=true"
+  # traefik:
+  #   image: traefik:v2.5
+  #   container_name: traefik
+  #   # hostname: "traefik"
+  #   ports:
+  #     - "80:80"
+  #     - "8089:8080"
+  #   volumes:
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #     - "./traefik.yml:/traefik.yml:ro"
+  #   networks:
+  #     - externo
+  #     - externo1
+  #   depends_on:
+  #     - fusionauth
+  #     - cadastro.mvc
+  #     - angular      
+  #     - cadastro.api      
+  #     - keycloak
 
   fusionauth:
     image: fusionauth/fusionauth-app:1.26.1
@@ -185,32 +93,68 @@ services:
         SEARCH_TYPE: database
     networks:
       - externo
-      - externo1
       - base
     restart: unless-stopped
     ports:
-      - 9011:9011
+      - 91:9011
     volumes:
       - fa_config:/usr/local/fusionauth/config
-    # hostname: fusionauth
-    labels:
-      - "traefik.enable=true"
-      # - "traefik.http.routers.fusionauth.entrypoints=http://fusionauth:9011"
-      - "traefik.http.routers.fusionauth.rule=Host(`fusionauth.localhost`)"
-      - "traefik.docker.network=externo1"
-      - "traefik.http.services.fusionauth.loadbalancer.server.port=9011"
-      - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
-      - "traefik.frontend.auth.forward.authResponseHeaders=X-Forwarded-User"
-      - "traefik.frontend.auth.forward.trustForwardHeader=true"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:14.0.0
+    container_name: keycloak
+    environment:
+      - DB_VENDOR=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_ADDR=db
+      - DB_DATABASE=db01
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_IMPORT=./realm-export.json
+    volumes:
+      - ./src/keycloak/realm-export.json:/realm-export.json
+    depends_on:
+      - db
+      #- nginx
+    networks:
+      - base
+      - externo
+    ports:
+      - 8088:8080
+      - 9099:9090
+
+  nginx:
+    image: nginx:1.21.0-alpine
+    container_name: nginx
+    domainname: localhost
+    volumes:
+       - ./src/keycloak/nginx.conf:/etc/nginx/nginx.conf
+       - ./src/keycloak/nginxconfig:/etc/nginx/conf.d/
+    ports:
+       - 80:80
+       - 8080:8080
+       - 9090:9090
+       - 9011:9011
+    networks:
+      - externo
+    depends_on:
+      - fusionauth
+      - cadastro.mvc
+      - angular      
+      - cadastro.api      
+      - keycloak
+    environment: 
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80  
 
 
 networks:
   base:
   externo:
-  externo1:
-   external: true
 volumes:
   dbData:
   dbLog:
   dbSecrets:
   fa_config:
+
