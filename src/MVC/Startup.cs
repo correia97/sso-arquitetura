@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -7,12 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using MVC.Interfaces;
 using MVC.Services;
-using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
@@ -40,6 +37,8 @@ namespace MVC
 
             IdentityModelEventSource.ShowPII = true;
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+            System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+      (sender, certificate, chain, sslPolicyErrors) => true;
 
 
             var complement = Configuration.GetValue<string>("UrlComplement");
@@ -85,22 +84,22 @@ namespace MVC
 
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnTicketReceived =  context =>
-                    {
-                        var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
-                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-                        Debug.WriteLine(token);
-                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-                        if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
-                        {
+                    OnTicketReceived = context =>
+                   {
+                       var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
+                       Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
+                       Debug.WriteLine(token);
+                       Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
+                       if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
+                       {
 
-                            var handler = new JwtSecurityTokenHandler();
-                            var userToken = handler.ReadJwtToken(token.Value);
-                            //TODO: Pegar os dados do usuário do token e verificar se existe caso não cadastrar
-                           
-                        }
-                        return Task.CompletedTask;
-                    },
+                           var handler = new JwtSecurityTokenHandler();
+                           var userToken = handler.ReadJwtToken(token.Value);
+                           //TODO: Pegar os dados do usuário do token e verificar se existe caso não cadastrar
+
+                       }
+                       return Task.CompletedTask;
+                   },
                     OnRedirectToIdentityProvider = context =>
                     {
                         if (!string.IsNullOrEmpty(audience))
@@ -108,42 +107,42 @@ namespace MVC
 
                         return Task.CompletedTask;
                     },
-                    OnMessageReceived =  context =>
-                    {
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                            context.ProtocolMessage.IssuerAddress = authUrl;
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                            context.ProtocolMessage.Iss = authUrl;
+                    OnMessageReceived = context =>
+                   {
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                           context.ProtocolMessage.IssuerAddress = authUrl;
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                           context.ProtocolMessage.Iss = authUrl;
 
-                        return Task.CompletedTask;
-                    },
-                    OnAuthorizationCodeReceived =  context =>
-                    {
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                            context.ProtocolMessage.IssuerAddress = authUrl;
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                            context.ProtocolMessage.Iss = authUrl;
+                       return Task.CompletedTask;
+                   },
+                    OnAuthorizationCodeReceived = context =>
+                   {
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                           context.ProtocolMessage.IssuerAddress = authUrl;
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                           context.ProtocolMessage.Iss = authUrl;
 
-                        return Task.CompletedTask;
-                    },
-                    OnTokenResponseReceived =  context =>
-                    {
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                            context.ProtocolMessage.IssuerAddress = authUrl;
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                            context.ProtocolMessage.Iss = authUrl;
+                       return Task.CompletedTask;
+                   },
+                    OnTokenResponseReceived = context =>
+                   {
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                           context.ProtocolMessage.IssuerAddress = authUrl;
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                           context.ProtocolMessage.Iss = authUrl;
 
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated =  context =>
-                    {
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                            context.ProtocolMessage.IssuerAddress = authUrl;
-                        if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                            context.ProtocolMessage.Iss = authUrl;
+                       return Task.CompletedTask;
+                   },
+                    OnTokenValidated = context =>
+                   {
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
+                           context.ProtocolMessage.IssuerAddress = authUrl;
+                       if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
+                           context.ProtocolMessage.Iss = authUrl;
 
-                        return Task.CompletedTask;
-                    },
+                       return Task.CompletedTask;
+                   },
                     OnUserInformationReceived = context =>
                     {
                         if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))

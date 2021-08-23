@@ -17,7 +17,7 @@ namespace MVC.Controllers
 
         private async Task GetTokens()
         {
-            if (User!= null && User.Identity.IsAuthenticated)
+            if (User != null && User.Identity.IsAuthenticated)
             {
                 AccessToken = await HttpContext.GetTokenAsync("access_token");
                 IdToken = await HttpContext.GetTokenAsync("id_token");

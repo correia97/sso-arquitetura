@@ -1,9 +1,11 @@
+using RabbitMQ.Client;
 using System;
 
 namespace API
 {
     public class WeatherForecast
     {
+       
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }

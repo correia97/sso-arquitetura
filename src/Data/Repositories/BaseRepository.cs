@@ -2,37 +2,24 @@
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace API.Repositories
+namespace Cadastro.Data.Repositories
 {
-    public class BaseRepository<T, U> : IRepository<T, U> where T : EntityBase<U>
+    public abstract class BaseRepository<T, U> : IRepository<T, U> where T : EntityBase<U>
     {
         protected readonly NpgsqlConnection connection;
         public BaseRepository(IConfiguration configuration)
         {
-            connection = new NpgsqlConnection(configuration.GetConnectionString("PostgresConnection"));
+            connection = new NpgsqlConnection(configuration.GetConnectionString("Base"));
         }
-        public Task<IEnumerable<T>> RecuperarTodos()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<IEnumerable<T>> RecuperarTodos();
 
-        public Task<T> RecuperarPorId(U id)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<T> RecuperarPorId(U id);
 
-        public Task<U> Inserir(T data)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<U> Inserir(T data);
 
-        public Task<bool> Atualizar(T data)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<bool> Atualizar(T data);
     }
 }

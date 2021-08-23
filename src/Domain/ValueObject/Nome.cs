@@ -4,6 +4,10 @@ namespace Domain.ValueObject
 {
     public class Nome
     {
+        protected Nome()
+        {
+
+        }
         public Nome(string primeiroNome, string sobreNome)
         {
             if (string.IsNullOrEmpty(primeiroNome))

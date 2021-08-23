@@ -7,7 +7,11 @@ services:
       context: .
       dockerfile: src/API/Dockerfile
     networks:
-      - externo 
+      - externo
+      - base 
+    depends_on:    
+      - rabbitmq
+      - db
 
   cadastro.mvc:
     image: ${DOCKER_REGISTRY-}cadastromvc
@@ -18,23 +22,20 @@ services:
     networks:
       - externo
 
-  db:
-    image: postgres:13.3-alpine
-    environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: db01
-    # Un-comment to access the db service directly
-    ports:
-     - 5432:5432
+  cadastro.workerservice:
+    image: ${DOCKER_REGISTRY-}cadastroworker
+    container_name: cadastro.worker
+    build:
+      context: .
+      dockerfile: src/Cadastro.WorkerService/Dockerfile
     networks:
+      - externo
       - base
-    restart: unless-stopped
-    volumes:
-      - dbData:/var/lib/postgresql/data
+    depends_on:
+      - db
+      - rabbitmq
 
-  angular:
+  cadastro.angular:
     image: angular
     build:
       context: ./src/angular/
@@ -46,6 +47,45 @@ services:
       - externo
     ports:
       - 4200:80
+
+  db:
+    image: postgres:13.3-alpine
+    container_name: cadastro.db
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db01
+    # Un-comment to access the db service directly
+    ports:
+      - 5432:5432
+    networks:
+      - base
+    restart: unless-stopped
+    volumes:
+      - dbData:/var/lib/postgresql/data
+
+  rabbitmq:    
+    image: rabbitmq:3.9-plugins
+    container_name: rabbitmq
+    build:
+      context: ./src/Rabbitmq
+    ports:
+      - 15672:15672  #Management
+      - 5672:5672    #AMQP
+    environment:
+      RABBITMQ_DEFAULT_USER: mc
+      RABBITMQ_DEFAULT_PASS: mc2
+      RABBITMQ_DEFAULT_VHOST: main
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      timeout: 5s
+      retries: 3
+    volumes:
+      - mq_data:/var/lib/rabbitmq/mnesia
+    networks: 
+      - base
+      - externo
   
   # traefik:
   #   image: traefik:v2.5
@@ -116,7 +156,6 @@ services:
       - ./src/keycloak/realm-export.json:/realm-export.json
     depends_on:
       - db
-      #- nginx
     networks:
       - base
       - externo
@@ -131,8 +170,10 @@ services:
     volumes:
        - ./src/keycloak/nginx.conf:/etc/nginx/nginx.conf
        - ./src/keycloak/nginxconfig:/etc/nginx/conf.d/
+       - ./src/keycloak/certificate:/etc/ssl/certs/
     ports:
        - 80:80
+       - 443:443
        - 8080:8080
        - 9090:9090
        - 9011:9011
@@ -141,12 +182,13 @@ services:
     depends_on:
       - fusionauth
       - cadastro.mvc
-      - angular      
+      - cadastro.angular      
       - cadastro.api      
       - keycloak
     environment: 
       - NGINX_HOST=localhost
       - NGINX_PORT=80  
+
 
 
 networks:
@@ -156,5 +198,6 @@ volumes:
   dbData:
   dbLog:
   dbSecrets:
-  fa_config:
+  fa_config:  
+  mq_data:
 

@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities
 {
-    public  class Telefone: EntityBase<int>
+    public class Telefone : EntityBase<int>
     {
         public Telefone(string ddi, string ddd, string numeroTelefone)
         {

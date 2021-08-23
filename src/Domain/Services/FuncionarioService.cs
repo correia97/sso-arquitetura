@@ -18,34 +18,69 @@ namespace Cadastro.Domain.Services
         }
         public async Task<bool> Atualizar(Funcionario funcionario, string currentUserId)
         {
-            var baseFuncionario = await _repository.RecuperarPorId(funcionario.Id);
-            baseFuncionario.Atualizar(funcionario.Nome, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
-            baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
-            baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
-            throw new NotImplementedException();
+            try
+            {
+                var baseFuncionario = await _repository.RecuperarPorId(funcionario.Id);
+                baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
+                baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
+                baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
+                var result = await _repository.Atualizar(funcionario);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         public async Task<bool> Cadastrar(Funcionario funcionario)
         {
-            var data = await _repository.BuscarPorEmail(funcionario.Email.EnderecoEmail);
-            if (data != null)
-                return false;
+            try
+            {
+                var data = await _repository.BuscarPorEmail(funcionario.Email.EnderecoEmail);
+                if (data != null)
+                    return false;
 
-            var result = await _repository.Inserir(funcionario);
+                var result = await _repository.Inserir(funcionario);
 
-            return true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
         }
 
         public async Task<Funcionario> RecuperarPorId(Guid id)
         {
-            var data = await _repository.RecuperarPorId(id);
-            return data;
+            try
+            {
+                var data = await _repository.RecuperarPorId(id);
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Funcionario>> RecuperarTodos()
         {
-            var data = await _repository.RecuperarTodos();
-            return data;
+            try
+            {
+                var data = await _repository.RecuperarTodos();
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
     }
 }

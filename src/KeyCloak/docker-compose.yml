@@ -146,9 +146,11 @@ services:
     domainname: localhost
     volumes:
        - ./nginx.conf:/etc/nginx/nginx.conf
-       - ./nginxconfig:/etc/nginx/conf.d/
+       - ./nginxconfig:/etc/nginx/conf.d/       
+       - ./certificate:/etc/ssl/certs/
     ports:
        - 80:80
+       - 443:443
        - 8080:8080
        - 9090:9090
        - 9011:9011

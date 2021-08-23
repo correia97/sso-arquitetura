@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Domain.Entities
+﻿namespace Domain.Entities
 {
     public class Endereco : EntityBase<int>
     {
@@ -17,7 +13,7 @@ namespace Domain.Entities
             UF = uf;
         }
 
-        public Endereco(string rua, int numero, string cep,  string bairro, string cidade, string uf)
+        public Endereco(string rua, int numero, string cep, string bairro, string cidade, string uf)
         {
             Rua = rua;
             Numero = numero;
@@ -35,7 +31,7 @@ namespace Domain.Entities
             Cidade = cidade;
             UF = uf;
         }
-        public Endereco(string rua, string cep,  string bairro, string cidade, string uf)
+        public Endereco(string rua, string cep, string bairro, string cidade, string uf)
         {
             Rua = rua;
             CEP = cep;
@@ -44,7 +40,7 @@ namespace Domain.Entities
             UF = uf;
         }
         public string Rua { get; protected set; }
-        public int?  Numero { get; protected set; }
+        public int? Numero { get; protected set; }
         public string CEP { get; protected set; }
         public string Complemento { get; protected set; }
         public string Bairro { get; protected set; }

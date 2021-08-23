@@ -4,6 +4,10 @@ namespace Domain.ValueObject
 {
     public class DataNascimento
     {
+        protected DataNascimento()
+        {
+
+        }
         public DataNascimento(DateTime date)
         {
             if (date > DateTime.Now)

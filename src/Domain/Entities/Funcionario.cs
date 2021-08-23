@@ -6,24 +6,30 @@ namespace Domain.Entities
 {
     public class Funcionario : EntityBase<Guid>
     {
-        public Funcionario(string userId, string matricula, string cargo, Nome nome, Email email)
+        protected Funcionario()
+        {
+
+        }
+        public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             Matricula = matricula;
             Cargo = cargo;
             Nome = nome;
+            DataNascimento = dataNascimento;
             Email = email;
             DataCadastro = DateTime.Now;
         }
-        public Funcionario(string userId, string matricula, string cargo, Nome nome, Email email, 
-            IEnumerable<Telefone> telefones, Endereco enderecoResidencial,  Endereco enderecoComercial)
+        public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email,
+            IEnumerable<Telefone> telefones, Endereco enderecoResidencial, Endereco enderecoComercial)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             Matricula = matricula;
             Cargo = cargo;
             Nome = nome;
+            DataNascimento = dataNascimento;
             Email = email;
             EnderecoResidencial = enderecoResidencial;
             Telefones = telefones;
@@ -36,6 +42,7 @@ namespace Domain.Entities
         public string Cargo { get; protected set; }
         public Nome Nome { get; protected set; }
         public Email Email { get; protected set; }
+        public DataNascimento DataNascimento { get; protected set; }
         public IEnumerable<Telefone> Telefones { get; protected set; }
         public Endereco EnderecoComercial { get; protected set; }
         public Endereco EnderecoResidencial { get; protected set; }
@@ -43,9 +50,10 @@ namespace Domain.Entities
         public DateTime? DataAtualizacao { get; protected set; }
         public bool Ativo { get; protected set; }
 
-        public void Atualizar(Nome nome, Email email, string matricula, string cargo)
+        public void Atualizar(Nome nome, DataNascimento dataNascimento, Email email, string matricula, string cargo)
         {
             Nome = nome;
+            DataNascimento = dataNascimento;
             Email = email;
             Matricula = matricula;
             Cargo = cargo;

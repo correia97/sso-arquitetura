@@ -1,30 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using API.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
-using API.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
-using Newtonsoft.Json;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client;
+using System.Security.Claims;
+using System.Text;
 
 namespace API
 {
@@ -46,6 +34,8 @@ namespace API
             // {
             IdentityModelEventSource.ShowPII = true;
             // }
+            System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+                                    (sender, certificate, chain, sslPolicyErrors) => true;
 
             var clientId = Configuration.GetValue<string>("ClientId");
             var clientSecret = Configuration.GetValue<string>("ClientSecret");
@@ -107,6 +97,15 @@ namespace API
                });
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+
+            services.AddSingleton(sp =>
+            {
+                ConnectionFactory factory = new ConnectionFactory();
+                factory.Uri = new System.Uri(this.Configuration.GetValue<string>("rabbit"));
+                IConnection connection = factory.CreateConnection();
+                SetupRabbitMQ(connection);
+                return connection;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -137,6 +136,31 @@ namespace API
             {
                 endpoints.MapControllers();
             });
+
+        }
+
+        public void SetupRabbitMQ(IConnection connection)
+        {
+            try
+            {
+
+                IModel model = connection.CreateModel();
+                var cadastrarResult = model.QueueDeclare("cadastrar", true);
+                var atualizarrResult = model.QueueDeclare("atualizar", true);
+                var notificarResult = model.QueueDeclare("notificar", true);
+                model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
+
+                model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
+                model.QueueBind("cadastrar", "cadastro", "cadastrar");
+                model.QueueBind("atualizar", "cadastro", "atualizar");
+                model.QueueBind("notificar", "evento", "");
+            }
+            catch (System.Exception ex)
+            {
+
+                throw;
+            }
+
 
         }
     }
