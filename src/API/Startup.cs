@@ -1,4 +1,7 @@
 using API.Configuration;
+using Cadastro.Data.Repositories;
+using Cadastro.Domain.Interfaces;
+using Cadastro.Domain.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -98,6 +101,8 @@ namespace API
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
+            services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
+
             services.AddSingleton(sp =>
             {
                 ConnectionFactory factory = new ConnectionFactory();
@@ -157,8 +162,7 @@ namespace API
             }
             catch (System.Exception ex)
             {
-
-                throw;
+                throw ex;
             }
 
 

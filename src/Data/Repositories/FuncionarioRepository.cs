@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Cadastro.Data.Repositories
 {
-    public class FuncionarioRepository : BaseRepository<Funcionario, Guid>, IFuncionarioRepository
+    public class FuncionarioRepository : BaseRepository<Funcionario, Guid>, IFuncionarioReadRepository, IFuncionarioWriteRepository
     {
         public FuncionarioRepository(IConfiguration configuration)
             : base(configuration)
@@ -109,7 +109,7 @@ namespace Cadastro.Data.Repositories
                 throw;
             }
         }
-        public async Task<Funcionario> BuscarPorEmail(string email)
+        public async Task<Funcionario> ObterPorEmail(string email)
         {
             var query = @"SELECT  id
                         , userid
@@ -143,7 +143,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public override async Task<Funcionario> RecuperarPorId(Guid id)
+        public override async Task<Funcionario> ObterPorId(Guid id)
         {
             var query = @"SELECT   id
                         , userid
@@ -177,7 +177,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public override async Task<IEnumerable<Funcionario>> RecuperarTodos()
+        public override async Task<IEnumerable<Funcionario>> ObterTodos()
         {
             var query = @"SELECT   id
                         , userid

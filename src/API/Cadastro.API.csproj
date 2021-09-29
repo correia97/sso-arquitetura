@@ -28,5 +28,10 @@
     <Folder Include="Models\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Data\Cadastro.Data.csproj" />
+    <ProjectReference Include="..\Domain\Cadastro.Domain.csproj" />
+  </ItemGroup>
+
 
 </Project>

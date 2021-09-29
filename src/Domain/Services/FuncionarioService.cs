@@ -9,29 +9,31 @@ namespace Cadastro.Domain.Services
 {
     public class FuncionarioService : IFuncionarioService
     {
-        private readonly IFuncionarioRepository _repository;
+        private readonly IFuncionarioReadRepository _repositoryRead;
+        private readonly IFuncionarioWriteRepository _repositoryWrite;
         private readonly ILogger<FuncionarioService> _logger;
-        public FuncionarioService(IFuncionarioRepository repository, ILogger<FuncionarioService> logger)
+        public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite, ILogger<FuncionarioService> logger)
         {
-            _repository = repository;
+            _repositoryRead = repositoryRead;
+            _repositoryWrite = repositoryWrite;
             _logger = logger;
         }
         public async Task<bool> Atualizar(Funcionario funcionario, string currentUserId)
         {
             try
             {
-                var baseFuncionario = await _repository.RecuperarPorId(funcionario.Id);
+                Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
                 baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
                 baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
                 baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
-                var result = await _repository.Atualizar(funcionario);
+                var result = await _repositoryWrite.Atualizar(funcionario);
 
                 return result;
             }
             catch (Exception ex)
             {
-
-                throw;
+                _logger.LogError(ex, "Erro ao atualizar");
+                return false;
             }
         }
 
@@ -39,47 +41,50 @@ namespace Cadastro.Domain.Services
         {
             try
             {
-                var data = await _repository.BuscarPorEmail(funcionario.Email.EnderecoEmail);
+                Funcionario data = await _repositoryRead.ObterPorEmail(funcionario.Email.EnderecoEmail);
                 if (data != null)
                     return false;
 
-                var result = await _repository.Inserir(funcionario);
+                var result = await _repositoryWrite.Inserir(funcionario);
 
                 return true;
             }
             catch (Exception ex)
             {
 
-                throw;
+                _logger.LogError(ex, "Erro ao cadastrar");
+                return false;
             }
 
         }
 
-        public async Task<Funcionario> RecuperarPorId(Guid id)
+        public async Task<Funcionario> ObterPorId(Guid id)
         {
             try
             {
-                var data = await _repository.RecuperarPorId(id);
+                Funcionario data = await _repositoryRead.ObterPorId(id);
                 return data;
             }
             catch (Exception ex)
             {
 
-                throw;
+                _logger.LogError(ex, "Erro ao recuperar por ID");
+                return null;
             }
         }
 
-        public async Task<IEnumerable<Funcionario>> RecuperarTodos()
+        public async Task<IEnumerable<Funcionario>> ObterTodos()
         {
             try
             {
-                var data = await _repository.RecuperarTodos();
+                IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos();
                 return data;
             }
             catch (Exception ex)
             {
 
-                throw;
+                _logger.LogError(ex, "Erro ao recuperar todos");
+                return null;
             }
         }
     }

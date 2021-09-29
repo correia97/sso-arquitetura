@@ -15,12 +15,15 @@ namespace Cadastro.Test.Domain
 {
     public class FuncionarioServiceTest
     {
-        public readonly Mock<IFuncionarioRepository> _mockFuncionarioRepositorio;
+        public readonly Mock<IFuncionarioReadRepository> _mockFuncionarioRepositorioLeitura;
+
+        public readonly Mock<IFuncionarioWriteRepository> _mockFuncionarioRepositorioEscrita;
         public readonly Faker _faker;
         public readonly Mock<ILogger<FuncionarioService>> _mockLogger;
         public FuncionarioServiceTest()
         {
-            _mockFuncionarioRepositorio = new Mock<IFuncionarioRepository>();
+            _mockFuncionarioRepositorioLeitura = new Mock<IFuncionarioReadRepository>();
+            _mockFuncionarioRepositorioEscrita = new Mock<IFuncionarioWriteRepository>();
             _faker = new Faker("pt_BR");
             _mockLogger = new Mock<ILogger<FuncionarioService>>();
         }
@@ -42,23 +45,23 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
 
-            _mockFuncionarioRepositorio.Setup(x => x.Inserir(It.IsAny<Funcionario>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>()))
                 .ReturnsAsync(funcionario.Id);
 
-            _mockFuncionarioRepositorio.Setup(x => x.BuscarPorEmail(It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<string>()))
                 .ReturnsAsync((Funcionario)null)
                 .Callback<string>(email =>
                 {
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorio.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             bool result = await service.Cadastrar(funcionario);
 
 
-            _mockFuncionarioRepositorio.Verify(x => x.BuscarPorEmail(It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorio.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
             result.Should().BeTrue();
         }
         [Fact]
@@ -70,19 +73,19 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new System.DateTime(1987,08,14)),
                 new Email(person.Email));
 
-            _mockFuncionarioRepositorio.Setup(x => x.BuscarPorEmail(It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<string>()))
                 .ReturnsAsync(funcionario)
                 .Callback<string>(email =>
                 {
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorio.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             bool result = await service.Cadastrar(funcionario);
 
-            _mockFuncionarioRepositorio.Verify(x => x.BuscarPorEmail(It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorio.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
             result.Should().BeFalse();
         }
     }
