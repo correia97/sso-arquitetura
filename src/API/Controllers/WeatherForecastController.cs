@@ -27,7 +27,9 @@ namespace API.Controllers
         }
         private IModel model;
 
+
         [HttpGet]
+        [Route("weatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
@@ -42,6 +44,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Route("weatherForecast")]
         public IEnumerable<WeatherForecast> Post()
         {
             var rng = new Random();

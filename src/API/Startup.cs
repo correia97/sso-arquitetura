@@ -1,4 +1,6 @@
 using API.Configuration;
+using Cadastro.API.Interfaces;
+using Cadastro.API.Services;
 using Cadastro.Data.Repositories;
 using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
@@ -85,6 +87,29 @@ namespace API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = $"Cadastro API - {Environment.EnvironmentName}", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = @"JWT Authorization header Ex.: 'Bearer 12345abcdef'",
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                          {
+                              Reference = new OpenApiReference
+                              {
+                                  Type = ReferenceType.SecurityScheme,
+                                  Id = "Bearer"
+                              }
+                          },
+                         new string[] {}
+                    }
+                });
             });
 
             services.AddCors(options =>
@@ -103,6 +128,8 @@ namespace API
 
             services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
 
+            services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
+
             services.AddSingleton(sp =>
             {
                 ConnectionFactory factory = new ConnectionFactory();
@@ -111,6 +138,8 @@ namespace API
                 SetupRabbitMQ(connection);
                 return connection;
             });
+
+            services.AddLogging();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
