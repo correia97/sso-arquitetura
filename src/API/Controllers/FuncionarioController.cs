@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Cadastro.API.Controllers
 {
-   /// [Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class FuncionarioController : ControllerBase

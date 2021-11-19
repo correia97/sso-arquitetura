@@ -2,8 +2,8 @@ using API.Configuration;
 using Cadastro.API.Interfaces;
 using Cadastro.API.Services;
 using Cadastro.Data.Repositories;
+using Cadastro.Domain.Entities;
 using Cadastro.Domain.Interfaces;
-using Cadastro.Domain.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -15,9 +15,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace API
 {
@@ -70,6 +74,13 @@ namespace API
                 o.TokenValidationParameters.ValidIssuer = "acme.com";
                 o.Events = new JwtBearerEvents
                 {
+                    OnTokenValidated = context =>
+                    {
+                        var token = (JwtSecurityToken)context.SecurityToken;
+                        var payload = JsonConvert.DeserializeObject<TokenPayload>(token.Payload.SerializeToJson());
+                        context.Principal.AddIdentities(FillToken(payload));
+                        return Task.CompletedTask;
+                    },
                     OnAuthenticationFailed = context =>
                     {
                         context.NoResult();
@@ -142,6 +153,32 @@ namespace API
             services.AddLogging();
         }
 
+        private List<ClaimsIdentity> FillToken(TokenPayload payload)
+        {
+
+            var claims = new List<Claim>();
+            claims.Add(new Claim(ClaimTypes.GivenName, payload.given_name));
+            claims.Add(new Claim(ClaimTypes.Name, payload.name));
+            claims.Add(new Claim(ClaimTypes.Email, payload.email));
+            claims.Add(new Claim(ClaimTypes.Surname, payload.family_name));
+
+            foreach (var item in payload.group)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, item));
+            }
+            foreach (var item in payload.realm_access.roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, item));
+            }
+            foreach (var item in payload.resource_access.account.roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, item));
+            }
+
+            var identity = new ClaimsIdentity(claims);
+            return new List<ClaimsIdentity> { identity };
+        }
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -179,9 +216,9 @@ namespace API
             {
 
                 IModel model = connection.CreateModel();
-                var cadastrarResult = model.QueueDeclare("cadastrar", true);
-                var atualizarrResult = model.QueueDeclare("atualizar", true);
-                var notificarResult = model.QueueDeclare("notificar", true);
+                var cadastrarResult = model.QueueDeclare("cadastrar", true, false, false);
+                var atualizarrResult = model.QueueDeclare("atualizar", true, false, false);
+                var notificarResult = model.QueueDeclare("notificar", true, false, false);
                 model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
 
                 model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
@@ -196,5 +233,6 @@ namespace API
 
 
         }
+
     }
 }

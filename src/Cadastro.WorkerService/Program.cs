@@ -96,9 +96,9 @@ namespace Cadastro.WorkerService
             try
             {
                 IModel model = connection.CreateModel();
-                var cadastrarResult = model.QueueDeclare("cadastrar", true);
-                var atualizarrResult = model.QueueDeclare("atualizar", true);
-                var notificarResult = model.QueueDeclare("notificar", true);
+                var cadastrarResult = model.QueueDeclare("cadastrar", true, false, false);
+                var atualizarrResult = model.QueueDeclare("atualizar", true, false, false);
+                var notificarResult = model.QueueDeclare("notificar", true, false, false);
                 model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
 
                 model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
