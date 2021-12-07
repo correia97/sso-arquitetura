@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace MVC.Controllers
 {
-    public class BaseController : Controller
+    public class BaseController : Microsoft.AspNetCore.Mvc.Controller
     {
         public string AccessToken { get; private set; }
 

@@ -6,7 +6,7 @@ namespace Domain.Entities
 {
     public class Funcionario : EntityBase<Guid>
     {
-        protected Funcionario()
+        public Funcionario()
         {
 
         }

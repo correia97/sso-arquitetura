@@ -151,6 +151,7 @@ services:
       - DB_DATABASE=db01
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
+      - PROXY_ADDRESS_FORWARDING=true
       - KEYCLOAK_IMPORT=./realm-export.json
     volumes:
       - ./src/keycloak/realm-export.json:/realm-export.json
