@@ -1,7 +1,16 @@
-﻿namespace Domain.Entities
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Domain.Entities
 {
     public class Telefone : EntityBase<int>
     {
+        protected Telefone()
+        {
+
+        }
+
+       [JsonConstructor]
         public Telefone(string ddi, string ddd, string numeroTelefone)
         {
             DDI = ddi;
@@ -23,6 +32,11 @@
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public override string ToJson()
+        {
+            return JsonSerializer.Serialize(this);
         }
     }
 }

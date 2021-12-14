@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Domain.ValueObject
 {
@@ -8,6 +9,8 @@ namespace Domain.ValueObject
         {
 
         }
+
+        [JsonConstructor]
         public DataNascimento(DateTime date)
         {
             if (date > DateTime.Now)

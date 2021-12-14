@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+namespace Domain.Entities
 {
     /// <summary>
     /// Base das entidades
@@ -8,8 +10,9 @@
     {
         protected EntityBase()
         {
-
         }
         public U Id { get; protected set; }
+
+        public abstract string ToJson();
     }
 }

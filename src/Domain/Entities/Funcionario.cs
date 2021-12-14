@@ -1,15 +1,18 @@
 ﻿using Domain.ValueObject;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
     public class Funcionario : EntityBase<Guid>
     {
-        public Funcionario()
+        protected Funcionario()
         {
 
         }
+
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email)
         {
             Id = Guid.NewGuid();
@@ -21,6 +24,7 @@ namespace Domain.Entities
             Email = email;
             DataCadastro = DateTime.Now;
         }
+        [JsonConstructor]
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email,
             IEnumerable<Telefone> telefones, Endereco enderecoResidencial, Endereco enderecoComercial)
         {
@@ -35,6 +39,8 @@ namespace Domain.Entities
             Telefones = telefones;
             EnderecoComercial = enderecoComercial;
             DataCadastro = DateTime.Now;
+
+            var xxx = this.ToJson();
         }
 
         public string UserId { get; protected set; }
@@ -73,6 +79,11 @@ namespace Domain.Entities
         public void AtualizarEnderecoResidencial(Endereco enderecoResidencial)
         {
             EnderecoResidencial = enderecoResidencial;
+        }
+
+        public override string ToJson()
+        {
+            return JsonSerializer.Serialize(this);
         }
     }
 }

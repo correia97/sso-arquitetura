@@ -7,7 +7,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
@@ -64,13 +65,14 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
             result.Should().BeTrue();
         }
+
         [Fact]
         public async Task Cadastrar_Nao_OK_Quando_EMail_Ja_Existe()
         {
             var person = _faker.Person;
             var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
-                new DataNascimento(new System.DateTime(1987,08,14)),
+                new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<string>()))
@@ -88,5 +90,26 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
             result.Should().BeFalse();
         }
+
+        [Fact]
+        public void DeserializeJson()
+        {
+            var json = "{\"rua\":\"teste\",\"numero\":1,\"cep\":\"04679290\",\"complemento\":\"teste\",\"bairro\":\"teste\",\"cidade\":\"teste\",\"uf\":\"sp\"}";
+            try
+            {
+
+                var temp = JsonSerializer.Deserialize<dynamic>(json);
+                Endereco func = JsonSerializer.Deserialize<Endereco>(json);
+                func.Should().NotBeNull();
+            }
+            catch (System.Exception ex)
+            {
+
+                throw;
+            }
+        }
     }
 }
+
+
+

@@ -1,7 +1,6 @@
 ﻿using Cadastro.API.Interfaces;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
@@ -68,7 +67,7 @@ namespace Cadastro.API.Controllers
         {
             try
             {
-                var result =  _service.Cadastrar(funcionario);
+                var result = _service.Cadastrar(funcionario);
                 return Ok(result);
             }
             catch (Exception ex)
