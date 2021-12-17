@@ -15,7 +15,7 @@ void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
     {
         Thread.Sleep(TimeSpan.FromSeconds(10));
 
-         CreateDataBase(configuration);
+        CreateDataBase(configuration);
 
         // Instantiate the runner
         var runner = services.GetRequiredService<IMigrationRunner>();

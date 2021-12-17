@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-namespace Domain.Entities
+﻿namespace Domain.Entities
 {
     /// <summary>
     /// Base das entidades

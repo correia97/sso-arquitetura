@@ -40,7 +40,6 @@ namespace Domain.Entities
             EnderecoComercial = enderecoComercial;
             DataCadastro = DateTime.Now;
 
-            var xxx = this.ToJson();
         }
 
         public string UserId { get; protected set; }

@@ -42,7 +42,7 @@ namespace API.Controllers
             .ToArray();
         }
 
-        [HttpPost(Name ="weatherForecast")]
+        [HttpPost(Name = "weatherForecast")]
         public IEnumerable<WeatherForecast> Post()
         {
             var rng = new Random();

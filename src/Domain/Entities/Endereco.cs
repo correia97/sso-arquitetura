@@ -10,7 +10,7 @@ namespace Domain.Entities
         }
 
         [JsonConstructor]
-        public Endereco(string rua, int numero, string cep, string complemento, string bairro, string cidade, string uf)
+        public Endereco(string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf)
         {
             Rua = rua;
             Numero = numero;
@@ -20,7 +20,7 @@ namespace Domain.Entities
             Cidade = cidade;
             UF = uf;
         }
-       
+
         public string Rua { get; protected set; }
         public int? Numero { get; protected set; }
         public string CEP { get; protected set; }
@@ -39,7 +39,7 @@ namespace Domain.Entities
         }
         public override bool Equals(object obj)
         {
-            return obj is Telefone nome && this.ToString() == nome.ToString();
+            return obj is Endereco endereco && this.ToString() == endereco.ToString();
         }
         public override int GetHashCode()
         {

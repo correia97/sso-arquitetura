@@ -32,7 +32,7 @@ namespace Domain.ValueObject
         }
         public override bool Equals(object obj)
         {
-            return obj is Email nome && this.ToString() == nome.ToString();
+            return obj is Email email && this.ToString() == email.ToString();
         }
         public override int GetHashCode()
         {

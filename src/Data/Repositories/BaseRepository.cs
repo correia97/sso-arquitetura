@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Cadastro.Data.Repositories
 {
-    public abstract class BaseRepository<T, U> : 
-        IWriteRepository<T, U>, 
+    public abstract class BaseRepository<T, U> :
+        IWriteRepository<T, U>,
         IReadRepository<T, U> where T : EntityBase<U>
     {
         protected readonly NpgsqlConnection connection;

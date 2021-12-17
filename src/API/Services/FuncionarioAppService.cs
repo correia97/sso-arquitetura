@@ -2,7 +2,8 @@
 using Cadastro.Domain.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Cadastro.API.Services
 {
-    public  class FuncionarioAppService : IFuncionarioAppService
+    public class FuncionarioAppService : IFuncionarioAppService
     {
         private readonly IConnection _connection;
         private readonly IFuncionarioReadRepository _repository;
@@ -31,14 +32,14 @@ namespace Cadastro.API.Services
                 IBasicProperties props = _channel.CreateBasicProperties();
                 props.ContentType = "text/json";
                 props.DeliveryMode = 2;
-                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(funcionario));
+                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
                 _channel.BasicPublish("cadastro", "cadastrar", props, messageBodyBytes);
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Cadastrar");
-               return false;
+                return false;
             }
         }
         public bool Atualizar(Funcionario funcionario, string currentUserId)
@@ -48,7 +49,7 @@ namespace Cadastro.API.Services
                 IBasicProperties props = _channel.CreateBasicProperties();
                 props.ContentType = "text/json";
                 props.DeliveryMode = 2;
-                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(funcionario));
+                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
                 _channel.BasicPublish("cadastro", "atualizar", props, messageBodyBytes);
                 return true;
             }

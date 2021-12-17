@@ -7,9 +7,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -89,24 +88,6 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
             result.Should().BeFalse();
-        }
-
-        [Fact]
-        public void DeserializeJson()
-        {
-            var json = "{\"rua\":\"teste\",\"numero\":1,\"cep\":\"04679290\",\"complemento\":\"teste\",\"bairro\":\"teste\",\"cidade\":\"teste\",\"uf\":\"sp\"}";
-            try
-            {
-
-                var temp = JsonSerializer.Deserialize<dynamic>(json);
-                Endereco func = JsonSerializer.Deserialize<Endereco>(json);
-                func.Should().NotBeNull();
-            }
-            catch (System.Exception ex)
-            {
-
-                throw;
-            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Domain.Entities
 
         }
 
-       [JsonConstructor]
+        [JsonConstructor]
         public Telefone(string ddi, string ddd, string numeroTelefone)
         {
             DDI = ddi;
@@ -27,7 +27,7 @@ namespace Domain.Entities
         }
         public override bool Equals(object obj)
         {
-            return obj is Telefone nome && this.ToString() == nome.ToString();
+            return obj is Telefone tel && this.ToString() == tel.ToString();
         }
         public override int GetHashCode()
         {
