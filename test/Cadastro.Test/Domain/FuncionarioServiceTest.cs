@@ -1,16 +1,11 @@
-﻿using Bogus;
-using Cadastro.Domain.Interfaces;
+﻿using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
 using Domain.Entities;
 using Domain.ValueObject;
-using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Moq;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Cadastro.Test.Domain
 {
@@ -21,20 +16,25 @@ namespace Cadastro.Test.Domain
         public readonly Mock<IFuncionarioWriteRepository> _mockFuncionarioRepositorioEscrita;
         public readonly Faker _faker;
         public readonly Mock<ILogger<FuncionarioService>> _mockLogger;
-        public FuncionarioServiceTest()
+        private ITestOutputHelper _outputHelper { get; }
+        private static IConfigurationRoot Configuration { get; set; }
+
+        static FuncionarioServiceTest()
+        {
+            Configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+        }
+
+        public FuncionarioServiceTest(ITestOutputHelper outputHelper)
         {
             _mockFuncionarioRepositorioLeitura = new Mock<IFuncionarioReadRepository>();
             _mockFuncionarioRepositorioEscrita = new Mock<IFuncionarioWriteRepository>();
             _faker = new Faker("pt_BR");
             _mockLogger = new Mock<ILogger<FuncionarioService>>();
-        }
-
-        public IConfigurationRoot BuildConfiguration()
-        {
-            return new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true)
-                .Build();
+            _outputHelper = outputHelper;
         }
 
         [Fact]
@@ -53,12 +53,15 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync((Funcionario)null)
                 .Callback<string>(email =>
                 {
+                    _outputHelper.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             bool result = await service.Cadastrar(funcionario);
+
+            _outputHelper.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
@@ -78,6 +81,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync(funcionario)
                 .Callback<string>(email =>
                 {
+                    _outputHelper.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
@@ -85,12 +89,12 @@ namespace Cadastro.Test.Domain
 
             bool result = await service.Cadastrar(funcionario);
 
+
+            _outputHelper.WriteLine($"Result: {result}");
+
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
             result.Should().BeFalse();
         }
     }
 }
-
-
-

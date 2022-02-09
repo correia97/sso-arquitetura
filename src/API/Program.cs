@@ -20,8 +20,8 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 
 
@@ -81,7 +81,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddJsonOptions(opt => {
+builder.Services.AddControllers().AddJsonOptions(opt =>
+{
     opt.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
     opt.JsonSerializerOptions.UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement;
 });

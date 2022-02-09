@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+	  <Nullable>enable</Nullable>
     <UserSecretsId>dotnet-Cadastro.WorkerService-4EA84E5C-CD43-4190-8E1A-F31D0214D9C6</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
