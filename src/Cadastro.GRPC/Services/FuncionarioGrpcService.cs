@@ -1,5 +1,4 @@
-﻿using Cadastro.GRPC;
-using Grpc.Core;
+﻿using Grpc.Core;
 
 namespace Cadastro.GRPC.Services
 {
@@ -13,7 +12,7 @@ namespace Cadastro.GRPC.Services
 
         public override Task<FuncionarioResponse> Cadastrar(FuncionarioRequest request, ServerCallContext context)
         {
-            
+
             //try
             //{
             //    var result = _service.Cadastrar(funcionario);

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace API.Configuration
+namespace Cadastro.Configuracoes
 {
 
     /// <summary>

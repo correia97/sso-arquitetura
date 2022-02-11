@@ -5,7 +5,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Controllers\WeatherForecastController.cs~RF87b526.TMP" />
@@ -28,6 +28,7 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj" />
     <ProjectReference Include="..\Data\Cadastro.Data.csproj" />
     <ProjectReference Include="..\Domain\Cadastro.Domain.csproj" />
   </ItemGroup>

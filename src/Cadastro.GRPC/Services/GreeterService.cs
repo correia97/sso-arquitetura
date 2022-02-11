@@ -1,4 +1,3 @@
-using Cadastro.GRPC;
 using Grpc.Core;
 
 namespace Cadastro.GRPC.Services

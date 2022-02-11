@@ -34,6 +34,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dominio", "Dominio", "{2E6E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testes", "Testes", "{80237313-A97C-488A-984D-D883E16F875B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.Configuracoes", "src\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj", "{00194BA4-479F-41FE-9439-AF91883CAD21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{B04A9259-C402-42A4-9107-B048D28AC071}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B04A9259-C402-42A4-9107-B048D28AC071}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B04A9259-C402-42A4-9107-B048D28AC071}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,6 +90,7 @@ Global
 		{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8} = {80237313-A97C-488A-984D-D883E16F875B}
 		{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
 		{B04A9259-C402-42A4-9107-B048D28AC071} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
+		{00194BA4-479F-41FE-9439-AF91883CAD21} = {7666157F-6CAE-42A3-A8B1-CD6F505F12AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17F3FC41-68DB-45B0-8531-7820A89DCDF3}

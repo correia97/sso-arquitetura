@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	  <Nullable>enable</Nullable>
+	  <Nullable>disable</Nullable>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <UserSecretsId>9c96bfae-0a79-4a2c-a138-323f40a7222a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>

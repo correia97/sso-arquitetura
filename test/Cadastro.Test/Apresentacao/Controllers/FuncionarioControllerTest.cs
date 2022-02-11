@@ -1,11 +1,6 @@
 ﻿using Cadastro.API.Controllers;
 using Cadastro.API.Interfaces;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Cadastro.Test.Apresentacao.Controllers
@@ -17,7 +12,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
         private Mock<IFuncionarioAppService> _service;
         public FuncionarioControllerTest()
         {
-            _logger = new Mock<ILogger<FuncionarioController>>(); 
+            _logger = new Mock<ILogger<FuncionarioController>>();
             _service = new Mock<IFuncionarioAppService>();
         }
 

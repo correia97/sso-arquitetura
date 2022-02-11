@@ -1,3 +1,4 @@
+using Cadastro.Configuracoes;
 using Cadastro.WorkerService;
 using Cadastro.WorkerServices.Migrations;
 using FluentMigrator.Runner;
@@ -5,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
-using RabbitMQ.Client;
 using System;
 using System.Threading;
 
@@ -25,7 +25,9 @@ void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
     }
     catch (Exception ex)
     {
-        throw ex;
+
+        Console.WriteLine(ex.Message);
+        throw;
     }
 }
 
@@ -33,7 +35,6 @@ void CreateDataBase(IConfiguration configuration)
 {
     try
     {
-
         string connStr = configuration.GetConnectionString("Base");
         connStr = connStr.Replace("Database=funcionarios;", "");
         var m_conn = new NpgsqlConnection(connStr);
@@ -52,27 +53,6 @@ void CreateDataBase(IConfiguration configuration)
     }
 }
 
-void SetupRabbitMQ(IConnection connection)
-{
-    try
-    {
-        IModel model = connection.CreateModel();
-        QueueDeclareOk cadastrarResult = model.QueueDeclare("cadastrar", true, false, false);
-        QueueDeclareOk atualizarrResult = model.QueueDeclare("atualizar", true, false, false);
-        QueueDeclareOk notificarResult = model.QueueDeclare("notificar", true, false, false);
-        model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
-
-        model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
-        model.QueueBind("cadastrar", "cadastro", "cadastrar");
-        model.QueueBind("atualizar", "cadastro", "atualizar");
-        model.QueueBind("notificar", "evento", "");
-    }
-    catch (System.Exception ex)
-    {
-
-        throw;
-    }
-}
 
 
 IConfiguration configuration = default;
@@ -83,14 +63,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         configuration = context.Configuration;
         services.AddHostedService<Worker>();
         services.AddFluentMigratorCore();
-        services.AddSingleton(sp =>
-        {
-            var factory = new ConnectionFactory();
-            factory.Uri = new System.Uri(context.Configuration.GetValue<string>("rabbit"));
-            IConnection connection = factory.CreateConnection();
-            SetupRabbitMQ(connection);
-            return connection;
-        });
+        services.AddRabbitCustomConfiguration(context.Configuration);
         services.ConfigureRunner(rb =>
         {
             rb.AddPostgres11_0();
