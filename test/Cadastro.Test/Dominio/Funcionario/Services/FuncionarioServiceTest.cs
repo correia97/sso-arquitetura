@@ -96,5 +96,96 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
             result.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task Cadastrar_Nao_OK_Quando_Banco_Nao_Acessivel()
+        {
+            var person = _faker.Person;
+            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+                new Nome(person.FirstName, person.LastName),
+                new DataNascimento(new System.DateTime(1987, 08, 14)),
+                new Email(person.Email));
+
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<string>()))
+                .Throws(new Exception());
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+
+            bool result = await service.Cadastrar(funcionario);
+
+            _outputHelper.WriteLine($"Result: {result}");
+
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
+            result.Should().BeFalse();
+        }
+
+
+        [Fact]
+        public async Task CadastrarComEnderecoTelefone_OK_Quando_EMail_Nao_Existe()
+        {
+            var person = _faker.Person;
+            var tels = new List<Telefone> {
+                new Telefone("+55","11","90000-0000")
+            };
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
+            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+                new Nome(person.FirstName, person.LastName),
+                new DataNascimento(new System.DateTime(1987, 08, 14)),
+                new Email(person.Email), tels, endereco, endereco);
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>()))
+                .ReturnsAsync(funcionario.Id);
+
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<string>()))
+                .ReturnsAsync((Funcionario)null)
+                .Callback<string>(email =>
+                {
+                    _outputHelper.WriteLine($"Callback Email: {email}");
+                    Assert.Equal(funcionario.Email.EnderecoEmail, email);
+                });
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+
+            bool result = await service.Cadastrar(funcionario);
+
+            _outputHelper.WriteLine($"Result: {result}");
+
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task CadastrarComEnderecoTelefone_Nao_OK_Quando_EMail_Ja_Existe()
+        {
+            var person = _faker.Person;
+            var tels = new List<Telefone> { 
+                new Telefone("+55","11","90000-0000")
+            };
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
+            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+                new Nome(person.FirstName, person.LastName),
+                new DataNascimento(new System.DateTime(1987, 08, 14)),
+                new Email(person.Email),tels,endereco,endereco);
+
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<string>()))
+                .ReturnsAsync(funcionario)
+                .Callback<string>(email =>
+                {
+                    _outputHelper.WriteLine($"Callback Email: {email}");
+                    Assert.Equal(funcionario.Email.EnderecoEmail, email);
+                });
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+
+            bool result = await service.Cadastrar(funcionario);
+
+
+            _outputHelper.WriteLine($"Result: {result}");
+
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
+            result.Should().BeFalse();
+        }
     }
 }
