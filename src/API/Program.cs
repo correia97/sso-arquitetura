@@ -27,12 +27,12 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-IdentityModelEventSource.ShowPII = true;
-
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                         (sender, certificate, chain, sslPolicyErrors) => true;
 
-builder.Services.AddAPICustomAuthorizationAuthenticationConfig(builder.Environment, builder.Configuration);
+builder.Services.AddAPICustomAuthorizationConfig(builder.Configuration);
+
+builder.Services.AddAPICustomAuthenticationConfig(builder.Environment, builder.Configuration);
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -84,17 +84,13 @@ builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 
 builder.Services.AddLogging();
 
-if (!builder.Environment.EnvironmentName.ToUpper().Contains("PROD"))
-{
-    IdentityModelEventSource.ShowPII = true;
-}
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.EnvironmentName.ToUpper().Contains("PROD"))
 {
     app.UseDeveloperExceptionPage();
+    IdentityModelEventSource.ShowPII = true;
 }
 
 app.UseSwagger();
@@ -106,8 +102,8 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 
-
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.UseCors();
