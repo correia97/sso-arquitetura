@@ -15,7 +15,7 @@ jobs:
      - run:
          name: Restore packages
          command:
-           dotnet restore Exemplo.SSO.sln --no-restore
+           dotnet restore Exemplo.SSO.sln
       # Execução de uma linha de comando
      - run:
          name: Build App
