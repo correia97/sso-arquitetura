@@ -22,4 +22,18 @@ jobs:
     - name: Build
       run: dotnet build Exemplo.SSO.sln --no-restore
     - name: Test
-      run: dotnet test Exemplo.SSO.sln --no-build --verbosity normal
+      run: dotnet test Exemplo.SSO.sln --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - name: Instalação do gerador de relatório de cobertura
+      run: dotnet tool install --global  dotnet-reportgenerator-globaltool
+    # Execução de uma linha de comando    
+    - name: Geração do relatório de cobertura
+      run: reportgenerator "-reports:/home/runner/work/sso/test/Cadastro.Test/coverage.opencover.xml" \
+                            "-targetdir:/home/runner/work/sso/test/Cadastro.Test/report" \
+                            "-reporttypes:Html" \
+                            "-sourcedirs:/home/runner/work/sso/test/Cadastro.Test/"
+    # Armazenamento dos arquivos gerados pelo resultado dos testes
+    - name: Armazenamento dos relatório
+      uses: actions/upload-artifact@v1
+      with:
+        name: code-coverage-report
+        path: /home/runner/work/sso/test/Cadastro.Test/report/
