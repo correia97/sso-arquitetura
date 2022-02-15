@@ -36,11 +36,6 @@ jobs:
          name: Restore packages
          command:
            dotnet restore Exemplo.SSO.sln 
-    # Execução de uma linha de comando
-     - run:
-         name: install Tool CodeCov
-         command:
-           dotnet tool install --tool-path ./ Codecov.Tool    
       # Execução de uma linha de comando
      - run:
          name: install Tool ReportGenerator
@@ -56,11 +51,6 @@ jobs:
          name: Run Test
          command:
            dotnet test Exemplo.SSO.sln  --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/"
-     # Execução de uma linha de comando
-     - run:
-         name: Publish CodeCov
-         command:
-           ./codecov -f "/root/project/test/Cadastro.Test/results/coverage.opencover.xml" -t $codeCovToken
      # Execução de uma linha de comando
      - run:
          name: Generate Report
