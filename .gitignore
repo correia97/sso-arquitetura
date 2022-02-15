@@ -266,3 +266,4 @@ paket-files/
 __pycache__/
 *.pyc
 /src/KeyCloak/certificate
+/test/Cadastro.Test

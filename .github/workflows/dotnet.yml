@@ -27,13 +27,13 @@ jobs:
       run: dotnet tool install --global  dotnet-reportgenerator-globaltool
     # Execução de uma linha de comando    
     - name: Geração do relatório de cobertura
-      run: reportgenerator "-reports:/home/runner/work/sso/test/Cadastro.Test/coverage.opencover.xml" \
-                            "-targetdir:/home/runner/work/sso/test/Cadastro.Test/report" \
+      run: reportgenerator "-reports:/home/runner/work/SSO/test/Cadastro.Test/coverage.opencover.xml" \
+                            "-targetdir:/home/runner/work/SSO/test/Cadastro.Test/report" \
                             "-reporttypes:Html" \
-                            "-sourcedirs:/home/runner/work/sso/test/Cadastro.Test/"
+                            "-sourcedirs:/home/runner/work/SSO/test/Cadastro.Test/"
     # Armazenamento dos arquivos gerados pelo resultado dos testes
     - name: Armazenamento dos relatório
       uses: actions/upload-artifact@v1
       with:
         name: code-coverage-report
-        path: /home/runner/work/sso/test/Cadastro.Test/report/
+        path: /home/runner/work/SSO/test/Cadastro.Test/report/
