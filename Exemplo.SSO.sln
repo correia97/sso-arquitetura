@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\FusionAuth\.env = src\FusionAuth\.env
 		src\FusionAuth\docker-compose.yml = src\FusionAuth\docker-compose.yml
 		src\KeyCloak\docker-compose.yml = src\KeyCloak\docker-compose.yml
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.MVC", "src\MVC\Cadastro.MVC.csproj", "{E8008076-B2D5-4FF8-833C-2CF28FBCACF9}"
@@ -34,7 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dominio", "Dominio", "{2E6E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testes", "Testes", "{80237313-A97C-488A-984D-D883E16F875B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.Configuracoes", "src\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj", "{00194BA4-479F-41FE-9439-AF91883CAD21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Configuracoes", "src\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj", "{00194BA4-479F-41FE-9439-AF91883CAD21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

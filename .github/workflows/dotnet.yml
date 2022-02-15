@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore 
+      run: dotnet restore Exemplo.SSO.sln
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build Exemplo.SSO.sln --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test Exemplo.SSO.sln --no-build --verbosity normal
