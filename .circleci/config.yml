@@ -55,23 +55,23 @@ jobs:
      - run:
          name: Run Test
          command:
-           dotnet test Exemplo.SSO.sln  --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="./../../results/"
+           dotnet test Exemplo.SSO.sln  --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/"
      # Execução de uma linha de comando
      - run:
          name: Publish CodeCov
          command:
-           ./codecov -f "/root/project/results/coverage.opencover.xml" -t $codeCovToken
+           ./codecov -f "/root/project/test/Cadastro.Test/results/coverage.opencover.xml" -t $codeCovToken
      # Execução de uma linha de comando
      - run:
          name: Generate Report
          command:
-           ./reportgenerator "-reports:/root/project/results/coverage.opencover.xml" \
+           ./reportgenerator "-reports:/root/project/test/Cadastro.Test/results/coverage.opencover.xml" \
                             "-targetdir:/root/project/results/report/" \
                             "-reporttypes:Html" \
-                            "-sourcedirs:/root/project/results/"  
+                            "-sourcedirs:/root/project/test/Cadastro.Test/results/"  
     # Armazenamento do conteudo da pasta result
      - store_artifacts:
-          path: results/report/
+          path: /root/project/results/report/
 # Definição dos trabalhos que serção executados
 workflows:
   # Nome do trabalho que seá executado
