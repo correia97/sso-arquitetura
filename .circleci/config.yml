@@ -39,7 +39,7 @@ jobs:
       # Execução de uma linha de comando
      - run:
          name: Config do path tools
-         command:
+         command: |
             cat << \EOF >> ~/.bash_profile
             # Add .NET Core SDK tools
             export PATH="$PATH:/root/.dotnet/tools"
