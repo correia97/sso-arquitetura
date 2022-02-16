@@ -38,6 +38,10 @@ jobs:
            dotnet restore Exemplo.SSO.sln 
       # Execução de uma linha de comando
      - run:
+         name: Config do path tools
+         command:
+            export PATH="$PATH:/root/.dotnet/tools"
+     - run:
          name: install Tool ReportGenerator
          command:
            dotnet tool install  --global dotnet-reportgenerator-globaltool     
