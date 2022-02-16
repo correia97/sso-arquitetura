@@ -44,11 +44,29 @@ jobs:
      - run:
          name: install Tool ReportGenerator
          command:
-           dotnet tool install --tool-path ./ dotnet-sonarscanner 
+           dotnet tool install --tool-path ./ dotnet-sonarscanner      
+     - run:
+         name: JavaConfig
+         command: |
+              apt-get update && \
+              apt-get install -y \
+              ca-certificates  default-jdk  \
+              apt-transport-https && \
+              rm -rf /var/lib/apt/lists/*
+
+              # JAVA download, descompacta, move e deleta arquivo gz
+              curl -O https://download.java.net/java/GA/jdk13/5b8a42f3905b406298b72d750b6919f6/33/GPL/openjdk-13_linux-x64_bin.tar.gz \
+              && tar xvf openjdk-13_linux-x64_bin.tar.gz \
+              && mv jdk-13 /usr/lib/jvm/ \
+              && rm openjdk-13_linux-x64_bin.tar.gz
+
+              update-alternatives --config java
+              export JAVA_HOME=/usr/lib/jvm/jdk-13
+ 
      - run:
          name: inicio da analise
          command:
-           ./dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/
+           ./dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.coverageReportPaths=/root/project/test/Cadastro.Test/results/
       # Execução de uma linha de comando
      - run:
          name: Build App
