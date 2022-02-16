@@ -28,7 +28,7 @@ jobs:
     - name: Build
       run: dotnet build Exemplo.SSO.sln --no-restore
     - name: Test
-      run: dotnet test Exemplo.SSO.sln --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat="opencover,cobertura"
+      run: dotnet test Exemplo.SSO.sln --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat="opencover"
     - name: Fim da analise
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

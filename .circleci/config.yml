@@ -76,7 +76,7 @@ jobs:
      - run:
          name: Run Test
          command:
-           dotnet test Exemplo.SSO.sln  --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover,cobertura" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/"
+           dotnet test Exemplo.SSO.sln  --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/"
      - run:
          name: fim da analise
          command:
