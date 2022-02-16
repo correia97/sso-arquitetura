@@ -38,20 +38,13 @@ jobs:
            dotnet restore Exemplo.SSO.sln 
       # Execução de uma linha de comando
      - run:
-         name: Config do path tools
-         command: |
-            cat << \EOF >> ~/.bash_profile
-            # Add .NET Core SDK tools
-            export PATH="$PATH:/root/.dotnet/tools"
-            EOF
+         name: install Tool ReportGenerator
+         command:
+           dotnet tool install --tool-path ./ dotnet-reportgenerator-globaltool     
      - run:
          name: install Tool ReportGenerator
          command:
-           dotnet tool install  --global dotnet-reportgenerator-globaltool     
-     - run:
-         name: install Tool sonarscanner
-         command:
-           dotnet tool install  --global dotnet-sonarscanner     
+           dotnet tool install --tool-path ./ dotnet-sonarscanner     s
      - run:
          name: inicio da analise
          command:
