@@ -48,7 +48,7 @@ jobs:
      - run:
          name: inicio da analise
          command:
-           dotnet sonarscanner begin /k:"sso" /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/
+           dotnet-sonarscanner begin /k:"sso" /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/
       # Execução de uma linha de comando
      - run:
          name: Build App
@@ -62,7 +62,7 @@ jobs:
      - run:
          name: fim da analise
          command:
-           dotnet sonarscanner end /d:sonar.login=${sonarkey}
+           dotnet-sonarscanner end /d:sonar.login=${sonarkey}
     
      # Execução de uma linha de comando
      - run:
