@@ -24,6 +24,7 @@ namespace Cadastro.Domain.Services
             {
                 Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
                 baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
+                baseFuncionario.AtualizarTelefones(funcionario.Telefones);
                 baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
                 baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
                 var result = await _repositoryWrite.Atualizar(funcionario);
