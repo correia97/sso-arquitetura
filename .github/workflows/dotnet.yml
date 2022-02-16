@@ -19,10 +19,16 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore Exemplo.SSO.sln
+    - name: Intalação do SonarSacanner
+      run: dotnet tool install --global dotnet-sonarscanner
+    - name: Inicio da analise
+      run: dotnet sonarscanner begin /k:"sso" /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/home/runner/work/sso/sso/test/Cadastro.Test/
     - name: Build
       run: dotnet build Exemplo.SSO.sln --no-restore
     - name: Test
       run: dotnet test Exemplo.SSO.sln --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - name: Fim da analise
+      run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
     - name: Instalação do gerador de relatório de cobertura
       run: dotnet tool install --global  dotnet-reportgenerator-globaltool
     # Execução de uma linha de comando    
