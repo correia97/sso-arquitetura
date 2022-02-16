@@ -95,9 +95,7 @@ jobs:
           path: /root/project/results/report/
      
      - store_test_results:
-          path: /root/project/test/Cadastro.Test/results/    
-orbs: 
-  sonarcloud: sonarsource/sonarcloud@1.0.3          
+          path: /root/project/test/Cadastro.Test/results/       
 # Definição dos trabalhos que serção executados
 workflows:
   # Nome do trabalho que seá executado
