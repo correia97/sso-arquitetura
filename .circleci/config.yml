@@ -40,15 +40,15 @@ jobs:
      - run:
          name: install Tool ReportGenerator
          command:
-           dotnet tool install --tool-path ./ dotnet-reportgenerator-globaltool     
+           dotnet tool install  --global dotnet-reportgenerator-globaltool     
      - run:
-         name: install Tool ReportGenerator
+         name: install Tool sonarscanner
          command:
-           dotnet tool install --tool-path ./ dotnet-sonarscanner     
+           dotnet tool install  --global dotnet-sonarscanner     
      - run:
          name: inicio da analise
          command:
-           dotnet-sonarscanner begin /k:"sso" /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/
+           dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/
       # Execução de uma linha de comando
      - run:
          name: Build App
