@@ -44,7 +44,7 @@ jobs:
      - run:
          name: install Tool ReportGenerator
          command:
-           dotnet tool install --tool-path ./ dotnet-sonarscanner     s
+           dotnet tool install --tool-path ./ dotnet-sonarscanner 
      - run:
          name: inicio da analise
          command:
