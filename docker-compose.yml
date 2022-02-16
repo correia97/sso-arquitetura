@@ -108,7 +108,7 @@ services:
   #     - keycloak
 
   fusionauth:
-    image: fusionauth/fusionauth-app:1.26.1
+    image: fusionauth/fusionauth-app:1.33.0
     container_name: fusionauth
     depends_on:
       - db
@@ -141,17 +141,24 @@ services:
       - fa_config:/usr/local/fusionauth/config
 
   keycloak:
-    image: quay.io/keycloak/keycloak:14.0.0
+    image: quay.io/keycloak/keycloak:17.0.0
     container_name: keycloak
+    command:
+     - start-dev
     environment:
-      - DB_VENDOR=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_ADDR=db
+      - KC_DB=postgres
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+      - KC_DB_URL=jdbc:postgresql://db/db01
       - DB_DATABASE=db01
-      - KEYCLOAK_USER=admin
-      - KEYCLOAK_PASSWORD=admin
-      - KEYCLOAK_IMPORT=./realm-export.json
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - PROXY_ADDRESS_FORWARDING=true
+      - KC_PROXY=edge
+      - KC_METRICS_ENABLED=true
+      - KC_HOSTNAME=keycloak.localhost
+      - KC_FEATURES=token-exchange
+      - KC_IMPORT=./realm-export.json
     volumes:
       - ./src/keycloak/realm-export.json:/realm-export.json
     depends_on:

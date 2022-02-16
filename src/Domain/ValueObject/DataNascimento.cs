@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Domain.ValueObject
 {
@@ -8,6 +9,8 @@ namespace Domain.ValueObject
         {
 
         }
+
+        [JsonConstructor]
         public DataNascimento(DateTime date)
         {
             if (date > DateTime.Now)
@@ -23,7 +26,7 @@ namespace Domain.ValueObject
         }
         public override bool Equals(object obj)
         {
-            return obj is DataNascimento nome && this.ToString() == nome.ToString();
+            return obj is DataNascimento data && this.ToString() == data.ToString();
         }
         public override int GetHashCode()
         {

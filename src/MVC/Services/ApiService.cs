@@ -1,5 +1,6 @@
 ﻿using Flurl.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MVC.Interfaces;
 using MVC.Models;
 using Newtonsoft.Json;
@@ -11,9 +12,11 @@ namespace MVC.Services
     public class ApiService : IApiService
     {
         private readonly string ServiceUrl;
-        public ApiService(IConfiguration configuration)
+        private ILogger<ApiService> _logger;
+        public ApiService(IConfiguration configuration, ILogger<ApiService> logger)
         {
             ServiceUrl = configuration.GetValue<string>("ServiceUrl");
+            _logger = logger;
         }
         public async Task<List<Forecast>> GetWeatherForecast(string authToken)
         {
@@ -33,8 +36,8 @@ namespace MVC.Services
             }
             catch (System.Exception ex)
             {
-
-                throw ex;
+                _logger.LogError("GetWeatherForecast erro", ex);
+                throw;
             }
         }
     }

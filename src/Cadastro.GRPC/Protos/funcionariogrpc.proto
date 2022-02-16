@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option csharp_namespace = "Cadastro.GRPC";
+
+package funcionariogrpc;
+
+// The greeting service definition.
+service FuncionarioGrpc {
+  // Sends a greeting
+  rpc Cadastrar (FuncionarioRequest) returns (FuncionarioResponse);
+}
+
+// The request message containing the user's name.
+message FuncionarioRequest {
+  string name = 3;
+}
+
+// The response message containing the greetings.
+message FuncionarioResponse {
+  bool result = 1;
+}

@@ -24,6 +24,7 @@ namespace Cadastro.Domain.Services
             {
                 Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
                 baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
+                baseFuncionario.AtualizarTelefones(funcionario.Telefones);
                 baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
                 baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
                 var result = await _repositoryWrite.Atualizar(funcionario);
@@ -51,11 +52,9 @@ namespace Cadastro.Domain.Services
             }
             catch (Exception ex)
             {
-
                 _logger.LogError(ex, "Erro ao cadastrar");
                 return false;
             }
-
         }
 
         public async Task<Funcionario> ObterPorId(Guid id)
@@ -67,7 +66,6 @@ namespace Cadastro.Domain.Services
             }
             catch (Exception ex)
             {
-
                 _logger.LogError(ex, "Erro ao recuperar por ID");
                 return null;
             }
@@ -82,7 +80,6 @@ namespace Cadastro.Domain.Services
             }
             catch (Exception ex)
             {
-
                 _logger.LogError(ex, "Erro ao recuperar todos");
                 return null;
             }

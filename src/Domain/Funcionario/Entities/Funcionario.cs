@@ -1,6 +1,8 @@
 ﻿using Domain.ValueObject;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
@@ -10,6 +12,7 @@ namespace Domain.Entities
         {
 
         }
+
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email)
         {
             Id = Guid.NewGuid();
@@ -21,6 +24,7 @@ namespace Domain.Entities
             Email = email;
             DataCadastro = DateTime.Now;
         }
+        [JsonConstructor]
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email,
             IEnumerable<Telefone> telefones, Endereco enderecoResidencial, Endereco enderecoComercial)
         {
@@ -35,6 +39,7 @@ namespace Domain.Entities
             Telefones = telefones;
             EnderecoComercial = enderecoComercial;
             DataCadastro = DateTime.Now;
+
         }
 
         public string UserId { get; protected set; }
@@ -73,6 +78,11 @@ namespace Domain.Entities
         public void AtualizarEnderecoResidencial(Endereco enderecoResidencial)
         {
             EnderecoResidencial = enderecoResidencial;
+        }
+
+        public override string ToJson()
+        {
+            return JsonSerializer.Serialize(this);
         }
     }
 }

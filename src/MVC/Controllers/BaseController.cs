@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace MVC.Controllers
 {
-    public class BaseController : Controller
+    public class BaseController : Microsoft.AspNetCore.Mvc.Controller
     {
         public string AccessToken { get; private set; }
 
@@ -21,7 +20,7 @@ namespace MVC.Controllers
             {
                 AccessToken = await HttpContext.GetTokenAsync("access_token");
                 IdToken = await HttpContext.GetTokenAsync("id_token");
-                var expire = await HttpContext.GetTokenAsync("expires_at");
+               // var expire = await HttpContext.GetTokenAsync("expires_at");
             }
         }
     }

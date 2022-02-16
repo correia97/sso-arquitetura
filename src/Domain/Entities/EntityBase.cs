@@ -8,8 +8,9 @@
     {
         protected EntityBase()
         {
-
         }
         public U Id { get; protected set; }
+
+        public abstract string ToJson();
     }
 }

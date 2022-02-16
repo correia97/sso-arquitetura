@@ -3,6 +3,7 @@ using Dapper;
 using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,9 +14,11 @@ namespace Cadastro.Data.Repositories
 {
     public class FuncionarioRepository : BaseRepository<Funcionario, Guid>, IFuncionarioReadRepository, IFuncionarioWriteRepository
     {
-        public FuncionarioRepository(IConfiguration configuration)
+        private readonly ILogger<FuncionarioRepository> _logger;
+        public FuncionarioRepository(IConfiguration configuration, ILogger<FuncionarioRepository> logger )
             : base(configuration)
         {
+            _logger = logger;
         }
 
         public override async Task<bool> Atualizar(Funcionario data)
@@ -53,7 +56,7 @@ namespace Cadastro.Data.Repositories
             }
             catch (Exception ex)
             {
-
+                _logger.LogError("Atualizar erro", ex);
                 throw;
             }
         }
@@ -105,7 +108,7 @@ namespace Cadastro.Data.Repositories
             }
             catch (Exception ex)
             {
-
+                _logger.LogError("Inserir erro", ex);
                 throw;
             }
         }
@@ -138,7 +141,7 @@ namespace Cadastro.Data.Repositories
             }
             catch (Exception ex)
             {
-
+                _logger.LogError("ObterPorEmail erro", ex);
                 throw;
             }
         }
@@ -172,7 +175,7 @@ namespace Cadastro.Data.Repositories
             }
             catch (Exception ex)
             {
-
+                _logger.LogError("ObterPorId erro", ex);
                 throw;
             }
         }
@@ -205,7 +208,7 @@ namespace Cadastro.Data.Repositories
             }
             catch (Exception ex)
             {
-
+                _logger.LogError("ObterTodos erro", ex);
                 throw;
             }
         }

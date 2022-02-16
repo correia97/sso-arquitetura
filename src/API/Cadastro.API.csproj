@@ -1,38 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>62664621-d41a-4f39-96ad-af3903b9add7</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.90" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.18" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Npgsql" Version="5.0.7" />
-    <PackageReference Include="Npgsql.Json.NET" Version="5.0.7" />
-    <PackageReference Include="Polly" Version="7.2.2" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.2.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.5" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.1.5" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.1.5" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.5" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.5" />
+    <None Remove="Controllers\WeatherForecastController.cs~RF87b526.TMP" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="Npgsql.Json.NET" Version="6.0.3" />
+    <PackageReference Include="Polly" Version="7.2.3" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.310801">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />
   </ItemGroup>
-
   <ItemGroup>
+    <ProjectReference Include="..\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj" />
     <ProjectReference Include="..\Data\Cadastro.Data.csproj" />
     <ProjectReference Include="..\Domain\Cadastro.Domain.csproj" />
   </ItemGroup>
-
-
 </Project>

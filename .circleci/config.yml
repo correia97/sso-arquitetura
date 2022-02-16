@@ -1,0 +1,111 @@
+# versão do arquivo de configuração de build
+version: 2.1
+# Conjunto de Execuções que serão realizadas
+jobs:
+ buildSemDockerFile:
+   # Definição que será utilizada uma docker para realizar o build
+   docker:
+    # Nome da imagem docker que será utilizada
+     - image: mcr.microsoft.com/dotnet/sdk:6.0
+   # Definição dos passos para a realização do build dentro da imagem  
+   steps:
+     # Clone do projeto
+     - checkout
+     # Execução de uma linha de comando
+     - run:
+         name: Restore packages
+         command:
+           dotnet restore Exemplo.SSO.sln
+      # Execução de uma linha de comando
+     - run:
+         name: Build App
+         command:
+           dotnet build Exemplo.SSO.sln -c Release
+ # Execução de build  
+ test:
+   # Definição que será utilizada uma docker para realizar o build
+   docker:
+    # Nome da imagem docker que será utilizada
+     - image: mcr.microsoft.com/dotnet/sdk:6.0
+   # Definição dos passos para a realização do build dentro da imagem  
+   steps:
+     # Clone do projeto
+     - checkout
+     # Execução de uma linha de comando
+     - run:
+         name: Restore packages
+         command:
+           dotnet restore Exemplo.SSO.sln 
+      # Execução de uma linha de comando
+     - run:
+         name: install Tool ReportGenerator
+         command:
+           dotnet tool install --tool-path ./ dotnet-reportgenerator-globaltool     
+     - run:
+         name: install Tool sonarscanner
+         command:
+           dotnet tool install --tool-path ./ dotnet-sonarscanner      
+     - run:
+         name: JavaConfig
+         command: |
+              apt-get update && \
+              apt-get install -y \
+              ca-certificates  default-jdk  \
+              apt-transport-https && \
+              rm -rf /var/lib/apt/lists/*
+
+              # JAVA download, descompacta, move e deleta arquivo gz
+              curl -O https://download.java.net/java/GA/jdk13/5b8a42f3905b406298b72d750b6919f6/33/GPL/openjdk-13_linux-x64_bin.tar.gz \
+              && tar xvf openjdk-13_linux-x64_bin.tar.gz \
+              && mv jdk-13 /usr/lib/jvm/ \
+              && rm openjdk-13_linux-x64_bin.tar.gz
+
+              update-alternatives --config java
+              export JAVA_HOME=/usr/lib/jvm/jdk-13
+ 
+     - run:
+         name: inicio da analise
+         command:
+           ./dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/coverage.opencover.xml
+      # Execução de uma linha de comando
+     - run:
+         name: Build App
+         command:
+           dotnet build Exemplo.SSO.sln 
+      # Execução de uma linha de comando
+     - run:
+         name: Run Test
+         command:
+           dotnet test Exemplo.SSO.sln  --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/"
+     - run:
+         name: fim da analise
+         command:
+           ./dotnet-sonarscanner end /d:sonar.login=${sonarkey}
+    
+     # Execução de uma linha de comando
+     - run:
+         name: Generate Report
+         command:
+           ./reportgenerator "-reports:/root/project/test/Cadastro.Test/results/coverage.opencover.xml" \
+                            "-targetdir:/root/project/results/report/" \
+                            "-reporttypes:Html" \
+                            "-sourcedirs:/root/project/test/Cadastro.Test/results/"  
+    # Armazenamento do conteudo da pasta result
+     - store_artifacts:
+          path: /root/project/results/report/
+     
+     - store_test_results:
+          path: /root/project/test/Cadastro.Test/results/    
+orbs: 
+  sonarcloud: sonarsource/sonarcloud@1.0.3          
+# Definição dos trabalhos que serção executados
+workflows:
+  # Nome do trabalho que seá executado
+  build_and_test:
+    # definição das Ações que serão executadas
+    jobs:
+      - test: 
+          context: builds
+      - buildSemDockerFile:
+              requires:
+                    - test 

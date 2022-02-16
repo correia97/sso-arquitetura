@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System;
 
-namespace API.Configuration
+namespace Cadastro.Configuracoes
 {
     public class HasScopeRequirement : IAuthorizationRequirement
     {

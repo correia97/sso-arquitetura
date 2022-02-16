@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\FusionAuth\.env = src\FusionAuth\.env
 		src\FusionAuth\docker-compose.yml = src\FusionAuth\docker-compose.yml
 		src\KeyCloak\docker-compose.yml = src\KeyCloak\docker-compose.yml
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.MVC", "src\MVC\Cadastro.MVC.csproj", "{E8008076-B2D5-4FF8-833C-2CF28FBCACF9}"
@@ -23,6 +24,18 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.WorkerService", "src\Cadastro.WorkerService\Cadastro.WorkerService.csproj", "{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5AC31D5A-0379-41F3-A0D9-F8C608AD44CE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.GRPC", "src\Cadastro.GRPC\Cadastro.GRPC.csproj", "{B04A9259-C402-42A4-9107-B048D28AC071}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apresentacao", "Apresentacao", "{443A5A1E-607F-4821-BB47-9D321EE252A7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{7666157F-6CAE-42A3-A8B1-CD6F505F12AC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dominio", "Dominio", "{2E6ED3F7-05E9-4632-B145-A4CB09AA62E9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testes", "Testes", "{80237313-A97C-488A-984D-D883E16F875B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Configuracoes", "src\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj", "{00194BA4-479F-41FE-9439-AF91883CAD21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,9 +71,27 @@ Global
 		{5AC31D5A-0379-41F3-A0D9-F8C608AD44CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AC31D5A-0379-41F3-A0D9-F8C608AD44CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AC31D5A-0379-41F3-A0D9-F8C608AD44CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B04A9259-C402-42A4-9107-B048D28AC071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B04A9259-C402-42A4-9107-B048D28AC071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B04A9259-C402-42A4-9107-B048D28AC071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B04A9259-C402-42A4-9107-B048D28AC071}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00194BA4-479F-41FE-9439-AF91883CAD21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4B1FA99D-60E3-4DB7-A680-99BF78C197E5} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
+		{E8008076-B2D5-4FF8-833C-2CF28FBCACF9} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
+		{A2F9F6BD-167E-4CF7-8536-8BE66C345BB9} = {2E6ED3F7-05E9-4632-B145-A4CB09AA62E9}
+		{22014A3C-B77E-4307-AAD4-EB19C9AE3974} = {7666157F-6CAE-42A3-A8B1-CD6F505F12AC}
+		{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8} = {80237313-A97C-488A-984D-D883E16F875B}
+		{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
+		{B04A9259-C402-42A4-9107-B048D28AC071} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
+		{00194BA4-479F-41FE-9439-AF91883CAD21} = {7666157F-6CAE-42A3-A8B1-CD6F505F12AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17F3FC41-68DB-45B0-8531-7820A89DCDF3}
