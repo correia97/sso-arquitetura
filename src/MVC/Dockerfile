@@ -3,7 +3,8 @@
 FROM  mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 ENV TZ=America/Sao_Paulo
 RUN cat /usr/share/zoneinfo/$TZ > /etc/localtime \
-		&& cat /usr/share/zoneinfo/$TZ > /etc/timezone
+		&& cat /usr/share/zoneinfo/$TZ > /etc/timezone \
+		&& update-ca-certificates
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443

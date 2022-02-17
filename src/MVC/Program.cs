@@ -8,6 +8,9 @@ using MVC.Services;
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
 
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMVCCustomAuthenticationConfig(builder.Environment, builder.Configuration);
@@ -46,7 +49,13 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-app.UseCookiePolicy();
+app.UseCookiePolicy(new CookiePolicyOptions()
+{
+    HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.None,
+    MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None,
+    Secure = Microsoft.AspNetCore.Http.CookieSecurePolicy.None
+
+}) ;
 
 app.UseAuthentication();
 

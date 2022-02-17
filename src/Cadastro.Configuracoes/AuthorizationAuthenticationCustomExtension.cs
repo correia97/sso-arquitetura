@@ -39,7 +39,6 @@ namespace Cadastro.Configuracoes
         {
             var clientId = configuration.GetValue<string>("ClientId");
             var clientSecret = configuration.GetValue<string>("ClientSecret");
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(clientSecret)) { KeyId = clientId };
 
             var complement = configuration.GetValue<string>("UrlComplement");
             var authUrl = $"{configuration.GetValue<string>("BaseAuthUrl")}{complement}";
@@ -74,7 +73,7 @@ namespace Cadastro.Configuracoes
                                 context.NoResult();
                                 context.Response.StatusCode = 401;
                                 context.Response.ContentType = "text/plain";
-                                if (environment.IsDevelopment())
+                                if (!environment.EnvironmentName.ToUpper().Contains("PROD"))
                                 {
                                     return context.Response.WriteAsync(context.Exception.ToString());
                                 }
@@ -94,18 +93,21 @@ namespace Cadastro.Configuracoes
             claims.Add(new Claim(ClaimTypes.Email, payload.email));
             claims.Add(new Claim(ClaimTypes.Surname, payload.family_name));
 
-            foreach (var item in payload.group)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, item));
-            }
-            foreach (var item in payload.realm_access.roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, item));
-            }
-            foreach (var item in payload.resource_access.account.roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, item));
-            }
+            if (payload.group != null)
+                foreach (var item in payload.group)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, item));
+                }
+            if (payload.realm_access?.roles != null)
+                foreach (var item in payload.realm_access.roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, item));
+                }
+            if (payload.resource_access?.account?.roles != null)
+                foreach (var item in payload.resource_access.account.roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, item));
+                }
 
             var identity = new ClaimsIdentity(claims);
             return new List<ClaimsIdentity> { identity };
@@ -121,7 +123,8 @@ namespace Cadastro.Configuracoes
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(clientSecret)) { KeyId = clientId };
 
             var complement = configuration.GetValue<string>("UrlComplement");
-            var authUrl = $"{configuration.GetValue<string>("BaseAuthUrl")}{complement}";
+            var baseUrl = configuration.GetValue<string>("BaseAuthUrl");
+            var authUrl = $"{baseUrl}{complement}";
             var audience = configuration.GetValue<string>("Audience");
 
             services.AddAuthentication(options =>
@@ -129,17 +132,51 @@ namespace Cadastro.Configuracoes
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;                
             })
            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
            {
                options.Cookie.Name = environment.EnvironmentName;
+               options.Events = new CookieAuthenticationEvents
+               {
+                   OnSignedIn = context =>
+                   {
+
+                       return Task.CompletedTask;
+                   },
+                   OnValidatePrincipal = context =>
+                   {
+
+                       return Task.CompletedTask;
+                   },
+                   OnSigningIn = context =>
+                   {
+
+                       return Task.CompletedTask;
+                   },
+                   OnRedirectToReturnUrl = context =>
+                   {
+
+                       return Task.CompletedTask;
+                   },
+                   OnRedirectToAccessDenied = context =>
+                   {
+
+                       return Task.CompletedTask;
+                   },
+                   OnRedirectToLogin = context =>
+                   {
+
+                       return Task.CompletedTask;
+                   },
+               };
            })
            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
            {
                options.Authority = authUrl;
                options.ClientId = clientId;
                options.ClientSecret = clientSecret;
+               options.ClaimsIssuer = authUrl;
                // Para o fusionAuth só vai o code
                options.ResponseType = environment.EnvironmentName == "Fusionauth" ? OpenIdConnectResponseType.Code : OpenIdConnectResponseType.CodeIdTokenToken;
                options.Scope.Clear();
@@ -149,6 +186,7 @@ namespace Cadastro.Configuracoes
                options.RequireHttpsMetadata = false;
                options.SaveTokens = true;
 
+               // options.CallbackPath = new PathString("/callback");
 
                options.TokenValidationParameters.IssuerSigningKey = key;
                options.Events = SetupOpenIdConnectEvents(authUrl, audience);
@@ -168,7 +206,7 @@ namespace Cadastro.Configuracoes
 
             services.Configure<CookiePolicyOptions>(options =>
             {
-                options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
                 options.OnAppendCookie = cookieContext =>
                     CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
                 options.OnDeleteCookie = cookieContext =>
@@ -182,7 +220,6 @@ namespace Cadastro.Configuracoes
             // options.CallbackPath = new PathString("/callback");
             // options.ClaimsIssuer = authUrl;
             // options.GetClaimsFromUserInfoEndpoint = true;
-
 
             var events = new OpenIdConnectEvents
             {
@@ -254,14 +291,15 @@ namespace Cadastro.Configuracoes
 
                     return Task.CompletedTask;
                 },
+                OnAuthenticationFailed = context =>
+                {
+                    return Task.CompletedTask;
+                },
+                
             };
 
             return events;
         }
-
-
-
-
 
         private static void CheckSameSite(HttpContext httpContext, CookieOptions options)
         {

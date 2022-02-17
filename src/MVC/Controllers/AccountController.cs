@@ -11,8 +11,16 @@ namespace MVC.Controllers
     {
         public async Task Login(string returnUrl = "/")
         {
-            await HttpContext.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties() { RedirectUri = returnUrl });
-        }
+            try
+            {
+                await HttpContext.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties() { RedirectUri = returnUrl });
+
+            }
+            catch (System.Exception ex)
+            {
+
+                throw;
+            }        }
 
         [Authorize]
         public async Task Logout()

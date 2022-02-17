@@ -6,8 +6,8 @@
       "serviceActions": {
         "cadastro.angular": "StartWithoutDebugging",
         "cadastro.api": "StartDebugging",
-        "cadastro.mvc": "StartWithoutDebugging",
-        "cadastro.workerservice": "StartWithoutDebugging",
+        "cadastro.mvc": "StartDebugging",
+        "cadastro.workerservice": "StartDebugging",
         "db": "StartWithoutDebugging",
         "fusionauth": "StartWithoutDebugging",
         "keycloak": "StartWithoutDebugging",

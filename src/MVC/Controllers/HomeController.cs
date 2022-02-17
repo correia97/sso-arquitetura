@@ -38,7 +38,16 @@ namespace MVC.Controllers
         }
         public async Task Login(string returnUrl = "/")
         {
-            await HttpContext.ChallengeAsync("auth", new AuthenticationProperties() { RedirectUri = returnUrl });
+            try
+            {
+
+                await HttpContext.ChallengeAsync("auth", new AuthenticationProperties() { RedirectUri = returnUrl });
+            }
+            catch (System.Exception ex)
+            {
+
+                throw;
+            }
         }
 
         [Authorize]
