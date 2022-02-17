@@ -66,10 +66,7 @@ jobs:
      - run:
          name: inicio da analise
          command:
-           ./dotnet-sonarscanner begin /o:correia97 /k:correia97_sso \
-            /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/coverage.opencover.xml \
-            /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
+           ./dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/root/project/test/Cadastro.Test/results/coverage.opencover.xml /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
       # Execução de uma linha de comando
      - run:
          name: Build App
@@ -96,9 +93,7 @@ jobs:
     # Armazenamento do conteudo da pasta result
      - store_artifacts:
           path: /root/project/results/report/
-     
-     - store_test_results:
-          path: /root/project/test/Cadastro.Test/results/       
+          
 # Definição dos trabalhos que serção executados
 workflows:
   # Nome do trabalho que seá executado
