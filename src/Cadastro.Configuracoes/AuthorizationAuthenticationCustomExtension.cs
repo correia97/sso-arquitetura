@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -39,27 +38,23 @@ namespace Cadastro.Configuracoes
         {
             var clientId = configuration.GetValue<string>("ClientId");
             var clientSecret = configuration.GetValue<string>("ClientSecret");
-
             var complement = configuration.GetValue<string>("UrlComplement");
             var authUrl = $"{configuration.GetValue<string>("BaseAuthUrl")}{complement}";
             var audience = configuration.GetValue<string>("Audience");
 
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(o =>
+                    .AddJwtBearer(options =>
                     {
-                        o.Authority = authUrl;
+                        options.Authority = authUrl;
                         if (!string.IsNullOrEmpty(audience))
-                            o.Audience = audience;
-                        o.RequireHttpsMetadata = false;
-                        o.SaveToken = true;
-                        o.ClaimsIssuer = "acme.com";
+                            options.Audience = audience;
+                        options.RequireHttpsMetadata = false;
+                        options.SaveToken = true;
                         //  o.TokenValidationParameters.IssuerSigningKey = key;
-                        o.TokenValidationParameters.NameClaimType = ClaimTypes.NameIdentifier;
-                        o.TokenValidationParameters.ValidateIssuerSigningKey = false;
-                        o.TokenValidationParameters.ValidateIssuer = false;
-                        o.TokenValidationParameters.ValidIssuer = "acme.com";
-                        o.Events = new JwtBearerEvents
+                        options.TokenValidationParameters.NameClaimType = ClaimTypes.NameIdentifier;
+                        options.TokenValidationParameters.ValidateIssuerSigningKey = false;
+                        options.TokenValidationParameters.ValidateIssuer = false;
+                        options.Events = new JwtBearerEvents
                         {
                             OnTokenValidated = context =>
                             {
@@ -78,7 +73,7 @@ namespace Cadastro.Configuracoes
                                     return context.Response.WriteAsync(context.Exception.ToString());
                                 }
                                 return context.Response.WriteAsync("An error occured processing your authentication.");
-                            }
+                            },
                         };
                     });
 
@@ -118,6 +113,9 @@ namespace Cadastro.Configuracoes
                                                                                     IConfiguration configuration)
         {
 
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+
             var clientId = configuration.GetValue<string>("ClientId");
             var clientSecret = configuration.GetValue<string>("ClientSecret");
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(clientSecret)) { KeyId = clientId };
@@ -129,54 +127,22 @@ namespace Cadastro.Configuracoes
 
             services.AddAuthentication(options =>
             {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;                
+                options.DefaultScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;  
             })
            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
            {
                options.Cookie.Name = environment.EnvironmentName;
-               options.Events = new CookieAuthenticationEvents
-               {
-                   OnSignedIn = context =>
-                   {
-
-                       return Task.CompletedTask;
-                   },
-                   OnValidatePrincipal = context =>
-                   {
-
-                       return Task.CompletedTask;
-                   },
-                   OnSigningIn = context =>
-                   {
-
-                       return Task.CompletedTask;
-                   },
-                   OnRedirectToReturnUrl = context =>
-                   {
-
-                       return Task.CompletedTask;
-                   },
-                   OnRedirectToAccessDenied = context =>
-                   {
-
-                       return Task.CompletedTask;
-                   },
-                   OnRedirectToLogin = context =>
-                   {
-
-                       return Task.CompletedTask;
-                   },
-               };
            })
            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
            {
+               options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                options.Authority = authUrl;
                options.ClientId = clientId;
                options.ClientSecret = clientSecret;
                options.ClaimsIssuer = authUrl;
+               //options.UsePkce = true;
                // Para o fusionAuth só vai o code
                options.ResponseType = environment.EnvironmentName == "Fusionauth" ? OpenIdConnectResponseType.Code : OpenIdConnectResponseType.CodeIdTokenToken;
                options.Scope.Clear();
@@ -185,11 +151,16 @@ namespace Cadastro.Configuracoes
                options.Scope.Add("email");
                options.RequireHttpsMetadata = false;
                options.SaveTokens = true;
+               options.MetadataAddress = $"{authUrl}.well-known/openid-configuration";
 
+               options.GetClaimsFromUserInfoEndpoint = true;
                // options.CallbackPath = new PathString("/callback");
 
-               options.TokenValidationParameters.IssuerSigningKey = key;
-               options.Events = SetupOpenIdConnectEvents(authUrl, audience);
+               //options.TokenValidationParameters.IssuerSigningKey = key;
+               //options.TokenValidationParameters.ValidateIssuer = false;
+               //options.TokenValidationParameters.ValidateAudience = false;
+
+               options.Events = SetupOpenIdConnectEvents();
 
            });
 
@@ -202,8 +173,6 @@ namespace Cadastro.Configuracoes
         /// https://github.com/dotnet/aspnetcore/issues/14996
         public static IServiceCollection AddMVCCustomCookiePolicyOptionsConfig(this IServiceCollection services)
         {
-            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.MinimumSameSitePolicy = SameSiteMode.None;
@@ -215,7 +184,7 @@ namespace Cadastro.Configuracoes
             return services;
         }
 
-        private static OpenIdConnectEvents SetupOpenIdConnectEvents(string authUrl, string audience)
+        private static OpenIdConnectEvents SetupOpenIdConnectEvents()
         {
             // options.CallbackPath = new PathString("/callback");
             // options.ClaimsIssuer = authUrl;
@@ -223,7 +192,7 @@ namespace Cadastro.Configuracoes
 
             var events = new OpenIdConnectEvents
             {
-                OnTicketReceived = context =>
+                OnTokenValidated = context =>
                 {
                     var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
                     Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
@@ -231,64 +200,14 @@ namespace Cadastro.Configuracoes
                     Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
                     if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
                     {
-
                         var handler = new JwtSecurityTokenHandler();
                         var userToken = handler.ReadJwtToken(token.Value);
                         //TODO: Pegar os dados do usuário do token e verificar se existe caso não cadastrar
+                        var tokenJwt = (JwtSecurityToken)userToken;
 
+                        var payload = JsonConvert.DeserializeObject<TokenPayload>(tokenJwt.Payload.SerializeToJson());
+                        context.Principal.AddIdentities(FillToken(payload));
                     }
-                    return Task.CompletedTask;
-                },
-                OnRedirectToIdentityProvider = context =>
-                {
-                    if (!string.IsNullOrEmpty(audience))
-                        context.ProtocolMessage.SetParameter("audience", audience);
-
-                    return Task.CompletedTask;
-                },
-                OnMessageReceived = context =>
-                {
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                        context.ProtocolMessage.IssuerAddress = authUrl;
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                        context.ProtocolMessage.Iss = authUrl;
-
-                    return Task.CompletedTask;
-                },
-                OnAuthorizationCodeReceived = context =>
-                {
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                        context.ProtocolMessage.IssuerAddress = authUrl;
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                        context.ProtocolMessage.Iss = authUrl;
-
-                    return Task.CompletedTask;
-                },
-                OnTokenResponseReceived = context =>
-                {
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                        context.ProtocolMessage.IssuerAddress = authUrl;
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                        context.ProtocolMessage.Iss = authUrl;
-
-                    return Task.CompletedTask;
-                },
-                OnTokenValidated = context =>
-                {
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                        context.ProtocolMessage.IssuerAddress = authUrl;
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                        context.ProtocolMessage.Iss = authUrl;
-
-                    return Task.CompletedTask;
-                },
-                OnUserInformationReceived = context =>
-                {
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.IssuerAddress))
-                        context.ProtocolMessage.IssuerAddress = authUrl;
-                    if (!string.IsNullOrEmpty(context.ProtocolMessage.Iss))
-                        context.ProtocolMessage.Iss = authUrl;
-
                     return Task.CompletedTask;
                 },
                 OnAuthenticationFailed = context =>
@@ -308,13 +227,21 @@ namespace Cadastro.Configuracoes
                 var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
                 if (DisallowsSameSiteNone(userAgent))
                 {
-                    options.SameSite = SameSiteMode.Unspecified;
+                    options.SameSite = SameSiteMode.Lax;
                 }
             }
         }
 
-        private static bool DisallowsSameSiteNone(string userAgent)
+        public static bool DisallowsSameSiteNone(string userAgent)
         {
+            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
+            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
+            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
+            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
+            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
+            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
+            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
+            Debug.WriteLine($" User Ahent {userAgent}");
             // Check if a null or empty string has been passed in, since this
             // will cause further interrogation of the useragent to fail.
             if (String.IsNullOrWhiteSpace(userAgent))
@@ -329,6 +256,7 @@ namespace Cadastro.Configuracoes
             if (userAgent.Contains("CPU iPhone OS 12") ||
                 userAgent.Contains("iPad; CPU OS 12"))
             {
+                Debug.WriteLine($" User Ahent {userAgent} Return true");
                 return true;
             }
 
@@ -341,6 +269,7 @@ namespace Cadastro.Configuracoes
             if (userAgent.Contains("Macintosh; Intel Mac OS X 10_14") &&
                 userAgent.Contains("Version/") && userAgent.Contains("Safari"))
             {
+                Debug.WriteLine($" User Ahent {userAgent} Return true");
                 return true;
             }
 
@@ -348,11 +277,13 @@ namespace Cadastro.Configuracoes
             // and none in this range require it.
             // Note: this covers some pre-Chromium Edge versions, 
             // but pre-Chromium Edge does not require SameSite=None.
-            if (userAgent.Contains("Chrome/"))
+            if (userAgent.Contains("Chrome/5") || userAgent.Contains("Chrome/6"))
             {
+                Debug.WriteLine($" User Ahent {userAgent} Return true");
                 return true;
             }
 
+            Debug.WriteLine($" User Ahent {userAgent} Return false");
             return false;
         }
     }

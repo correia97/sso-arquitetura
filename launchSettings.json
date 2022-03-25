@@ -9,8 +9,8 @@
         "cadastro.mvc": "StartDebugging",
         "cadastro.workerservice": "StartDebugging",
         "db": "StartWithoutDebugging",
-        "fusionauth": "StartWithoutDebugging",
-        "keycloak": "StartWithoutDebugging",
+        //"fusionauth": "StartWithoutDebugging",
+        //"keycloak": "StartWithoutDebugging",
         "nginx": "StartWithoutDebugging",
         "rabbitmq": "StartWithoutDebugging"
       }

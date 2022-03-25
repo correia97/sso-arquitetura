@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  authBaseUrl : 'http://keycloak.localhost',
+  authBaseUrl : 'https://keycloak.paulocorreia.dev.br',
   clientAuth: 'exemplo1',
-  apiBaseUrl: 'http://api.localhost',
+  apiBaseUrl: 'https://api.localhost',
   audience: '',
-  complement: '/auth/realms/Sample'
+  complement: '/realms/Sample'
 };

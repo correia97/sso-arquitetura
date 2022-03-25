@@ -27,7 +27,7 @@ export class ApiclientService {
 
 
   getWeatherForecast(): Observable<any> {
-    return this.http.get(environment.apiBaseUrl + '/api/weatherforecast/authorization', this.getHeader())
+    return this.http.get(environment.apiBaseUrl + '/api/WeatherForecast/authorization', this.getHeader())
       .pipe(
         catchError(this.handleError)
       );
