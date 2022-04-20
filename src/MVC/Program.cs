@@ -25,6 +25,7 @@ builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+app.UseCookiePolicy();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.EnvironmentName.ToUpper().Contains("PROD"))
@@ -45,17 +46,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
-
 app.MapRazorPages();
-
-app.UseCookiePolicy(new CookiePolicyOptions()
-{
-    HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.None,
-    MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None,
-    Secure = Microsoft.AspNetCore.Http.CookieSecurePolicy.None
-
-});
 
 app.UseAuthentication();
 

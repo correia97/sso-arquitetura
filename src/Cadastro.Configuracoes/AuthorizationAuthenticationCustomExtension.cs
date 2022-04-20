@@ -129,11 +129,11 @@ namespace Cadastro.Configuracoes
             {
                 options.DefaultScheme = OpenIdConnectDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;  
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
            {
-               options.Cookie.Name = environment.EnvironmentName;
+               options.Cookie.Name = $"ambiente_{environment.EnvironmentName}";
            })
            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
            {
@@ -169,13 +169,13 @@ namespace Cadastro.Configuracoes
 
 
         /// Tentativa de correção para erro de correlationid no chrome 
-        /// https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
+        /// https://docs.microsoft.com/pt-br/aspnet/core/security/samesite?view=aspnetcore-6.0
         /// https://github.com/dotnet/aspnetcore/issues/14996
         public static IServiceCollection AddMVCCustomCookiePolicyOptionsConfig(this IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
                 options.OnAppendCookie = cookieContext =>
                     CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
                 options.OnDeleteCookie = cookieContext =>
@@ -194,27 +194,33 @@ namespace Cadastro.Configuracoes
             {
                 OnTokenValidated = context =>
                 {
-                    var token = context.Properties.Items.FirstOrDefault(x => x.Key.Contains("access_token"));
-                    Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-                    Debug.WriteLine(token);
-                    Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-                    if (!string.IsNullOrEmpty(token.Value) && token.Value.IndexOf(".") > 0)
+                    var tokenJwt = context.SecurityToken;
+                    if (tokenJwt == null || string.IsNullOrEmpty(tokenJwt.RawPayload))
                     {
-                        var handler = new JwtSecurityTokenHandler();
-                        var userToken = handler.ReadJwtToken(token.Value);
-                        //TODO: Pegar os dados do usuário do token e verificar se existe caso não cadastrar
-                        var tokenJwt = (JwtSecurityToken)userToken;
-
-                        var payload = JsonConvert.DeserializeObject<TokenPayload>(tokenJwt.Payload.SerializeToJson());
-                        context.Principal.AddIdentities(FillToken(payload));
+                        return null;
                     }
+
+                    Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
+                    Debug.WriteLine(tokenJwt.Payload.SerializeToJson());
+                    Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
+
+                    var payload = JsonConvert.DeserializeObject<TokenPayload>(tokenJwt.Payload.SerializeToJson());
+                    context.Principal.AddIdentities(FillToken(payload));
+
                     return Task.CompletedTask;
                 },
                 OnAuthenticationFailed = context =>
                 {
                     return Task.CompletedTask;
                 },
-                
+                OnAccessDenied = context => 
+                {
+                    return Task.CompletedTask;
+                },
+                OnRemoteFailure = context =>
+                {
+                    return Task.CompletedTask;
+                }
             };
 
             return events;
@@ -227,7 +233,7 @@ namespace Cadastro.Configuracoes
                 var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
                 if (DisallowsSameSiteNone(userAgent))
                 {
-                    options.SameSite = SameSiteMode.Lax;
+                    options.SameSite = SameSiteMode.Unspecified;
                 }
             }
         }
@@ -277,7 +283,7 @@ namespace Cadastro.Configuracoes
             // and none in this range require it.
             // Note: this covers some pre-Chromium Edge versions, 
             // but pre-Chromium Edge does not require SameSite=None.
-            if (userAgent.Contains("Chrome/5") || userAgent.Contains("Chrome/6"))
+            if (userAgent.Contains("Chrome/5") || userAgent.Contains("Chrome/6") || userAgent.Contains("Chrome/10"))
             {
                 Debug.WriteLine($" User Ahent {userAgent} Return true");
                 return true;
