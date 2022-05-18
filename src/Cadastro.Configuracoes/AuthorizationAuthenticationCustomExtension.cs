@@ -87,25 +87,23 @@ namespace Cadastro.Configuracoes
             claims.Add(new Claim(ClaimTypes.Name, payload.name));
             claims.Add(new Claim(ClaimTypes.Email, payload.email));
             claims.Add(new Claim(ClaimTypes.Surname, payload.family_name));
+            claims.Add(new Claim("userId", payload.sub));
 
-            if (payload.group != null)
-                foreach (var item in payload.group)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, item));
-                }
-            if (payload.realm_access?.roles != null)
-                foreach (var item in payload.realm_access.roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, item));
-                }
-            if (payload.resource_access?.account?.roles != null)
-                foreach (var item in payload.resource_access.account.roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, item));
-                }
+            AddClaimFromRoleList(claims, payload.group);
+            AddClaimFromRoleList(claims, payload.realm_access?.roles);
+            AddClaimFromRoleList(claims, payload.resource_access?.account?.roles);
 
             var identity = new ClaimsIdentity(claims);
             return new List<ClaimsIdentity> { identity };
+        }
+
+        private static void AddClaimFromRoleList(List<Claim> claims, List<string> roles)
+        {
+            if (roles != null)
+                foreach (var item in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, item));
+                }
         }
 
         public static IServiceCollection AddMVCCustomAuthenticationConfig(this IServiceCollection services,
@@ -114,8 +112,6 @@ namespace Cadastro.Configuracoes
         {
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-
-
             var clientId = configuration.GetValue<string>("ClientId");
             var clientSecret = configuration.GetValue<string>("ClientSecret");
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(clientSecret)) { KeyId = clientId };
@@ -186,34 +182,27 @@ namespace Cadastro.Configuracoes
 
         private static OpenIdConnectEvents SetupOpenIdConnectEvents()
         {
-            // options.CallbackPath = new PathString("/callback");
-            // options.ClaimsIssuer = authUrl;
-            // options.GetClaimsFromUserInfoEndpoint = true;
-
             var events = new OpenIdConnectEvents
             {
                 OnTokenValidated = context =>
                 {
                     var tokenJwt = context.SecurityToken;
-                    if (tokenJwt == null || string.IsNullOrEmpty(tokenJwt.RawPayload))
+                    if (tokenJwt != null && !string.IsNullOrEmpty(tokenJwt.RawPayload))
                     {
-                        return null;
+                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
+                        Debug.WriteLine(tokenJwt.Payload.SerializeToJson());
+                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
+
+                        var payload = JsonConvert.DeserializeObject<TokenPayload>(tokenJwt.Payload.SerializeToJson());
+                        context.Principal.AddIdentities(FillToken(payload));
                     }
-
-                    Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-                    Debug.WriteLine(tokenJwt.Payload.SerializeToJson());
-                    Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-
-                    var payload = JsonConvert.DeserializeObject<TokenPayload>(tokenJwt.Payload.SerializeToJson());
-                    context.Principal.AddIdentities(FillToken(payload));
-
                     return Task.CompletedTask;
                 },
                 OnAuthenticationFailed = context =>
                 {
                     return Task.CompletedTask;
                 },
-                OnAccessDenied = context => 
+                OnAccessDenied = context =>
                 {
                     return Task.CompletedTask;
                 },

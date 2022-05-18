@@ -5,7 +5,7 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>5ac31d5a-0379-41f3-a0d9-f8c608ad44ce</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
+    <DockerServiceUrl>{Scheme}://mvc.localhost</DockerServiceUrl>
   </PropertyGroup>
   <PropertyGroup>
     <DockerServiceName>cadastro.mvc</DockerServiceName>

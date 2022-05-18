@@ -15,7 +15,7 @@ namespace Cadastro.Data.Repositories
     public class FuncionarioRepository : BaseRepository<Funcionario, Guid>, IFuncionarioReadRepository, IFuncionarioWriteRepository
     {
         private readonly ILogger<FuncionarioRepository> _logger;
-        public FuncionarioRepository(IConfiguration configuration, ILogger<FuncionarioRepository> logger )
+        public FuncionarioRepository(IConfiguration configuration, ILogger<FuncionarioRepository> logger)
             : base(configuration)
         {
             _logger = logger;

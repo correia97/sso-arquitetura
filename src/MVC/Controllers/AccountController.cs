@@ -20,7 +20,8 @@ namespace MVC.Controllers
             {
 
                 throw;
-            }        }
+            }
+        }
 
         [Authorize]
         public async Task Logout()

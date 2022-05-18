@@ -368,7 +368,7 @@ namespace Cadastro.Test.Domain
                 new Email(person.Email), tels, endereco, endereco);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
-                .ReturnsAsync(new List<Funcionario>() { funcionario});
+                .ReturnsAsync(new List<Funcionario>() { funcionario });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 

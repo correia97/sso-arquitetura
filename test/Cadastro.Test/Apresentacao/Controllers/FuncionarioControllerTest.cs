@@ -100,7 +100,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Cadastrar(It.IsAny<Funcionario>())).Returns(true);
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result =  controller.Post(funcionario) as OkObjectResult;
+            var result = controller.Post(funcionario) as OkObjectResult;
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(200);
