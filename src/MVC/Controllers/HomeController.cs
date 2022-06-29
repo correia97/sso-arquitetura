@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MVC.Interfaces;
 using MVC.Models;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -13,9 +14,9 @@ namespace MVC.Controllers
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IApiService _apiService;
+        private readonly IWeatherForecastService _apiService;
         private readonly IConfiguration _configuration;
-        public HomeController(ILogger<HomeController> logger, IApiService apiService, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, IWeatherForecastService apiService, IConfiguration configuration)
         {
             _logger = logger;
             _apiService = apiService;
@@ -40,13 +41,11 @@ namespace MVC.Controllers
         {
             try
             {
-
                 await HttpContext.ChallengeAsync("auth", new AuthenticationProperties() { RedirectUri = returnUrl });
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-
-                throw;
+                throw ex;
             }
         }
 

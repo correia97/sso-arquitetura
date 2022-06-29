@@ -1,4 +1,4 @@
-﻿using Cadastro.API.Controllers;
+﻿using Cadastro.API.Controllers.V1;
 using Cadastro.API.Interfaces;
 using Domain.Entities;
 using Domain.ValueObject;

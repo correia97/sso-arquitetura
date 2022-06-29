@@ -9,15 +9,16 @@ using System.Threading.Tasks;
 
 namespace MVC.Services
 {
-    public class ApiService : IApiService
+    public class WeatherForecastService : IWeatherForecastService
     {
         private readonly string ServiceUrl;
-        private ILogger<ApiService> _logger;
-        public ApiService(IConfiguration configuration, ILogger<ApiService> logger)
+        private ILogger<WeatherForecastService> _logger;
+        public WeatherForecastService(IConfiguration configuration, ILogger<WeatherForecastService> logger)
         {
             ServiceUrl = configuration.GetValue<string>("ServiceUrl");
             _logger = logger;
         }
+
         public async Task<List<Forecast>> GetWeatherForecast(string authToken)
         {
             try

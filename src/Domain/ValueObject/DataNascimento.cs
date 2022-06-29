@@ -22,7 +22,7 @@ namespace Domain.ValueObject
 
         public override string ToString()
         {
-            return Date.ToString("dd/MM/yyyy");
+            return Date.ToString("yyyy-MM-dd");
         }
         public override bool Equals(object obj)
         {

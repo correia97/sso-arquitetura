@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Cadastro.API.Controllers
+namespace Cadastro.API.Controllers.V1
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class FuncionarioController : ControllerBase
     {
         private readonly ILogger<FuncionarioController> _logger;

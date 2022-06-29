@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
@@ -17,9 +19,27 @@ builder.Services.AddMVCCustomAuthenticationConfig(builder.Environment, builder.C
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IApiService, ApiService>();
+builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
+
+builder.Services.AddOpenTelemetryTracing(traceProvider =>
+{
+    traceProvider
+        .AddSource(typeof(WeatherForecastService).Assembly.GetName().Name)
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService(serviceName: typeof(WeatherForecastService).Assembly.GetName().Name,
+                    serviceVersion: typeof(WeatherForecastService).Assembly.GetName().Version!.ToString()))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddConsoleExporter();
+    //.AddJaegerExporter(exporter =>
+    //{
+    //    exporter.AgentHost = builder.Configuration["Jaeger:AgentHost"];
+    //    exporter.AgentPort = Convert.ToInt32(builder.Configuration["Jaeger:AgentPort"]);
+    //});
+});
 
 // Add services to the container.
 builder.Services.AddRazorPages();

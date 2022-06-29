@@ -6,11 +6,16 @@ using Cadastro.Domain.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text.Json.Serialization;
-
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -18,12 +23,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+
 builder.Services.AddControllers()
                 .AddJsonOptions(opt =>
                                 {
                                     opt.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
                                     opt.JsonSerializerOptions.UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement;
                                 });
+
+
+
+builder.Services.AddApiVersioning(x =>
+{
+    x.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    x.AssumeDefaultVersionWhenUnspecified = true;
+    x.ReportApiVersions = true;
+    x.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
+builder.Services.AddVersionedApiExplorer(p =>
+{
+    p.GroupNameFormat = "'v'VVV";
+    p.SubstituteApiVersionInUrl = true;
+    p.AddApiVersionParametersWhenVersionNeutral = true;
+    p.AssumeDefaultVersionWhenUnspecified = true;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -74,6 +97,26 @@ builder.Services.AddCors(options =>
     options.DefaultPolicyName = MyAllowSpecificOrigins;
 });
 
+
+builder.Services.AddOpenTelemetryTracing(traceProvider =>
+{
+    traceProvider
+        .AddSource(typeof(FuncionarioAppService).Assembly.GetName().Name)
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService(serviceName: typeof(FuncionarioAppService).Assembly.GetName().Name,
+                    serviceVersion: typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString()))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddSqlClientInstrumentation()
+        .AddConsoleExporter();
+        //.AddJaegerExporter(exporter =>
+        //{
+        //    exporter.AgentHost = builder.Configuration["Jaeger:AgentHost"];
+        //    exporter.AgentPort = Convert.ToInt32(builder.Configuration["Jaeger:AgentPort"]);
+        //});
+});
+
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 builder.Services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
@@ -95,9 +138,17 @@ if (!app.Environment.EnvironmentName.ToUpper().Contains("PROD"))
 
 app.UseSwagger();
 
+var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", $"Cadastro API - {app.Environment.EnvironmentName} V1");
+    foreach (var description in provider.ApiVersionDescriptions)
+    {
+        c.SwaggerEndpoint(
+        $"/swagger/{description.GroupName}/swagger.json",
+        $"Cadastro API - {app.Environment.EnvironmentName} {description.GroupName.ToUpperInvariant()}");
+    }
+    c.DocExpansion(DocExpansion.List);
 });
 
 //app.UseHttpsRedirection();

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace MVC.Interfaces
 {
-    public interface IApiService
+    public interface IWeatherForecastService
     {
         Task<List<Forecast>> GetWeatherForecast(string authToken);
     }

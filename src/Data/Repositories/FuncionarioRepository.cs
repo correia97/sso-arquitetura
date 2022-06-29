@@ -33,7 +33,7 @@ namespace Cadastro.Data.Repositories
                         , primeironome    =@primeiroNome
                         , sobrenome       =@sobreNome
                         , enderecoemail   =@enderecoEmail  
-                        , date            =@date
+                        , datanascimento  =@date
                         WHERE id          =@id";
 
             var param = new DynamicParameters();
@@ -42,12 +42,12 @@ namespace Cadastro.Data.Repositories
             param.Add("@matricula", data.Matricula);
             param.Add("@cargo", data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
-            param.Add("@dataCadastro", data.DataCadastro, DbType.DateTime);
-            param.Add("@dataAtualizacao", data.DataAtualizacao, DbType.DateTime);
+            param.Add("@dataCadastro", data.DataCadastro, DbType.DateTimeOffset);
+            param.Add("@dataAtualizacao", data.DataAtualizacao, DbType.DateTimeOffset);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", data.DataNascimento, DbType.DateTime);
+            param.Add("@date", data.DataNascimento, DbType.DateTimeOffset);
 
             try
             {
@@ -75,7 +75,7 @@ namespace Cadastro.Data.Repositories
                         , primeironome
                         , sobrenome
                         , enderecoemail
-                        , date) VALUES (
+                        , datanascimento) VALUES (
                          @id
                         ,@userId
                         ,@matricula
@@ -94,12 +94,12 @@ namespace Cadastro.Data.Repositories
             param.Add("@matricula", data.Matricula);
             param.Add("@cargo", data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
-            param.Add("@dataCadastro", data.DataCadastro, DbType.DateTime);
-            param.Add("@dataAtualizacao", data.DataAtualizacao, DbType.DateTime);
+            param.Add("@dataCadastro", DateTimeOffset.FromFileTime(data.DataCadastro.ToFileTimeUtc()), DbType.DateTimeOffset);
+            param.Add("@dataAtualizacao", data.DataAtualizacao.HasValue ? DateTimeOffset.FromFileTime(data.DataAtualizacao.Value.ToFileTimeUtc()) : null, DbType.DateTimeOffset);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", data.DataNascimento, DbType.DateTime);
+            param.Add("@date", DateTimeOffset.FromFileTime(data.DataNascimento.Date.ToFileTimeUtc()), DbType.DateTimeOffset);
 
             try
             {
@@ -203,7 +203,7 @@ namespace Cadastro.Data.Repositories
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
 
                         return funcionario;
-                    }, "primeironome, date, enderecoemail");
+                    }, splitOn: "primeironome, date, enderecoemail");
                 return result;
             }
             catch (Exception ex)
