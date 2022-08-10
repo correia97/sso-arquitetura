@@ -22,46 +22,46 @@ docker-compose up -d
 ```
 
 > Navegue até a url **http://localhost:8080**
-![home](asset/01%20HomeKeycloak.PNG)
+![home](../asset/01%20HomeKeycloak.PNG)
 
 > Faça login no Keycloak
-![Login](asset/02%20LoginKeyCloak.PNG)
+![Login](../asset/02%20LoginKeyCloak.PNG)
 
 > Altere para o realm Sample
-![Realm](asset/03%20RealmKeyCloak.PNG)
+![Realm](../asset/03%20RealmKeyCloak.PNG)
 
 > Navega até a opção Usuários
-![Usuarios](asset/04%20UsuariosKeycloak.PNG)
+![Usuarios](../asset/04%20UsuariosKeycloak.PNG)
 
 > Cadastre um novo usuário
-![Novousuario](asset/05%20RegistroUsuariosKeycloak.PNG)
+![Novousuario](../asset/05%20RegistroUsuariosKeycloak.PNG)
 
 > Crie uma Senha para o usuário e desmaque a opção de temporario
-![Senhausuario](asset/06%20SenhaUsuariosKeycloak.PNG)
+![Senhausuario](../asset/06%20SenhaUsuariosKeycloak.PNG)
 
 
 > Navege até a url do projeto MVC **http://localhost:8085** e clique no menu Privacy
-![HomeMVC](asset/07%20HomeDoMVC.PNG)
+![HomeMVC](../asset/07%20HomeDoMVC.PNG)
 
 > Faça o Login com o usuário que foi criado no Keycloak
-![LoginUsuario](asset/02%20LoginKeyCloak.PNG)
+![LoginUsuario](../asset/02%20LoginKeyCloak.PNG)
 
 > Navegue na aplicação autenticada
-![HomeAutenticada](asset/09%20HomeAutenticada.PNG)
+![HomeAutenticada](../asset/09%20HomeAutenticada.PNG)
 
 
 > Navege até a url do projeto Angular **http://localhost:4200** e clique no botão login
-![HomeMVC](asset/10%20AngularHome.PNG)
+![HomeMVC](../asset/10%20AngularHome.PNG)
 
 > Faça o Login com o usuário que foi criado no Keycloak
-![LoginUsuario](asset/02%20LoginKeyCloak.PNG)
+![LoginUsuario](../asset/02%20LoginKeyCloak.PNG)
 
 
 > Navegue na aplicação autenticada
-![HomeAutenticada](asset/11%20AngularClaims.PNG)
+![HomeAutenticada](../asset/11%20AngularClaims.PNG)
 
 > Home consumindo a API
-![HomeAutenticada](asset/12%20AngularHomeAutenticada.PNG)
+![HomeAutenticada](../asset/12%20AngularHomeAutenticada.PNG)
 
 <br/>
 <br/>

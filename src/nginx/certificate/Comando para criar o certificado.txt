@@ -1,0 +1,12 @@
+openssl genrsa -des3 -out localhost.key 4096
+openssl rsa -in ca.key -out localhost.key
+openssl req -new -x509 -days 3650 -key localhost.key -subj "/CN=*.localhost" -out localhost.crt
+
+
+
+dotnet dev-certs https -ep $env:D:\projetos\SSO\src\KeyCloak\certificate\localhost.pfx -p password
+openssl pkcs12 -in localhost.pfx -nocerts -out angular.localhost-selfsigned.key
+openssl pkcs12 -in localhost.pfx -clcerts -nokeys -out angular.localhost-selfsigned.crt
+
+openssl dhparam -out dhparam.pem 4096
+

@@ -89,59 +89,6 @@ services:
     networks: 
       - base
       - externo
-  
-  # traefik:
-  #   image: traefik:v2.5
-  #   container_name: traefik
-  #   # hostname: "traefik"
-  #   ports:
-  #     - "80:80"
-  #     - "8089:8080"
-  #   volumes:
-  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
-  #     - "./traefik.yml:/traefik.yml:ro"
-  #   networks:
-  #     - externo
-  #     - externo1
-  #   depends_on:
-  #     - fusionauth
-  #     - cadastro.mvc
-  #     - angular      
-  #     - cadastro.api      
-  #     - keycloak
-
-  #fusionauth:
-  #  image: fusionauth/fusionauth-app:1.33.0
-  #  container_name: fusionauth
-  #  depends_on:
-  #    - db
-  #  environment:
-  #      DATABASE_URL: jdbc:postgresql://db:5432/fusionauth
-  #      # Prior to version 1.19.0, use this deprecated name
-  #      # DATABASE_ROOT_USER: ${POSTGRES_USER}
-  #      DATABASE_ROOT_USERNAME: postgres
-  #      DATABASE_ROOT_PASSWORD: postgres
-  #      # Prior to version 1.19.0, use this deprecated name
-  #      # DATABASE_USER: ${DATABASE_USER}
-  #      DATABASE_USERNAME: postgres
-  #      DATABASE_PASSWORD: postgres
-  #      # Prior to version 1.19.0, use this deprecated names
-  #      # FUSIONAUTH_MEMORY: ${FUSIONAUTH_MEMORY}
-  #      # FUSIONAUTH_SEARCH_ENGINE_TYPE: database
-  #      # FUSIONAUTH_URL: http://fusionauth:9011
-  #      # FUSIONAUTH_RUNTIME_MODE: development
-  #      FUSIONAUTH_APP_MEMORY: 512M
-  #      FUSIONAUTH_APP_RUNTIME_MODE: development
-  #      FUSIONAUTH_APP_URL: http://fusionauth:9011
-  #      SEARCH_TYPE: database
-  #  networks:
-  #    - externo
-  #    - base
-  #  restart: unless-stopped
-  #  ports:
-  #    - 91:9011
-  #  volumes:
-  #    - fa_config:/usr/local/fusionauth/config
 
   #keycloak:
   #  image: quay.io/keycloak/keycloak:17.0.0
@@ -169,6 +116,7 @@ services:
   #  ports:
   #    - 8088:8080
   #    - 9099:9090
+
   jaeger:
     image: jaegertracing/all-in-one:1.35
     container_name: jaeger
@@ -223,9 +171,9 @@ services:
     container_name: nginx
     domainname: localhost
     volumes:
-       - ./src/keycloak/nginx.conf:/etc/nginx/nginx.conf
-       - ./src/keycloak/nginxconfig:/etc/nginx/conf.d/
-       - ./src/keycloak/certificate:/etc/ssl/certs/       
+       - ./src/nginx/nginx.conf:/etc/nginx/nginx.conf
+       - ./src/nginx/nginxconfig:/etc/nginx/conf.d/
+       - ./src/nginx/certificate:/etc/ssl/certs/       
     ports:
        - 80:80
        - 443:443
@@ -264,9 +212,6 @@ networks:
   externo:
 volumes:
   dbData:
-  dbLog:
-  dbSecrets:
-  fa_config:  
   mq_data:
   grafana_data:
 
