@@ -4,15 +4,14 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
+        "db": "StartWithoutDebugging",
+        //"keycloak": "StartWithoutDebugging",
+        "nginx": "StartWithoutDebugging",
+        "rabbitmq": "StartWithoutDebugging",
         "cadastro.angular": "StartWithoutDebugging",
         "cadastro.api": "StartDebugging",
         "cadastro.mvc": "StartDebugging",
-        "cadastro.workerservice": "StartDebugging",
-        "db": "StartWithoutDebugging",
-        //"fusionauth": "StartWithoutDebugging",
-        //"keycloak": "StartWithoutDebugging",
-        "nginx": "StartWithoutDebugging",
-        "rabbitmq": "StartWithoutDebugging"
+        "cadastro.workerservice": "StartDebugging"
       }
     }
   }
