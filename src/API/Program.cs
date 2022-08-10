@@ -16,6 +16,9 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text.Json.Serialization;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using OpenTelemetry.Exporter;
+using System;
+using OpenTelemetry.Metrics;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -98,23 +101,50 @@ builder.Services.AddCors(options =>
 });
 
 
+builder.Services.AddHealthChecks();
+
 builder.Services.AddOpenTelemetryTracing(traceProvider =>
 {
     traceProvider
         .AddSource(typeof(FuncionarioAppService).Assembly.GetName().Name)
         .SetResourceBuilder(
-            ResourceBuilder.CreateDefault()
+                ResourceBuilder.CreateDefault()
                 .AddService(serviceName: typeof(FuncionarioAppService).Assembly.GetName().Name,
-                    serviceVersion: typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString()))
+                            serviceVersion: typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString()))
         .AddHttpClientInstrumentation()
         .AddAspNetCoreInstrumentation()
-        .AddSqlClientInstrumentation()
-        .AddConsoleExporter();
-        //.AddJaegerExporter(exporter =>
-        //{
-        //    exporter.AgentHost = builder.Configuration["Jaeger:AgentHost"];
-        //    exporter.AgentPort = Convert.ToInt32(builder.Configuration["Jaeger:AgentPort"]);
-        //});
+        .AddSqlClientInstrumentation(
+            options =>
+            {
+                options.SetDbStatementForText = true;
+                options.RecordException = true;
+            })
+        .AddConsoleExporter()                
+        .AddJaegerExporter(exporter =>
+        {
+            exporter.AgentHost = "jaeger";
+            exporter.AgentPort = 6831;
+        });
+});
+
+builder.Services.AddOpenTelemetryMetrics(config =>
+{
+    config
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService(serviceName: typeof(FuncionarioAppService).Assembly.GetName().Name,
+                            serviceVersion: typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString())
+                .AddEnvironmentVariableDetector()
+                .AddTelemetrySdk()
+                )
+        .AddPrometheusExporter(options =>
+        {
+            options.StartHttpListener = true;
+            options.HttpListenerPrefixes = new string[] { "http://prometheus:9090/" };
+            options.ScrapeResponseCacheDurationMilliseconds = 0;
+        })
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation();
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
@@ -132,6 +162,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.EnvironmentName.ToUpper().Contains("PROD"))
 {
+    app.UseHttpLogging();
     app.UseDeveloperExceptionPage();
     IdentityModelEventSource.ShowPII = true;
 }
@@ -154,6 +185,7 @@ app.UseSwaggerUI(c =>
 //app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseCors(MyAllowSpecificOrigins);
@@ -161,6 +193,8 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 

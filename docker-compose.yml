@@ -12,6 +12,7 @@ services:
     depends_on:    
       - rabbitmq
       - db
+      - jaeger
 
   cadastro.mvc:
     image: ${DOCKER_REGISTRY-}cadastromvc
@@ -34,6 +35,7 @@ services:
     depends_on:
       - db
       - rabbitmq
+      - jaeger
 
   cadastro.angular:
     image: angular
@@ -73,6 +75,7 @@ services:
     ports:
       - 15672:15672  #Management
       - 5672:5672    #AMQP
+      - 15692:15692  #metrics
     environment:
       RABBITMQ_DEFAULT_USER: mc
       RABBITMQ_DEFAULT_PASS: mc2
@@ -166,15 +169,63 @@ services:
   #  ports:
   #    - 8088:8080
   #    - 9099:9090
+  jaeger:
+    image: jaegertracing/all-in-one:1.35
+    container_name: jaeger
+    environment:
+        - COLLECTOR_OTLP_ENABLED=true
+        - JAEGER_AGENT_HOST="jaeger"
+    ports:
+      - 6831:6831/udp 
+      - 6832:6832/udp 
+      - 5778:5778 
+      - 16686:16686 
+      - 4317:4317 
+      - 4318:4318 
+      - 14250:14250 
+      - 14268:14268 
+      - 14269:14269 
+      - 9411:9411 
+    networks:
+      - externo
+    depends_on:
+      - db
+
+  prometheus:
+    image: prom/prometheus:v2.37.0
+    container_name: prometheus    
+    volumes: 
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+    depends_on:
+      - cadastro.api
+    networks:
+      - externo
+      - base
+
+  grafana:
+    image: grafana/grafana-oss:9.0.6
+    container_name: grafana     
+    environment:
+        - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - externo
 
   nginx:
-    image: nginx:1.21.0-alpine
+    image: nginx:1.23.1-alpine
     container_name: nginx
     domainname: localhost
     volumes:
        - ./src/keycloak/nginx.conf:/etc/nginx/nginx.conf
        - ./src/keycloak/nginxconfig:/etc/nginx/conf.d/
-       - ./src/keycloak/certificate:/etc/ssl/certs/
+       - ./src/keycloak/certificate:/etc/ssl/certs/       
     ports:
        - 80:80
        - 443:443
@@ -193,6 +244,19 @@ services:
       - NGINX_HOST=localhost
       - NGINX_PORT=80  
 
+  nginx-prometheus-exporter:
+    image: nginx/nginx-prometheus-exporter:0.10
+    container_name: nginx-prometheus-exporter
+    command:
+     - -nginx.scrape-uri http://192.168.0.17/metrics
+    ports:
+     -  9113:9113
+    networks:
+      - externo
+    depends_on:
+      - nginx
+      - prometheus
+
 
 
 networks:
@@ -204,4 +268,5 @@ volumes:
   dbSecrets:
   fa_config:  
   mq_data:
+  grafana_data:
 

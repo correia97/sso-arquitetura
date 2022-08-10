@@ -1,0 +1,34 @@
+# my global config
+global:
+  scrape_interval:     15s
+  evaluation_interval: 30s
+  # scrape_timeout is set to the global default (10s).
+
+  external_labels:
+    monitor: codelab    
+
+scrape_configs: 
+  - job_name: 'cadastro.api'    
+    scrape_interval: 5s   
+    static_configs:
+      - targets: ['cadastro.api:80']
+      
+  - job_name: 'cadastro.mvc'    
+    scrape_interval: 5s   
+    static_configs:
+      - targets: ['cadastro.mvc:80']
+      
+  - job_name: 'nginx'    
+    scrape_interval: 5s   
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['192.168.0.17:80']
+
+  - job_name: 'prometheus'        
+    static_configs:
+      - targets: ['localhost:9090']  
+  
+  - job_name: 'rabbitmq-server'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+         

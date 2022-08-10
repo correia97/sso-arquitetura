@@ -4,8 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
@@ -23,6 +25,8 @@ builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
+builder.Services.AddHealthChecks();
+
 builder.Services.AddOpenTelemetryTracing(traceProvider =>
 {
     traceProvider
@@ -33,12 +37,33 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
                     serviceVersion: typeof(WeatherForecastService).Assembly.GetName().Version!.ToString()))
         .AddHttpClientInstrumentation()
         .AddAspNetCoreInstrumentation()
-        .AddConsoleExporter();
-    //.AddJaegerExporter(exporter =>
-    //{
-    //    exporter.AgentHost = builder.Configuration["Jaeger:AgentHost"];
-    //    exporter.AgentPort = Convert.ToInt32(builder.Configuration["Jaeger:AgentPort"]);
-    //});
+        .AddConsoleExporter()
+        .AddJaegerExporter(exporter =>
+        {
+            exporter.AgentHost = "jaeger";
+            exporter.AgentPort = 6831;
+        });
+});
+builder.Services.AddOpenTelemetryMetrics(config =>
+{
+    config
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService(serviceName: typeof(WeatherForecastService).Assembly.GetName().Name,
+                    serviceVersion: typeof(WeatherForecastService).Assembly.GetName().Version!.ToString())
+                .AddEnvironmentVariableDetector()
+            .AddTelemetrySdk()
+                )
+    .AddPrometheusExporter(options =>
+    {
+        options.StartHttpListener = true;
+        // Use your endpoint and port here
+        options.HttpListenerPrefixes = new string[] { $"http://prometheus:{9090}/" };
+        options.ScrapeResponseCacheDurationMilliseconds = 0;
+    })
+    .AddAspNetCoreInstrumentation()
+    .AddHttpClientInstrumentation();
+    // The rest of your setup code goes here too
 });
 
 // Add services to the container.
@@ -78,5 +103,9 @@ app.UseEndpoints(endpoints =>
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
 });
+
+app.MapHealthChecks("/health");
+
+//app.UseOpenTelemetryPrometheusScrapingEndpoint(); 
 
 app.Run();

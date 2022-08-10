@@ -12,6 +12,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Cadastro.Domain.Interfaces;
 using Cadastro.Data.Repositories;
+using OpenTelemetry.Metrics;
 
 void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
 {
@@ -75,6 +76,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.WithGlobalConnectionString("Base");
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
         });
+
         services.AddOpenTelemetryTracing(traceProvider =>
         {
             traceProvider
@@ -85,13 +87,33 @@ IHost host = Host.CreateDefaultBuilder(args)
                             serviceVersion: typeof(Worker).Assembly.GetName().Version!.ToString()))
                 .AddHttpClientInstrumentation()
                 .AddAspNetCoreInstrumentation()
-                .AddSqlClientInstrumentation()
-                .AddConsoleExporter();
-            //.AddJaegerExporter(exporter =>
-            //{
-            //    exporter.AgentHost = builder.Configuration["Jaeger:AgentHost"];
-            //    exporter.AgentPort = Convert.ToInt32(builder.Configuration["Jaeger:AgentPort"]);
-            //});
+                .AddSqlClientInstrumentation(
+                    options => { 
+                        options.SetDbStatementForText = true;
+                        options.RecordException = true;
+                    })
+                .AddConsoleExporter()
+                .AddJaegerExporter(exporter =>
+                {
+                    exporter.AgentHost = "jaeger";
+                    exporter.AgentPort = 6831;
+                });
+        });
+
+
+        services.AddOpenTelemetryMetrics(config =>
+        {
+            config
+            .AddPrometheusExporter(options =>
+            {
+                options.StartHttpListener = true;
+        // Use your endpoint and port here
+                options.HttpListenerPrefixes = new string[] { "http://prometheus:9090/", "http://localhost/" };
+                options.ScrapeResponseCacheDurationMilliseconds = 0;
+            })
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation();
+            // The rest of your setup code goes here too
         });
     })
     .Build();

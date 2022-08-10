@@ -31,16 +31,11 @@ namespace Cadastro.WorkerService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //while (!stoppingToken.IsCancellationRequested)
-            //{
-            //    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            //    await Task.Delay(1000, stoppingToken);
-            //}
+            _logger.LogInformation("Worker running at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
             IModel model = _connection.CreateModel();
             EventingBasicConsumer consumer = await this.BuildConsumer(model,  Cadastrar);
 
             model.BasicConsume("cadastrar", false, consumer);
-
 
             await Task.Delay(1000, stoppingToken);
         }
@@ -51,6 +46,8 @@ namespace Cadastro.WorkerService
             EventingBasicConsumer consumer = new EventingBasicConsumer(model);
             consumer.Received += async (sender, ea) =>
             {
+
+                _logger.LogInformation("Message received at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
 
@@ -64,16 +61,21 @@ namespace Cadastro.WorkerService
         public  void Cadastrar(string message, IModel model, ulong deliveryTag)
         {
 
+            _logger.LogInformation("Cadastrar started at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
             var funcionario = JsonSerializer.Deserialize<Funcionario>(message);
 
             var id =  _repository.Inserir(funcionario).Result;
             if (id != Guid.Empty)
             {
                 model.BasicAck(deliveryTag, false);
+
+                _logger.LogInformation("Cadastrar success at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
             }
             else
             {
                 model.BasicNack(deliveryTag, false, false);
+
+                _logger.LogInformation("Cadastrar failed at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
             }
         }
 

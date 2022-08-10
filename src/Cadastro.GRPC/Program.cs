@@ -22,13 +22,17 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
                     serviceVersion: typeof(FuncionarioGrpcService).Assembly.GetName().Version!.ToString()))
         .AddHttpClientInstrumentation()
         .AddAspNetCoreInstrumentation()
-        .AddSqlClientInstrumentation()
-        .AddConsoleExporter();
-    //.AddJaegerExporter(exporter =>
-    //{
-    //    exporter.AgentHost = builder.Configuration["Jaeger:AgentHost"];
-    //    exporter.AgentPort = Convert.ToInt32(builder.Configuration["Jaeger:AgentPort"]);
-    //});
+        .AddSqlClientInstrumentation(
+                    options => {
+                        options.SetDbStatementForText = true;
+                        options.RecordException = true;
+                    })
+        .AddConsoleExporter()
+        .AddJaegerExporter(exporter =>
+        {
+            exporter.AgentHost = "jaeger";
+            exporter.AgentPort = 6831;
+        });
 });
 
 var app = builder.Build();
