@@ -5,7 +5,7 @@ services:
     container_name: cadastro.api
     build:
       context: .
-      dockerfile: src/API/Dockerfile
+      dockerfile: src/Cadastro.API/Dockerfile
     networks:
       - externo
       - base 
@@ -19,7 +19,7 @@ services:
     container_name: cadastro.mvc
     build:
       context: .
-      dockerfile: src/MVC/Dockerfile
+      dockerfile: src/Cadastro.MVC/Dockerfile
     networks:
       - externo
 
@@ -40,7 +40,7 @@ services:
   cadastro.angular:
     image: angular
     build:
-      context: ./src/angular/
+      context: ./src/cadastro.angular/
       dockerfile: Dockerfile
     container_name: cadastro.angular
     depends_on:
