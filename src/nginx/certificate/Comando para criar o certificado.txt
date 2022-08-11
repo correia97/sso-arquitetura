@@ -1,12 +1,17 @@
-openssl genrsa -des3 -out localhost.key 4096
-openssl rsa -in ca.key -out localhost.key
-openssl req -new -x509 -days 3650 -key localhost.key -subj "/CN=*.localhost" -out localhost.crt
 
 
+openssl req -x509 -out mvc.localhost.crt -keyout mvc.localhost.key \
+  -newkey rsa:2048 -nodes -sha256 -days 1024 \
+  -subj '/CN=mvc.localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=mvc.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:mvc.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
 
-dotnet dev-certs https -ep $env:D:\projetos\SSO\src\KeyCloak\certificate\localhost.pfx -p password
-openssl pkcs12 -in localhost.pfx -nocerts -out angular.localhost-selfsigned.key
-openssl pkcs12 -in localhost.pfx -clcerts -nokeys -out angular.localhost-selfsigned.crt
+openssl req -x509 -out api.localhost.crt -keyout api.localhost.key \
+  -newkey rsa:2048 -nodes -sha256 -days 1024 \
+  -subj '/CN=api.localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=api.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:api.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
 
-openssl dhparam -out dhparam.pem 4096
+openssl req -x509 -out angular.localhost.crt -keyout angular.localhost.key \
+  -newkey rsa:2048 -nodes -sha256 -days 1024 \
+  -subj '/CN=angular.localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=angular.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:angular.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
 
