@@ -1,4 +1,6 @@
 using Cadastro.Configuracoes;
+using Cadastro.MVC.Interfaces;
+using Cadastro.MVC.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
@@ -22,6 +24,7 @@ builder.Services.AddMVCCustomAuthenticationConfig(builder.Environment, builder.C
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
+builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 

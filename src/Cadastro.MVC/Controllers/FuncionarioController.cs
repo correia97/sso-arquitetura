@@ -1,4 +1,5 @@
-﻿using Cadastro.MVC.Models.Request;
+﻿using Cadastro.MVC.Interfaces;
+using Cadastro.MVC.Models.Request;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,10 @@ namespace Cadastro.MVC.Controllers
     public class FuncionarioController : BaseController
     {
         private readonly ILogger<FuncionarioController> _logger;
-        private readonly IWeatherForecastService _apiService;
+        private readonly IFuncionarioService _apiService;
         private readonly IConfiguration _configuration;
 
-        public FuncionarioController(ILogger<FuncionarioController> logger, IWeatherForecastService apiService, IConfiguration configuration)
+        public FuncionarioController(ILogger<FuncionarioController> logger, IFuncionarioService apiService, IConfiguration configuration)
         {
             _logger = logger;
             _apiService = apiService;
@@ -28,8 +29,8 @@ namespace Cadastro.MVC.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var accessToken = await HttpContext.GetTokenAsync("access_token");
-                var forecast = await _apiService.GetWeatherForecast(accessToken);
+                await GetTokens();
+                var forecast = await _apiService.RecuperarFuncionario(this.UserId, this.AccessToken);
                 ViewBag.forecast = forecast;
             }
 

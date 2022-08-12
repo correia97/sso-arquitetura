@@ -160,7 +160,11 @@ namespace Cadastro.Data.Repositories
                         , datanascimento as date
                         , enderecoemail
                         FROM funcionarios
-                        WHERE Id = @id";
+                        WHERE userid = @id";
+
+            var paramId = new DynamicParameters();
+            paramId.Add("@id", id.ToString(), DbType.String);
+
             try
             {
                 var result = await connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
@@ -170,7 +174,7 @@ namespace Cadastro.Data.Repositories
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
 
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", param: new { id });
+                    }, splitOn: "primeironome, date, enderecoemail", param: paramId);
                 return result.FirstOrDefault();
             }
             catch (Exception ex)
