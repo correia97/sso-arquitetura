@@ -1,15 +1,14 @@
 ﻿using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Models.Request;
 using Cadastro.MVC.Models.Response;
-using System;
-using System.Collections.Generic;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Configuration;
-using IdentityModel;
-using System.Threading.Tasks;
-using Azure.Core;
+using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Cadastro.MVC.Services
 {
@@ -26,7 +25,7 @@ namespace Cadastro.MVC.Services
                                                                     .AllowAnyHttpStatus()
                                                                     .WithOAuthBearerToken(token)
                                                                     .PatchJsonAsync(request);
-            if (result.ResponseMessage.IsSuccessStatusCode)
+            if (result.StatusCode == (int)HttpStatusCode.OK)
                 return Response<bool>.SuccessResult(true);
             return Response<bool>.ErrorResult(result.ResponseMessage.ReasonPhrase);
         }
@@ -37,7 +36,7 @@ namespace Cadastro.MVC.Services
                                                                     .AllowAnyHttpStatus()
                                                                     .WithOAuthBearerToken(token)
                                                                     .PostJsonAsync(request);
-            if (result.ResponseMessage.IsSuccessStatusCode)
+            if (result.StatusCode == (int)HttpStatusCode.OK)
                 return Response<bool>.SuccessResult(true);
             return Response<bool>.ErrorResult(result.ResponseMessage.ReasonPhrase);
         }
@@ -48,7 +47,7 @@ namespace Cadastro.MVC.Services
                                                                     .AllowAnyHttpStatus()
                                                                     .WithOAuthBearerToken(token)
                                                                     .GetAsync();
-            if (result.ResponseMessage.IsSuccessStatusCode)
+            if (result.StatusCode == (int)HttpStatusCode.OK)
                 return Response<IEnumerable<FuncionarioResponse>>
                     .SuccessResult(JsonSerializer.Deserialize<IEnumerable<FuncionarioResponse>>(await result.ResponseMessage.Content.ReadAsStringAsync()));
             return Response<IEnumerable<FuncionarioResponse>>.ErrorResult(result.ResponseMessage.ReasonPhrase);
@@ -61,7 +60,7 @@ namespace Cadastro.MVC.Services
                                                                     .WithOAuthBearerToken(token)
                                                                     .AppendPathSegment(id)
                                                                     .GetAsync();
-            if (result.ResponseMessage.IsSuccessStatusCode)
+            if (result.StatusCode == (int)HttpStatusCode.OK)
                 return Response<FuncionarioResponse>
                     .SuccessResult(JsonSerializer.Deserialize<FuncionarioResponse>(await result.ResponseMessage.Content.ReadAsStringAsync()));
             return Response<FuncionarioResponse>.ErrorResult(result.ResponseMessage.ReasonPhrase);

@@ -7,6 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MVC.Controllers;
 using MVC.Interfaces;
+using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Cadastro.MVC.Controllers
@@ -30,11 +33,23 @@ namespace Cadastro.MVC.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 await GetTokens();
-                var forecast = await _apiService.RecuperarFuncionario(this.UserId, this.AccessToken);
-                ViewBag.forecast = forecast;
+                var funcionario = await _apiService.RecuperarFuncionario(this.UserId, this.AccessToken);
+                if (!funcionario.Sucesso)
+                {
+                    var result = await _apiService.CadastrarFuncionario(new FuncionarioRequest
+                    {
+                        Ativo = true,
+                        Email = User.Claims.First(x => x.Type == ClaimTypes.Email).Value,
+                        Nome = User.Claims.First(x => x.Type == ClaimTypes.GivenName).Value,
+                        SobreNome = User.Claims.First(x => x.Type == ClaimTypes.Surname).Value,
+                        UserId = this.UserId.ToString()
+                    }, this.AccessToken);
+                    if (!result.Sucesso)
+                        return RedirectToPage("Home");
+                }
+                return RedirectToAction("Edit", new { id = this.UserId });
             }
-
-            return View();
+            return RedirectToPage("Home");
         }
 
 
@@ -60,15 +75,24 @@ namespace Cadastro.MVC.Controllers
         }
 
         // GET: FuncionarioController/Edit/5
-        public async Task<ActionResult> Edit(int id)
+        public async Task<ActionResult> Edit(Guid id)
         {
-            return View();
+            if (User.Identity.IsAuthenticated)
+            {
+                await GetTokens();
+                var funcionario = await _apiService.RecuperarFuncionario(id != Guid.Empty ? id : this.UserId, this.AccessToken);
+                if (!funcionario.Sucesso)
+                {
+                    return View(funcionario.Data);
+                }
+            }
+            return RedirectToPage("Home");
         }
 
         // POST: FuncionarioController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, [FromForm] FuncionarioRequest request)
+        public async Task<ActionResult> Edit(Guid id, [FromForm] FuncionarioRequest request)
         {
             try
             {

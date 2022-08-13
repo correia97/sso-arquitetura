@@ -23,7 +23,7 @@ namespace Cadastro.Data.Repositories
 
         public override async Task<bool> Atualizar(Funcionario data)
         {
-            var query = @"UPDATE funcionarios SET
+            var query = @"UPDATE public.funcionarios SET
                           userid          =@userId
                         , matricula       =@matricula
                         , cargo           =@cargo
@@ -39,15 +39,15 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@id", data.Id);
             param.Add("@userId", data.UserId);
-            param.Add("@matricula", data.Matricula);
-            param.Add("@cargo", data.Cargo);
+            param.Add("@matricula", string.IsNullOrEmpty(data.Matricula) ? "" : data.Matricula);
+            param.Add("@cargo", string.IsNullOrEmpty(data.Cargo) ? "" : data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
             param.Add("@dataCadastro", data.DataCadastro, DbType.DateTimeOffset);
             param.Add("@dataAtualizacao", data.DataAtualizacao, DbType.DateTimeOffset);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", data.DataNascimento, DbType.DateTimeOffset);
+            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento : null, DbType.DateTimeOffset);
 
             try
             {
@@ -64,7 +64,7 @@ namespace Cadastro.Data.Repositories
 
         public override async Task<Guid> Inserir(Funcionario data)
         {
-            var query = @"INSERT into funcionarios
+            var query = @"INSERT into public.funcionarios
                            (id
                         , userid
                         , matricula
@@ -91,20 +91,31 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@id", data.Id);
             param.Add("@userId", data.UserId);
-            param.Add("@matricula", data.Matricula);
-            param.Add("@cargo", data.Cargo);
+            param.Add("@matricula", string.IsNullOrEmpty(data.Matricula) ? "" : data.Matricula);
+            param.Add("@cargo", string.IsNullOrEmpty(data.Cargo) ? "" : data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
             param.Add("@dataCadastro", DateTimeOffset.FromFileTime(data.DataCadastro.ToFileTimeUtc()), DbType.DateTimeOffset);
             param.Add("@dataAtualizacao", data.DataAtualizacao.HasValue ? DateTimeOffset.FromFileTime(data.DataAtualizacao.Value.ToFileTimeUtc()) : null, DbType.DateTimeOffset);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", DateTimeOffset.FromFileTime(data.DataNascimento.Date.ToFileTimeUtc()), DbType.DateTimeOffset);
+            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? DateTimeOffset.FromFileTime(data.DataNascimento.Date.ToFileTimeUtc()) : null, DbType.DateTimeOffset);
 
             try
             {
                 var result = await connection.ExecuteAsync(query, param);
                 return data.Id;
+            }
+            catch (Npgsql.NpgsqlOperationInProgressException ex)
+            {
+                _logger.LogError("Inserir erro", ex);
+                throw;
+            }
+
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError("Inserir erro", ex);
+                throw;
             }
             catch (Exception ex)
             {
@@ -125,7 +136,7 @@ namespace Cadastro.Data.Repositories
                         , sobrenome
                         , datanascimento as date
                         , enderecoemail
-                        from funcionarios
+                        from public.funcionarios
                         where enderecoemail = @email";
             try
             {
@@ -159,7 +170,7 @@ namespace Cadastro.Data.Repositories
                         , sobrenome
                         , datanascimento as date
                         , enderecoemail
-                        FROM funcionarios
+                        FROM public.funcionarios
                         WHERE userid = @id";
 
             var paramId = new DynamicParameters();
@@ -197,13 +208,12 @@ namespace Cadastro.Data.Repositories
                         , sobrenome
                         , datanascimento as date
                         , enderecoemail
-                        FROM funcionarios";
+                        FROM public.funcionarios";
             try
             {
                 var result = await connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
                     (funcionario, nome, dataNascimento, emailAddr) =>
                     {
-
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
 
                         return funcionario;

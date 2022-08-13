@@ -33,7 +33,7 @@ namespace Cadastro.WorkerService
         {
             _logger.LogInformation("Worker running at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
             IModel model = _connection.CreateModel();
-            EventingBasicConsumer consumer = await this.BuildConsumer(model,  Cadastrar);
+            EventingBasicConsumer consumer = this.BuildConsumer(model, Cadastrar);
 
             model.BasicConsume("cadastrar", false, consumer);
 
@@ -41,41 +41,47 @@ namespace Cadastro.WorkerService
         }
 
 
-        private async Task< EventingBasicConsumer> BuildConsumer(IModel model,  Action<string, IModel, ulong> action)
+        private EventingBasicConsumer BuildConsumer(IModel model, Func<string, IModel, ulong, Task> action)
         {
             EventingBasicConsumer consumer = new EventingBasicConsumer(model);
             consumer.Received += async (sender, ea) =>
             {
-
                 _logger.LogInformation("Message received at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
 
-                 action.Invoke(message, model, ea.DeliveryTag);
-
-
+                await action.Invoke(message, model, ea.DeliveryTag);
             };
             return consumer;
         }
 
-        public  void Cadastrar(string message, IModel model, ulong deliveryTag)
+        public async Task Cadastrar(string message, IModel model, ulong deliveryTag)
         {
-
             _logger.LogInformation("Cadastrar started at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
-            var funcionario = JsonSerializer.Deserialize<Funcionario>(message);
-
-            var id =  _repository.Inserir(funcionario).Result;
-            if (id != Guid.Empty)
+            try
             {
-                model.BasicAck(deliveryTag, false);
+                var funcionario = JsonSerializer.Deserialize<Funcionario>(message);
 
-                _logger.LogInformation("Cadastrar success at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
+                var id = await _repository.Inserir(funcionario);
+                if (id != Guid.Empty)
+                {
+                    model.BasicAck(deliveryTag, false);
+
+                    _logger.LogInformation("Cadastrar success at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
+                }
+                else
+                {
+                    model.BasicNack(deliveryTag, false, false);
+
+                    _logger.LogInformation("Cadastrar failed at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
+                }
             }
-            else
+            catch (Exception ex)
             {
                 model.BasicNack(deliveryTag, false, false);
 
-                _logger.LogInformation("Cadastrar failed at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
+                _logger.LogError("Cadastrar failed at: {0:dd/MM/yyyy HH:mm:ss}  ex: {1}", DateTimeOffset.Now, ex);
+                throw;
             }
         }
 

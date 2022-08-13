@@ -1,9 +1,13 @@
 ﻿using Cadastro.API.Controllers.V1;
 using Cadastro.API.Interfaces;
+using Cadastro.API.Models.Request;
 using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Runtime.ConstrainedExecution;
+using System.Security.Cryptography;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -97,10 +101,47 @@ namespace Cadastro.Test.Apresentacao.Controllers
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
+            var funcionarioReq = new FuncionarioRequest()
+            {
+                Ativo = funcionario.Ativo,
+                Cargo = funcionario.Cargo,
+                DataNascimento = funcionario.DataNascimento.Date,
+                Email = funcionario.Email.ToString(),
+                Matricula = funcionario.Matricula ,
+                Nome = funcionario.Nome.PrimeiroNome,
+                SobreNome = funcionario.Nome.SobreNome,
+                UserId = funcionario.UserId ,
+                Telefones = funcionario.Telefones.Select(x => new TelefoneRequest
+                {
+                    DDI = x.DDI,
+                    Telefone = $"{x.DDD}{x.NumeroTelefone}"
+                }).ToList(),
+                EnderecoResidencial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoResidencial?.Rua,
+                    Numero = funcionario.EnderecoResidencial?.Numero,
+                    CEP = funcionario.EnderecoResidencial?.CEP,
+                    Complemento = funcionario.EnderecoResidencial?.Complemento,
+                    Bairro = funcionario.EnderecoResidencial?.Bairro,
+                    Cidade = funcionario.EnderecoResidencial?.Cidade,
+                    UF = funcionario.EnderecoResidencial?.UF,
+                },
+                EnderecoComercial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoComercial?.Rua,
+                    Numero = funcionario.EnderecoComercial?.Numero,
+                    CEP = funcionario.EnderecoComercial?.CEP,
+                    Complemento = funcionario.EnderecoComercial?.Complemento,
+                    Bairro = funcionario.EnderecoComercial?.Bairro,
+                    Cidade = funcionario.EnderecoComercial?.Cidade,
+                    UF = funcionario.EnderecoComercial?.UF,
+                }
+            };
+
             _service.Setup(x => x.Cadastrar(It.IsAny<Funcionario>())).Returns(true);
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Post(funcionario) as OkObjectResult;
+            var result = controller.Post(funcionarioReq) as OkObjectResult;
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -119,10 +160,47 @@ namespace Cadastro.Test.Apresentacao.Controllers
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
+            var funcionarioReq = new FuncionarioRequest()
+            {
+                Ativo = funcionario.Ativo,
+                Cargo = funcionario.Cargo,
+                DataNascimento = funcionario.DataNascimento.Date,
+                Email = funcionario.Email.ToString(),
+                Matricula = funcionario.Matricula,
+                Nome = funcionario.Nome.PrimeiroNome,
+                SobreNome = funcionario.Nome.SobreNome,
+                UserId = funcionario.UserId,
+                Telefones = funcionario.Telefones.Select(x => new TelefoneRequest
+                {
+                    DDI = x.DDI,
+                    Telefone = $"{x.DDD}{x.NumeroTelefone}"
+                }).ToList(),
+                EnderecoResidencial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoResidencial?.Rua,
+                    Numero = funcionario.EnderecoResidencial?.Numero,
+                    CEP = funcionario.EnderecoResidencial?.CEP,
+                    Complemento = funcionario.EnderecoResidencial?.Complemento,
+                    Bairro = funcionario.EnderecoResidencial?.Bairro,
+                    Cidade = funcionario.EnderecoResidencial?.Cidade,
+                    UF = funcionario.EnderecoResidencial?.UF,
+                },
+                EnderecoComercial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoComercial?.Rua,
+                    Numero = funcionario.EnderecoComercial?.Numero,
+                    CEP = funcionario.EnderecoComercial?.CEP,
+                    Complemento = funcionario.EnderecoComercial?.Complemento,
+                    Bairro = funcionario.EnderecoComercial?.Bairro,
+                    Cidade = funcionario.EnderecoComercial?.Cidade,
+                    UF = funcionario.EnderecoComercial?.UF,
+                }
+            };
+
             _service.Setup(x => x.Cadastrar(It.IsAny<Funcionario>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Post(funcionario) as BadRequestObjectResult;
+            var result = controller.Post(funcionarioReq) as BadRequestObjectResult;
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(400);
@@ -142,10 +220,47 @@ namespace Cadastro.Test.Apresentacao.Controllers
                 new Email(person.Email), tels, endereco, endereco);
 
 
+            var funcionarioReq = new FuncionarioRequest()
+            {
+                Ativo = funcionario.Ativo,
+                Cargo = funcionario.Cargo,
+                DataNascimento = funcionario.DataNascimento.Date,
+                Email = funcionario.Email.ToString(),
+                Matricula = funcionario.Matricula,
+                Nome = funcionario.Nome.PrimeiroNome,
+                SobreNome = funcionario.Nome.SobreNome,
+                UserId = funcionario.UserId,
+                Telefones = funcionario.Telefones.Select(x => new TelefoneRequest
+                {
+                    DDI = x.DDI,
+                    Telefone = $"{x.DDD}{x.NumeroTelefone}"
+                }).ToList(),
+                EnderecoResidencial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoResidencial?.Rua,
+                    Numero = funcionario.EnderecoResidencial?.Numero,
+                    CEP = funcionario.EnderecoResidencial?.CEP,
+                    Complemento = funcionario.EnderecoResidencial?.Complemento,
+                    Bairro = funcionario.EnderecoResidencial?.Bairro,
+                    Cidade = funcionario.EnderecoResidencial?.Cidade,
+                    UF = funcionario.EnderecoResidencial?.UF,
+                },
+                EnderecoComercial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoComercial?.Rua,
+                    Numero = funcionario.EnderecoComercial?.Numero,
+                    CEP = funcionario.EnderecoComercial?.CEP,
+                    Complemento = funcionario.EnderecoComercial?.Complemento,
+                    Bairro = funcionario.EnderecoComercial?.Bairro,
+                    Cidade = funcionario.EnderecoComercial?.Cidade,
+                    UF = funcionario.EnderecoComercial?.UF,
+                }
+            };
+
             _service.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>())).Returns(true);
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Patch(funcionario) as OkObjectResult;
+            var result = controller.Patch(funcionarioReq) as OkObjectResult;
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -165,10 +280,48 @@ namespace Cadastro.Test.Apresentacao.Controllers
                 new Email(person.Email), tels, endereco, endereco);
 
 
+            var funcionarioReq = new FuncionarioRequest()
+            {
+                Ativo = funcionario.Ativo,
+                Cargo = funcionario.Cargo,
+                DataNascimento = funcionario.DataNascimento.Date,
+                Email = funcionario.Email.ToString(),
+                Matricula = funcionario.Matricula,
+                Nome = funcionario.Nome.PrimeiroNome,
+                SobreNome = funcionario.Nome.SobreNome,
+                UserId = funcionario.UserId,
+                Telefones = funcionario.Telefones.Select(x => new TelefoneRequest
+                {
+                    DDI = x.DDI,
+                    Telefone = $"{x.DDD}{x.NumeroTelefone}"
+                }).ToList(),
+                EnderecoResidencial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoResidencial?.Rua,
+                    Numero = funcionario.EnderecoResidencial?.Numero,
+                    CEP = funcionario.EnderecoResidencial?.CEP,
+                    Complemento = funcionario.EnderecoResidencial?.Complemento,
+                    Bairro = funcionario.EnderecoResidencial?.Bairro,
+                    Cidade = funcionario.EnderecoResidencial?.Cidade,
+                    UF = funcionario.EnderecoResidencial?.UF,
+                },
+                EnderecoComercial = new EnderecoRequest
+                {
+                    Rua = funcionario.EnderecoComercial?.Rua,
+                    Numero = funcionario.EnderecoComercial?.Numero,
+                    CEP = funcionario.EnderecoComercial?.CEP,
+                    Complemento = funcionario.EnderecoComercial?.Complemento,
+                    Bairro = funcionario.EnderecoComercial?.Bairro,
+                    Cidade = funcionario.EnderecoComercial?.Cidade,
+                    UF = funcionario.EnderecoComercial?.UF,
+                }
+            };
+
+
             _service.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Patch(funcionario) as BadRequestObjectResult;
+            var result = controller.Patch(funcionarioReq) as BadRequestObjectResult;
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(400);

@@ -15,7 +15,7 @@ namespace Domain.Entities
 
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email)
         {
-            Id = Guid.NewGuid();
+            Id = Guid.Parse(userId);
             UserId = userId;
             Matricula = matricula;
             Cargo = cargo;
@@ -24,11 +24,12 @@ namespace Domain.Entities
             Email = email;
             DataCadastro = DateTime.Now;
         }
+
         [JsonConstructor]
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email,
             IEnumerable<Telefone> telefones, Endereco enderecoResidencial, Endereco enderecoComercial)
         {
-            Id = Guid.NewGuid();
+            Id = Guid.Parse(userId);
             UserId = userId;
             Matricula = matricula;
             Cargo = cargo;
@@ -39,7 +40,6 @@ namespace Domain.Entities
             Telefones = telefones;
             EnderecoComercial = enderecoComercial;
             DataCadastro = DateTime.Now;
-
         }
 
         public string UserId { get; protected set; }
