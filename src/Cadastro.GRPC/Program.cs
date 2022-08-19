@@ -23,7 +23,8 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
         .AddHttpClientInstrumentation()
         .AddAspNetCoreInstrumentation()
         .AddSqlClientInstrumentation(
-                    options => {
+                    options =>
+                    {
                         options.SetDbStatementForText = true;
                         options.RecordException = true;
                     })

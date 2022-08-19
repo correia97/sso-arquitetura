@@ -45,7 +45,8 @@ namespace MVC.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                _logger.LogError(ex, "Login error");
+                throw;
             }
         }
 

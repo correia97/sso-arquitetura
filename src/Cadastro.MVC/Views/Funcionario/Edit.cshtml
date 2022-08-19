@@ -1,22 +1,22 @@
-﻿@using Cadastro.MVC.Models.Request
-@model FuncionarioRequest
+﻿@using Cadastro.MVC.Models.Response
+@model FuncionarioResponse
 
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<h1>Editar</h1>
 
-<h4>FuncionarioRequest</h4>
+<h4>Funcionário</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+<form asp-action="Edit" asp-route-id="@Model.UserId">
+    <div class="row">
+        <div class="col-md-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
+                <input asp-for="UserId" class="form-control" readonly />
                 <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -46,7 +46,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="DataNascimento" class="control-label"></label>
-                <input asp-for="DataNascimento" class="form-control" />
+                <input asp-for="DataNascimento" class="form-control" type="date" />
                 <span asp-validation-for="DataNascimento" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
@@ -54,17 +54,134 @@
                     <input class="form-check-input" asp-for="Ativo" /> @Html.DisplayNameFor(model => model.Ativo)
                 </label>
             </div>
+        </div>
+    </div>
+    @{
+        if (Model.Telefones != null)
+        {
+            <h4>Telefones</h4>
+            <hr />
+            <div class="row">
+                <div class="col-md-4">
+                    @foreach (var telefones in Model.Telefones)
+                    {
+                        <input asp-for="@telefones.Id" type="hidden" />
+                        <div class="form-group">
+                            <label asp-for="@telefones.DDI" class="control-label"></label>
+                            <input asp-for="@telefones.DDI" class="form-control" />
+                            <span asp-validation-for="@telefones.DDI" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="@telefones.Telefone" class="control-label"></label>
+                            <input asp-for="@telefones.Telefone" class="form-control" />
+                            <span asp-validation-for="@telefones.Telefone" class="text-danger"></span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    <h4>Endereço Residencial</h4>
+    <hr />
+
+    <input asp-for="EnderecoResidencial.Id" type="hidden" />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="EnderecoResidencial.CEP" class="control-label"></label>
+                <input asp-for="EnderecoResidencial.CEP" class="form-control" />
+                <span asp-validation-for="EnderecoResidencial.CEP" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoResidencial.Rua" class="control-label"></label>
+                <input asp-for="EnderecoResidencial.Rua" class="form-control" />
+                <span asp-validation-for="EnderecoResidencial.Rua" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoResidencial.Numero" class="control-label"></label>
+                <input asp-for="EnderecoResidencial.Numero" class="form-control" />
+                <span asp-validation-for="EnderecoResidencial.Numero" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoResidencial.Complemento" class="control-label"></label>
+                <input asp-for="EnderecoResidencial.Complemento" class="form-control" />
+                <span asp-validation-for="EnderecoResidencial.Complemento" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoResidencial.Bairro" class="control-label"></label>
+                <input asp-for="EnderecoResidencial.Bairro" class="form-control" />
+                <span asp-validation-for="EnderecoResidencial.Bairro" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoResidencial.Cidade" class="control-label"></label>
+                <input asp-for="EnderecoResidencial.Cidade" class="form-control" />
+                <span asp-validation-for="EnderecoResidencial.Cidade" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoResidencial.UF" class="control-label"></label>
+                <input asp-for="EnderecoResidencial.UF" class="form-control" />
+                <span asp-validation-for="EnderecoResidencial.UF" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <h4>Endereço comercial</h4>
+    <hr />
+    <input asp-for="EnderecoComercial.Id" type="hidden" />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="EnderecoComercial.CEP" class="control-label"></label>
+                <input asp-for="EnderecoComercial.CEP" class="form-control" />
+                <span asp-validation-for="EnderecoComercial.CEP" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoComercial.Rua" class="control-label"></label>
+                <input asp-for="EnderecoComercial.Rua" class="form-control" />
+                <span asp-validation-for="EnderecoComercial.Rua" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoComercial.Numero" class="control-label"></label>
+                <input asp-for="EnderecoComercial.Numero" class="form-control" />
+                <span asp-validation-for="EnderecoComercial.Numero" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoComercial.Complemento" class="control-label"></label>
+                <input asp-for="EnderecoComercial.Complemento" class="form-control" />
+                <span asp-validation-for="EnderecoComercial.Complemento" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoComercial.Bairro" class="control-label"></label>
+                <input asp-for="EnderecoComercial.Bairro" class="form-control" />
+                <span asp-validation-for="EnderecoComercial.Bairro" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoComercial.Cidade" class="control-label"></label>
+                <input asp-for="EnderecoComercial.Cidade" class="form-control" />
+                <span asp-validation-for="EnderecoComercial.Cidade" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EnderecoComercial.UF" class="control-label"></label>
+                <input asp-for="EnderecoComercial.UF" class="form-control" />
+                <span asp-validation-for="EnderecoComercial.UF" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
-        </form>
+        </div>
     </div>
-</div>
 
+</form>
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

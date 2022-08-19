@@ -1,5 +1,6 @@
 ﻿using Cadastro.API.Interfaces;
 using Cadastro.API.Models.Request;
+using Cadastro.API.Models.Response;
 using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,7 @@ namespace Cadastro.API.Controllers.V1
 
         [HttpGet]
         [Route("funcionario")]
-        [SwaggerResponse(200, "Funcionarios localizado", typeof(IEnumerable<Funcionario>))]
+        [SwaggerResponse(200, "Funcionarios localizado", typeof(IEnumerable<FuncionarioResponse>))]
         [SwaggerResponse(400, "Funcionarios não localizado")]
         public async Task<IActionResult> Get()
         {
@@ -46,7 +47,7 @@ namespace Cadastro.API.Controllers.V1
         }
         [HttpGet]
         [Route("funcionario/{id:guid}")]
-        [SwaggerResponse(200, "Funcionario localizado", typeof(IEnumerable<Funcionario>))]
+        [SwaggerResponse(200, "Funcionario localizado", typeof(FuncionarioResponse))]
         [SwaggerResponse(400, "Funcionario não localizado")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -75,7 +76,7 @@ namespace Cadastro.API.Controllers.V1
                 if (funcionario.Telefones != null && funcionario.Telefones.Any())
                     foreach (var telefone in funcionario.Telefones)
                     {
-                        tels.Add(new Telefone(telefone.DDI, telefone.Telefone[..2], telefone.Telefone[2..]));
+                        tels.Add(new Telefone(telefone.DDI, telefone.Telefone[..2], telefone.Telefone[2..], Guid.Parse(funcionario.UserId)));
                     }
                 var result = _service.Cadastrar(new Funcionario(funcionario.UserId,
                                                                 funcionario.Matricula,
@@ -89,14 +90,18 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoResidencial?.Complemento,
                                                                              funcionario.EnderecoResidencial?.Bairro,
                                                                              funcionario.EnderecoResidencial?.Cidade,
-                                                                             funcionario.EnderecoResidencial?.UF),
+                                                                             funcionario.EnderecoResidencial?.UF,
+                                                                             Domain.Enums.TipoEnderecoEnum.Residencial,
+                                                                             Guid.Parse(funcionario.UserId)),
                                                                 new Endereco(funcionario.EnderecoComercial?.Rua,
                                                                              funcionario.EnderecoComercial?.Numero,
                                                                              funcionario.EnderecoComercial?.CEP,
                                                                              funcionario.EnderecoComercial?.Complemento,
                                                                              funcionario.EnderecoComercial?.Bairro,
                                                                              funcionario.EnderecoComercial?.Cidade,
-                                                                             funcionario.EnderecoComercial?.UF)));
+                                                                             funcionario.EnderecoComercial?.UF,
+                                                                             Domain.Enums.TipoEnderecoEnum.Comercial,
+                                                                             Guid.Parse(funcionario.UserId))));
                 return Ok(result);
             }
             catch (Exception ex)
@@ -119,7 +124,7 @@ namespace Cadastro.API.Controllers.V1
                 if (funcionario.Telefones != null && funcionario.Telefones.Any())
                     foreach (var telefone in funcionario.Telefones)
                     {
-                        tels.Add(new Telefone(telefone.DDI, telefone.Telefone[..2], telefone.Telefone[2..]));
+                        tels.Add(new Telefone(telefone.Id, telefone.DDI, telefone.Telefone[..2], telefone.Telefone[2..], Guid.Parse(funcionario.UserId)));
                     }
                 var funcionarioModel = new Funcionario(funcionario.UserId,
                                                                 funcionario.Matricula,
@@ -127,20 +132,26 @@ namespace Cadastro.API.Controllers.V1
                                                                 new Nome(funcionario.Nome, funcionario.SobreNome),
                                                                 new DataNascimento(funcionario.DataNascimento),
                                                                 new Email(funcionario.Email), tels,
-                                                                new Endereco(funcionario.EnderecoResidencial?.Rua,
+                                                                new Endereco(funcionario.EnderecoResidencial?.Id, 
+                                                                             funcionario.EnderecoResidencial?.Rua,
                                                                              funcionario.EnderecoResidencial?.Numero,
                                                                              funcionario.EnderecoResidencial?.CEP,
                                                                              funcionario.EnderecoResidencial?.Complemento,
                                                                              funcionario.EnderecoResidencial?.Bairro,
                                                                              funcionario.EnderecoResidencial?.Cidade,
-                                                                             funcionario.EnderecoResidencial?.UF),
-                                                                new Endereco(funcionario.EnderecoComercial?.Rua,
+                                                                             funcionario.EnderecoResidencial?.UF,
+                                                                             Domain.Enums.TipoEnderecoEnum.Residencial,
+                                                                             Guid.Parse(funcionario.UserId)),
+                                                                new Endereco(funcionario.EnderecoComercial?.Id,
+                                                                             funcionario.EnderecoComercial?.Rua,
                                                                              funcionario.EnderecoComercial?.Numero,
                                                                              funcionario.EnderecoComercial?.CEP,
                                                                              funcionario.EnderecoComercial?.Complemento,
                                                                              funcionario.EnderecoComercial?.Bairro,
                                                                              funcionario.EnderecoComercial?.Cidade,
-                                                                             funcionario.EnderecoComercial?.UF));
+                                                                             funcionario.EnderecoComercial?.UF,
+                                                                             Domain.Enums.TipoEnderecoEnum.Comercial,
+                                                                             Guid.Parse(funcionario.UserId)));
 
 
                 var result = _service.Atualizar(funcionarioModel, string.Empty);

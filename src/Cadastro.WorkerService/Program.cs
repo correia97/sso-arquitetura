@@ -1,4 +1,6 @@
 using Cadastro.Configuracoes;
+using Cadastro.Data.Repositories;
+using Cadastro.Domain.Interfaces;
 using Cadastro.WorkerService;
 using Cadastro.WorkerServices.Migrations;
 using FluentMigrator.Runner;
@@ -6,13 +8,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
-using System;
-using System.Threading;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Cadastro.Domain.Interfaces;
-using Cadastro.Data.Repositories;
-using OpenTelemetry.Metrics;
+using System;
+using System.Threading;
 
 void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
 {
@@ -88,7 +88,8 @@ IHost host = Host.CreateDefaultBuilder(args)
                 .AddHttpClientInstrumentation()
                 .AddAspNetCoreInstrumentation()
                 .AddSqlClientInstrumentation(
-                    options => { 
+                    options =>
+                    {
                         options.SetDbStatementForText = true;
                         options.RecordException = true;
                     })
@@ -107,7 +108,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             .AddPrometheusExporter(options =>
             {
                 options.StartHttpListener = true;
-        // Use your endpoint and port here
+                // Use your endpoint and port here
                 options.HttpListenerPrefixes = new string[] { "http://prometheus:9090/", "http://localhost/" };
                 options.ScrapeResponseCacheDurationMilliseconds = 0;
             })

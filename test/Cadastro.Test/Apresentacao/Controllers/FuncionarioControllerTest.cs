@@ -1,13 +1,11 @@
 ﻿using Cadastro.API.Controllers.V1;
 using Cadastro.API.Interfaces;
 using Cadastro.API.Models.Request;
+using Cadastro.API.Models.Response;
 using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Security.Cryptography;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -32,13 +30,14 @@ namespace Cadastro.Test.Apresentacao.Controllers
         [Fact]
         public async Task Get_Success_Test()
         {
-            _service.Setup(x => x.ObterTodos()).ReturnsAsync(new List<Funcionario>());
+            _service.Setup(x => x.ObterTodos()).ReturnsAsync(new List<FuncionarioResponse>());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
             var result = await controller.Get() as OkObjectResult;
 
             _service.Verify(x => x.ObterTodos(), Times.Once);
             result.StatusCode.Should().Be(200);
+            _outputHelper.WriteLine($"Expected: {200} Received: {result.StatusCode}");
         }
 
         [Fact]
@@ -51,28 +50,31 @@ namespace Cadastro.Test.Apresentacao.Controllers
 
             _service.Verify(x => x.ObterTodos(), Times.Once);
             result.StatusCode.Should().Be(400);
+            _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
         }
 
         [Fact]
         public async Task GetById_Success_Test()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
-            _service.Setup(x => x.ObterPorId(It.IsAny<Guid>())).ReturnsAsync(funcionario);
+            _service.Setup(x => x.ObterPorId(It.IsAny<Guid>())).ReturnsAsync(new FuncionarioResponse(funcionario));
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
             var result = await controller.Get(Guid.NewGuid()) as OkObjectResult;
 
             _service.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.StatusCode.Should().Be(200);
+            _outputHelper.WriteLine($"Expected: {200} Received: {result.StatusCode}");
         }
 
         [Fact]
@@ -85,6 +87,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
 
             _service.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.StatusCode.Should().Be(400);
+            _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
         }
 
 
@@ -92,11 +95,12 @@ namespace Cadastro.Test.Apresentacao.Controllers
         public void Post_Success_Test()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -107,10 +111,10 @@ namespace Cadastro.Test.Apresentacao.Controllers
                 Cargo = funcionario.Cargo,
                 DataNascimento = funcionario.DataNascimento.Date,
                 Email = funcionario.Email.ToString(),
-                Matricula = funcionario.Matricula ,
+                Matricula = funcionario.Matricula,
                 Nome = funcionario.Nome.PrimeiroNome,
                 SobreNome = funcionario.Nome.SobreNome,
-                UserId = funcionario.UserId ,
+                UserId = funcionario.UserId,
                 Telefones = funcionario.Telefones.Select(x => new TelefoneRequest
                 {
                     DDI = x.DDI,
@@ -145,17 +149,19 @@ namespace Cadastro.Test.Apresentacao.Controllers
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(200);
+            _outputHelper.WriteLine($"Expected: {200} Received: {result.StatusCode}");
         }
 
         [Fact]
         public void Post_Fail_Test()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -204,17 +210,19 @@ namespace Cadastro.Test.Apresentacao.Controllers
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(400);
+            _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
         }
 
         [Fact]
         public void Patch_Success_Test()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -264,17 +272,19 @@ namespace Cadastro.Test.Apresentacao.Controllers
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(200);
+            _outputHelper.WriteLine($"Expected: {200} Received: {result.StatusCode}");
         }
 
         [Fact]
         public void Patch_Fail_Test()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -325,6 +335,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(400);
+            _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
         }
     }
 }

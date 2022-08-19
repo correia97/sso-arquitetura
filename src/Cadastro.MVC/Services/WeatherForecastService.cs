@@ -37,7 +37,7 @@ namespace MVC.Services
             }
             catch (System.Exception ex)
             {
-                _logger.LogError("GetWeatherForecast erro", ex);
+                _logger.LogError(ex, "GetWeatherForecast erro");
                 throw;
             }
         }

@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using Cadastro.Domain.Enums;
+using System;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Domain.Entities
@@ -10,7 +12,7 @@ namespace Domain.Entities
         }
 
         [JsonConstructor]
-        public Endereco(string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf)
+        public Endereco(string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
         {
             Rua = rua;
             Numero = numero;
@@ -19,6 +21,22 @@ namespace Domain.Entities
             Bairro = bairro;
             Cidade = cidade;
             UF = uf;
+            TipoEndereco = tipoEndereco;
+            FuncionarioId = funcionarioId;
+        }
+
+        public Endereco(int? id, string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
+        {
+            Id = id.HasValue ? id.Value : 0;
+            Rua = rua;
+            Numero = numero;
+            CEP = cep;
+            Complemento = complemento;
+            Bairro = bairro;
+            Cidade = cidade;
+            UF = uf;
+            TipoEndereco = tipoEndereco;
+            FuncionarioId = funcionarioId;
         }
 
         public string Rua { get; protected set; }
@@ -28,7 +46,8 @@ namespace Domain.Entities
         public string Bairro { get; protected set; }
         public string Cidade { get; protected set; }
         public string UF { get; protected set; }
-
+        public TipoEnderecoEnum TipoEndereco { get; set; }
+        public Guid FuncionarioId { get; set; }
         public override string ToJson()
         {
             return JsonSerializer.Serialize(this);

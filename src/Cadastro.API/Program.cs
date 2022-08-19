@@ -116,7 +116,7 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
                 options.SetDbStatementForText = true;
                 options.RecordException = true;
             })
-        .AddConsoleExporter()                
+        .AddConsoleExporter()
         .AddJaegerExporter(exporter =>
         {
             exporter.AgentHost = "jaeger";

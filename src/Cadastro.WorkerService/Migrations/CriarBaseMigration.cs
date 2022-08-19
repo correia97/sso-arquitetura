@@ -29,6 +29,7 @@ namespace Cadastro.WorkerServices.Migrations
             Create.Table("enderecos")
                 .WithColumn("id").AsInt32().NotNullable().PrimaryKey().Identity()
                 .WithColumn("funcionarioid").AsGuid().ForeignKey("funcionarios", "id")
+                .WithColumn("rua").AsString(250)
                 .WithColumn("numero").AsInt32().Nullable()
                 .WithColumn("cep").AsString(15)
                 .WithColumn("complemento").AsString(20)

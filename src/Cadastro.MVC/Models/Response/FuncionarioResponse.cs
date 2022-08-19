@@ -1,10 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Cadastro.MVC.Models.Response
 {
     public class FuncionarioResponse
     {
+        [JsonConstructor]
+        public FuncionarioResponse(string userId, string matricula, string cargo, string nome, bool ativo,
+            string sobreNome, string email, DateTime? dataNascimento, List<TelefoneResponse> telefones, EnderecoResponse enderecoComercial, EnderecoResponse enderecoResidencial)
+        {
+            UserId = userId;
+            Matricula = matricula;
+            Cargo = cargo;
+            Nome = nome;
+            Email = email;
+            DataNascimento = dataNascimento;
+            Telefones = telefones;
+            EnderecoComercial = enderecoComercial;
+            EnderecoResidencial = enderecoResidencial;
+        }
         public FuncionarioResponse()
         {
             Telefones = new List<TelefoneResponse>();
@@ -15,7 +30,7 @@ namespace Cadastro.MVC.Models.Response
         public string Nome { get; set; }
         public string SobreNome { get; set; }
         public string Email { get; set; }
-        public DateTime DataNascimento { get; set; }
+        public DateTime? DataNascimento { get; set; }
         public List<TelefoneResponse> Telefones { get; set; }
         public EnderecoResponse EnderecoComercial { get; set; }
         public EnderecoResponse EnderecoResidencial { get; set; }

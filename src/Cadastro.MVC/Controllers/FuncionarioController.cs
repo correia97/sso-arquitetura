@@ -1,12 +1,9 @@
 ﻿using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Models.Request;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MVC.Controllers;
-using MVC.Interfaces;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -44,12 +41,13 @@ namespace Cadastro.MVC.Controllers
                         SobreNome = User.Claims.First(x => x.Type == ClaimTypes.Surname).Value,
                         UserId = this.UserId.ToString()
                     }, this.AccessToken);
+
                     if (!result.Sucesso)
-                        return RedirectToPage("Home");
+                        return RedirectToAction("Index", "Home");
                 }
-                return RedirectToAction("Edit", new { id = this.UserId });
+                return View("Edit", funcionario.Data);
             }
-            return RedirectToPage("Home");
+            return RedirectToAction("Index", "Home");
         }
 
 
@@ -81,12 +79,12 @@ namespace Cadastro.MVC.Controllers
             {
                 await GetTokens();
                 var funcionario = await _apiService.RecuperarFuncionario(id != Guid.Empty ? id : this.UserId, this.AccessToken);
-                if (!funcionario.Sucesso)
+                if (funcionario.Sucesso)
                 {
                     return View(funcionario.Data);
                 }
             }
-            return RedirectToPage("Home");
+            return RedirectToAction("Index", "Home");
         }
 
         // POST: FuncionarioController/Edit/5
@@ -96,11 +94,37 @@ namespace Cadastro.MVC.Controllers
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                if (User.Identity.IsAuthenticated)
+                {
+                    if (Request.Form.Any(x => x.Key == "telefones.Id") && !string.IsNullOrEmpty(Request.Form["telefones.Id"].ToString()))
+                    {
+                        var ids = Request.Form["telefones.Id"].ToString().Split(',');
+                        var ddi = Request.Form["telefones.DDI"].ToString().Split(',');
+                        var telefone = Request.Form["telefones.Telefone"].ToString().Split(',');
+                        for (int i = 0; i < telefone.Length; i++)
+                        {
+                            request.Telefones.Add(new TelefoneRequest { 
+                            DDI = ddi[i],
+                            Telefone = telefone[i],
+                            Id = int.Parse(ids[i])
+                            });                            
+                        }
+                    }
+
+                    await GetTokens();
+                    var funcionario = await _apiService.AtualizarFuncionario(request, this.AccessToken);
+                    if (!funcionario.Sucesso)
+                    {
+                        ViewBag.erro = funcionario.Erro;
+                    }
+                    return RedirectToAction("Edit", "Funcionario", new { id });
+                }
+                return RedirectToAction("Index", "Home");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                _logger.LogError(ex, $"Erro ao atualizar usuário {id}");
+                return View(request);
             }
         }
 

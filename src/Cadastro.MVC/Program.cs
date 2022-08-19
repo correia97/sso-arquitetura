@@ -21,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMVCCustomAuthenticationConfig(builder.Environment, builder.Configuration);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
@@ -47,6 +47,7 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
             exporter.AgentPort = 6831;
         });
 });
+
 builder.Services.AddOpenTelemetryMetrics(config =>
 {
     config
@@ -73,6 +74,7 @@ builder.Services.AddOpenTelemetryMetrics(config =>
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
 app.UseCookiePolicy();
 
 // Configure the HTTP request pipeline.
@@ -88,7 +90,6 @@ else
     app.UseDeveloperExceptionPage();
     IdentityModelEventSource.ShowPII = true;
 }
-
 
 app.UseStaticFiles();
 

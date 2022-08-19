@@ -2,7 +2,6 @@
 using Cadastro.Domain.Services;
 using Domain.Entities;
 using Domain.ValueObject;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,17 +15,7 @@ namespace Cadastro.Test.Domain
         public readonly Mock<IFuncionarioWriteRepository> _mockFuncionarioRepositorioEscrita;
         public readonly Faker _faker;
         public readonly Mock<ILogger<FuncionarioService>> _mockLogger;
-        private ITestOutputHelper _outputHelper { get; }
-        private static IConfigurationRoot Configuration { get; set; }
-
-        static FuncionarioServiceTest()
-        {
-            Configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddEnvironmentVariables()
-                .Build();
-        }
+        private ITestOutputHelper Output { get; }
 
         public FuncionarioServiceTest(ITestOutputHelper outputHelper)
         {
@@ -34,7 +23,7 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita = new Mock<IFuncionarioWriteRepository>();
             _faker = new Faker("pt_BR");
             _mockLogger = new Mock<ILogger<FuncionarioService>>();
-            _outputHelper = outputHelper;
+            Output = outputHelper;
         }
 
         #region Cadastrar
@@ -43,7 +32,7 @@ namespace Cadastro.Test.Domain
         public async Task Cadastrar_OK_Quando_EMail_Nao_Existe()
         {
             var person = _faker.Person;
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var funcionario = new Funcionario(Guid.NewGuid().ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
@@ -55,7 +44,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync((Funcionario)null)
                 .Callback<string>(email =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {email}");
+                    Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
@@ -63,7 +52,7 @@ namespace Cadastro.Test.Domain
 
             bool result = await service.Cadastrar(funcionario);
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
@@ -74,7 +63,7 @@ namespace Cadastro.Test.Domain
         public async Task Cadastrar_Nao_OK_Quando_EMail_Ja_Existe()
         {
             var person = _faker.Person;
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var funcionario = new Funcionario(Guid.NewGuid().ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
@@ -83,7 +72,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync(funcionario)
                 .Callback<string>(email =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {email}");
+                    Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
@@ -91,7 +80,7 @@ namespace Cadastro.Test.Domain
 
             bool result = await service.Cadastrar(funcionario);
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
@@ -102,7 +91,7 @@ namespace Cadastro.Test.Domain
         public async Task Cadastrar_Nao_OK_Quando_Banco_Nao_Acessivel()
         {
             var person = _faker.Person;
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var funcionario = new Funcionario(Guid.NewGuid().ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
@@ -114,7 +103,7 @@ namespace Cadastro.Test.Domain
 
             bool result = await service.Cadastrar(funcionario);
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             result.Should().BeFalse();
@@ -124,11 +113,12 @@ namespace Cadastro.Test.Domain
         public async Task CadastrarComEnderecoTelefone_OK_Quando_EMail_Nao_Existe()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -140,7 +130,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync((Funcionario)null)
                 .Callback<string>(email =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {email}");
+                    Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
@@ -148,7 +138,7 @@ namespace Cadastro.Test.Domain
 
             bool result = await service.Cadastrar(funcionario);
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
@@ -159,11 +149,12 @@ namespace Cadastro.Test.Domain
         public async Task CadastrarComEnderecoTelefone_Nao_OK_Quando_EMail_Ja_Existe()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000",id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Comercial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -172,7 +163,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync(funcionario)
                 .Callback<string>(email =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {email}");
+                    Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
@@ -180,7 +171,7 @@ namespace Cadastro.Test.Domain
 
             bool result = await service.Cadastrar(funcionario);
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
@@ -194,21 +185,22 @@ namespace Cadastro.Test.Domain
         public async Task AtualizarComEnderecoTelefone_Nao_OK_Quando_Registro_Nao_Existe()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000",id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Comercial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
             var telsNovo = new List<Telefone> {
-                new Telefone("+55","11","90000-0000"),
-                new Telefone("+55","11","80000-0000")
+                new Telefone("+55","11","90000-0000",id),
+                new Telefone("+55","11","80000-0000", id)
             };
-            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp");
-            var funcionarioAtualizado = new Funcionario("yyyyyyyy", "matricular", "cargo 2",
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
                 new Nome(person.FirstName, "Silva Sauro"),
                 new DataNascimento(new System.DateTime(1985, 08, 14)),
                 new Email(person.Email), telsNovo, enderecoNovo, enderecoNovo);
@@ -217,7 +209,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync(true)
                 .Callback<Funcionario>(atualizado =>
                 {
-                    _outputHelper.WriteLine($"Callback Atualizar: {atualizado.ToJson()}");
+                    Output.WriteLine($"Callback Atualizar: {atualizado.ToJson()}");
                     atualizado.Nome.SobreNome.Should().Be(funcionarioAtualizado.Nome.SobreNome);
                     atualizado.EnderecoComercial.Numero.Should().Be(funcionarioAtualizado.EnderecoComercial.Numero);
                     atualizado.EnderecoComercial.Complemento.Should().Be(funcionarioAtualizado.EnderecoComercial.Complemento);
@@ -232,7 +224,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync(funcionario)
                 .Callback<Guid>(id =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {id}");
+                    Output.WriteLine($"Callback Email: {id}");
                     Assert.Equal(funcionarioAtualizado.Id, id);
                 });
 
@@ -240,7 +232,7 @@ namespace Cadastro.Test.Domain
 
             bool result = await service.Atualizar(funcionarioAtualizado, "");
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>()), Times.Once);
@@ -251,13 +243,14 @@ namespace Cadastro.Test.Domain
         public async Task AtualizarComEnderecoTelefone_OK_Quando_Registro_Existe()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
 
             var telsNovo = new List<Telefone> {
-                new Telefone("+55","11","90000-0000"),
-                new Telefone("+55","11","80000-0000")
+                new Telefone("+55","11","90000-0000", id),
+                new Telefone("+55","11","80000-0000", id)
             };
-            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp");
-            var funcionarioAtualizado = new Funcionario("yyyyyyyy", "matricular", "cargo 2",
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Comercial, id);
+            var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
                 new Nome(person.FirstName, "Silva Sauro"),
                 new DataNascimento(new System.DateTime(1985, 08, 14)),
                 new Email(person.Email), telsNovo, enderecoNovo, enderecoNovo);
@@ -267,14 +260,14 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync((Funcionario)null)
                 .Callback<Guid>(id =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {id}");
+                    Output.WriteLine($"Callback Email: {id}");
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             bool result = await service.Atualizar(funcionarioAtualizado, "");
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.Should().BeFalse();
@@ -287,11 +280,12 @@ namespace Cadastro.Test.Domain
         public async Task ObterPorId_OK_Quando_Registro_Existe()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -300,7 +294,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync(funcionario)
                 .Callback<Guid>(id =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {id}");
+                    Output.WriteLine($"Callback Email: {id}");
                     Assert.Equal(funcionario.Id, id);
                 });
 
@@ -308,7 +302,7 @@ namespace Cadastro.Test.Domain
 
             var result = await service.ObterPorId(funcionario.Id);
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.Should().NotBeNull();
@@ -322,14 +316,14 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync((Funcionario)null)
                 .Callback<Guid>(id =>
                 {
-                    _outputHelper.WriteLine($"Callback Email: {id}");
+                    Output.WriteLine($"Callback Email: {id}");
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             var result = await service.ObterPorId(Guid.NewGuid());
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.Should().BeNull();
@@ -345,7 +339,7 @@ namespace Cadastro.Test.Domain
 
             var result = await service.ObterPorId(Guid.NewGuid());
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.Should().BeNull();
@@ -358,11 +352,12 @@ namespace Cadastro.Test.Domain
         public async Task ObterPorTodos_OK_Quando_Registro_Existe()
         {
             var person = _faker.Person;
+            var id = Guid.NewGuid();
             var tels = new List<Telefone> {
-                new Telefone("+55","11","90000-0000")
+                new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp");
-            var funcionario = new Funcionario("xxxxxx", "matricular", "cargo",
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
@@ -374,7 +369,7 @@ namespace Cadastro.Test.Domain
 
             var result = await service.ObterTodos();
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
             result.Should().NotBeNull();
@@ -392,7 +387,7 @@ namespace Cadastro.Test.Domain
 
             var result = await service.ObterTodos();
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
             result.Should().NotBeNull();
@@ -410,7 +405,7 @@ namespace Cadastro.Test.Domain
 
             var result = await service.ObterTodos();
 
-            _outputHelper.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: {result}");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
             result.Should().BeNull();
