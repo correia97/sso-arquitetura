@@ -37,7 +37,7 @@ jobs:
                             "-targetdir:/home/runner/work/sso/sso/test/Cadastro.Test/report/" \
                             "-reporttypes:Html" \
                             "-sourcedirs:/home/runner/work/sso/sso/test/Cadastro.Test/"
-    - uses: dorny/test-reporter@v1
+    - uses: dorny/test-reporter@v1.5.0
       with:
         artifact: test-results                                             # artifact name
         name: Testes                                                       # Name of the check run which will be created
