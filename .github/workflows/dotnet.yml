@@ -44,12 +44,21 @@ jobs:
               trx2junit /home/runner/work/sso/sso/test/Cadastro.Test/output/*.trx
     - uses: dorny/test-reporter@v1.5.0
       with:
-        artifact: test-results                                        # artifact name
+        #artifact: test-results                                             # artifact name
         list-tests: 'all'
         fail-on-error: 'false'
         only-summary: 'false'
-        name: Testes                                                  # Name of the check run which will be created
-        path: '/home/runner/work/sso/sso/test/Cadastro.Test/output/'  # Path to test results (inside artifact .zip)
+        name: Testes                                                       # Name of the check run which will be created
+        path: '/home/runner/work/sso/sso/test/Cadastro.Test/output/*.xml'  # Path to test results (inside artifact .zip)
+        reporter: java-junit
+    - uses: dorny/test-reporter@v1.5.0
+      with:
+        #artifact: test-results                                             # artifact name
+        list-tests: 'all'
+        fail-on-error: 'false'
+        only-summary: 'false'
+        name: Testes                                                       # Name of the check run which will be created
+        path: '/home/runner/work/sso/sso/test/Cadastro.Test/output/*.trx'  # Path to test results (inside artifact .zip)
         reporter: dotnet-trx
     # Armazenamento dos arquivos gerados pelo resultado dos testes
     - name: Armazenamento dos relatório
