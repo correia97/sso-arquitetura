@@ -41,7 +41,7 @@ jobs:
       with:
         artifact: test-results                                             # artifact name
         name: Testes                                                       # Name of the check run which will be created
-        path: '/home/runner/work/sso/sso/test/Cadastro.Test/output/*.xml'  # Path to test results (inside artifact .zip)
+        path: '/home/runner/work/sso/sso/test/Cadastro.Test/output/'  # Path to test results (inside artifact .zip)
         reporter: dotnet-trx
     # Armazenamento dos arquivos gerados pelo resultado dos testes
     - name: Armazenamento dos relatório
