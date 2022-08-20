@@ -9,11 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace Cadastro.Configuracoes
 {
@@ -59,7 +59,7 @@ namespace Cadastro.Configuracoes
                             OnTokenValidated = context =>
                             {
                                 var token = (JwtSecurityToken)context.SecurityToken;
-                                var payload = JsonConvert.DeserializeObject<TokenPayload>(token.Payload.SerializeToJson());
+                                var payload = JsonSerializer.Deserialize<TokenPayload>(token.Payload.SerializeToJson());
                                 context.Principal.AddIdentities(FillToken(payload));
                                 return Task.CompletedTask;
                             },
@@ -193,7 +193,7 @@ namespace Cadastro.Configuracoes
                         Debug.WriteLine(tokenJwt.Payload.SerializeToJson());
                         Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
 
-                        var payload = JsonConvert.DeserializeObject<TokenPayload>(tokenJwt.Payload.SerializeToJson());
+                        var payload = JsonSerializer.Deserialize<TokenPayload>(tokenJwt.Payload.SerializeToJson());
                         context.Principal.AddIdentities(FillToken(payload));
                     }
                     return Task.CompletedTask;

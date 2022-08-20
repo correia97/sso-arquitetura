@@ -10,7 +10,6 @@ namespace Domain.Entities
     {
         protected Funcionario()
         {
-
         }
 
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email)

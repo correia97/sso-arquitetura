@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MVC.Interfaces;
 using MVC.Models;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MVC.Services
@@ -13,9 +13,11 @@ namespace MVC.Services
     {
         private readonly string ServiceUrl;
         private ILogger<WeatherForecastService> _logger;
+        private readonly JsonSerializerOptions serializerOptions;
         public WeatherForecastService(IConfiguration configuration, ILogger<WeatherForecastService> logger)
         {
             ServiceUrl = configuration.GetValue<string>("ServiceUrl");
+            serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             _logger = logger;
         }
 
@@ -26,14 +28,11 @@ namespace MVC.Services
                 var result = await $"{ServiceUrl}/api/weatherforecast/authorization".WithOAuthBearerToken(authToken)
                                  .AllowAnyHttpStatus()
                                  .GetAsync();
+
                 if (result.ResponseMessage.IsSuccessStatusCode)
-                {
-                    return JsonConvert.DeserializeObject<List<Forecast>>(await result.ResponseMessage.Content.ReadAsStringAsync());
-                }
-                else
-                {
-                    return null;
-                }
+                    return JsonSerializer.Deserialize<List<Forecast>>(await result.ResponseMessage.Content.ReadAsStringAsync(), serializerOptions);
+
+                return null;
             }
             catch (System.Exception ex)
             {

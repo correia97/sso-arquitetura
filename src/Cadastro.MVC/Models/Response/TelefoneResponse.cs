@@ -1,9 +1,19 @@
-﻿namespace Cadastro.MVC.Models.Response
+﻿using System.Text.Json.Serialization;
+
+namespace Cadastro.MVC.Models.Response
 {
     public class TelefoneResponse
     {
         public TelefoneResponse(string ddi, string telefone)
         {
+            DDI = ddi;
+            Telefone = telefone;
+        }
+
+        [JsonConstructor]
+        public TelefoneResponse(int id, string ddi, string telefone)
+        {
+            Id = id;
             DDI = ddi;
             Telefone = telefone;
         }

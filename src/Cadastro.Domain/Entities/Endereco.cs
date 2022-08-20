@@ -11,8 +11,8 @@ namespace Domain.Entities
         {
         }
 
-        [JsonConstructor]
-        public Endereco(string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
+        public Endereco(string rua, int? numero, string cep, string complemento, string bairro,
+            string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
         {
             Rua = rua;
             Numero = numero;
@@ -25,9 +25,11 @@ namespace Domain.Entities
             FuncionarioId = funcionarioId;
         }
 
-        public Endereco(int? id, string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
+        [JsonConstructor]
+        public Endereco(int id, string rua, int? numero, string cep, string complemento, string bairro,
+            string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
         {
-            Id = id.HasValue ? id.Value : 0;
+            Id = id;
             Rua = rua;
             Numero = numero;
             CEP = cep;

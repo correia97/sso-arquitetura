@@ -103,11 +103,12 @@ namespace Cadastro.MVC.Controllers
                         var telefone = Request.Form["telefones.Telefone"].ToString().Split(',');
                         for (int i = 0; i < telefone.Length; i++)
                         {
-                            request.Telefones.Add(new TelefoneRequest { 
-                            DDI = ddi[i],
-                            Telefone = telefone[i],
-                            Id = int.Parse(ids[i])
-                            });                            
+                            request.Telefones.Add(new TelefoneRequest
+                            {
+                                DDI = ddi[i],
+                                Telefone = telefone[i],
+                                Id = int.Parse(ids[i])
+                            });
                         }
                     }
 

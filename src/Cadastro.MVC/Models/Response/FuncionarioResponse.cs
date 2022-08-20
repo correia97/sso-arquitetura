@@ -7,15 +7,18 @@ namespace Cadastro.MVC.Models.Response
     public class FuncionarioResponse
     {
         [JsonConstructor]
-        public FuncionarioResponse(string userId, string matricula, string cargo, string nome, bool ativo,
-            string sobreNome, string email, DateTime? dataNascimento, List<TelefoneResponse> telefones, EnderecoResponse enderecoComercial, EnderecoResponse enderecoResidencial)
+        public FuncionarioResponse(string userId, string matricula, string cargo, string nome,
+            string sobreNome, string email, DateTime? dataNascimento, bool ativo, List<TelefoneResponse> telefones, 
+            EnderecoResponse enderecoComercial, EnderecoResponse enderecoResidencial)
         {
             UserId = userId;
             Matricula = matricula;
             Cargo = cargo;
             Nome = nome;
+            SobreNome = sobreNome;
             Email = email;
             DataNascimento = dataNascimento;
+            Ativo = ativo;
             Telefones = telefones;
             EnderecoComercial = enderecoComercial;
             EnderecoResidencial = enderecoResidencial;

@@ -4,11 +4,11 @@ using Cadastro.Domain.Enums;
 using Cadastro.Domain.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Cadastro.API.Services
@@ -34,7 +34,7 @@ namespace Cadastro.API.Services
                 IBasicProperties props = _channel.CreateBasicProperties();
                 props.ContentType = "text/json";
                 props.DeliveryMode = 2;
-                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(funcionario));
+                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
                 _channel.BasicPublish("cadastro", "cadastrar", props, messageBodyBytes);
                 return true;
             }
@@ -52,7 +52,7 @@ namespace Cadastro.API.Services
                 IBasicProperties props = _channel.CreateBasicProperties();
                 props.ContentType = "text/json";
                 props.DeliveryMode = 2;
-                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(funcionario));
+                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
                 _channel.BasicPublish("cadastro", "atualizar", props, messageBodyBytes);
                 return true;
             }
@@ -68,6 +68,8 @@ namespace Cadastro.API.Services
             try
             {
                 var funcionario = await _repository.ObterPorId(id);
+                if (funcionario == null)
+                    return null;
                 var enderecos = await _repository.ObterEnderecosPorFuncionarioId(id);
                 var telefones = await _repository.ObterTelefonesPorFuncionarioId(id);
 

@@ -8,10 +8,8 @@ namespace Domain.Entities
     {
         protected Telefone()
         {
-
         }
 
-        [JsonConstructor]
         public Telefone(string ddi, string ddd, string numeroTelefone, Guid funcionarioId)
         {
             DDI = ddi;
@@ -19,6 +17,8 @@ namespace Domain.Entities
             NumeroTelefone = numeroTelefone;
             FuncionarioId = funcionarioId;
         }
+
+        [JsonConstructor]
         public Telefone(int id, string ddi, string ddd, string numeroTelefone, Guid funcionarioId)
         {
             Id = id;

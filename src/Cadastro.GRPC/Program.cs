@@ -33,6 +33,8 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
         {
             exporter.AgentHost = "jaeger";
             exporter.AgentPort = 6831;
+            exporter.Endpoint = new Uri("http://jaeger:14268/api/traces");
+            exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
         });
 });
 

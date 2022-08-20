@@ -15,6 +15,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using System;
 using System.Text.Json.Serialization;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -121,6 +122,8 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
         {
             exporter.AgentHost = "jaeger";
             exporter.AgentPort = 6831;
+            exporter.Endpoint = new Uri("http://jaeger:14268/api/traces");
+            exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
         });
 });
 
@@ -137,7 +140,7 @@ builder.Services.AddOpenTelemetryMetrics(config =>
         .AddPrometheusExporter(options =>
         {
             options.StartHttpListener = true;
-            options.HttpListenerPrefixes = new string[] { "http://prometheus:9090/" };
+            options.HttpListenerPrefixes = new string[] { "http://prometheus:9090/", "http://localhost/", "http://api.localhost/" };
             options.ScrapeResponseCacheDurationMilliseconds = 0;
         })
         .AddAspNetCoreInstrumentation()

@@ -4,10 +4,10 @@ using Cadastro.MVC.Models.Response;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Cadastro.MVC.Services
@@ -15,9 +15,11 @@ namespace Cadastro.MVC.Services
     public class FuncionarioService : IFuncionarioService
     {
         private readonly string BaseUrl;
+        private readonly JsonSerializerOptions serializerOptions;
         public FuncionarioService(IConfiguration configuration)
         {
             BaseUrl = configuration.GetValue<string>("ServiceUrl");
+            serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
         public async Task<Response<bool>> AtualizarFuncionario(FuncionarioRequest request, string token)
         {
@@ -49,7 +51,7 @@ namespace Cadastro.MVC.Services
                                                                     .GetAsync();
             if (result.StatusCode == (int)HttpStatusCode.OK)
                 return Response<IEnumerable<FuncionarioResponse>>
-                    .SuccessResult(JsonConvert.DeserializeObject<IEnumerable<FuncionarioResponse>>(await result.ResponseMessage.Content.ReadAsStringAsync()));
+                    .SuccessResult(JsonSerializer.Deserialize<IEnumerable<FuncionarioResponse>>(await result.ResponseMessage.Content.ReadAsStringAsync(), serializerOptions));
             return Response<IEnumerable<FuncionarioResponse>>.ErrorResult(result.ResponseMessage.ReasonPhrase);
         }
 
@@ -63,8 +65,9 @@ namespace Cadastro.MVC.Services
             if (result.StatusCode == (int)HttpStatusCode.OK)
             {
                 var json = await result.ResponseMessage.Content.ReadAsStringAsync();
+                var response = JsonSerializer.Deserialize<FuncionarioResponse>(json, serializerOptions);
                 return Response<FuncionarioResponse>
-                    .SuccessResult(JsonConvert.DeserializeObject<FuncionarioResponse>(json));
+                    .SuccessResult(response);
             }
             return Response<FuncionarioResponse>.ErrorResult(result.ResponseMessage.ReasonPhrase);
         }

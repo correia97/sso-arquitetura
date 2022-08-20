@@ -277,7 +277,7 @@ namespace Cadastro.Data.Repositories
                         , uf            =@uf
                         , cidade        =@cidade
                         , bairro        =@bairro
-                        , tipoEndereco        =@tipoEndereco
+                        , tipoEndereco  =@tipoEndereco
                         WHERE id        =@id";
 
             var param = new DynamicParameters();
@@ -286,8 +286,9 @@ namespace Cadastro.Data.Repositories
             param.Add("@complemento", endereco.Complemento);
             param.Add("@cep", endereco.CEP);
             param.Add("@uf", endereco.UF);
-            param.Add("@cidade", endereco.Cidade, DbType.DateTimeOffset);
+            param.Add("@cidade", endereco.Cidade);
             param.Add("@bairro", endereco.Bairro);
+            param.Add("@tipoEndereco", endereco.TipoEndereco, DbType.Int32);
             param.Add("@id", endereco.Id);
 
             try
@@ -382,7 +383,7 @@ namespace Cadastro.Data.Repositories
             param.Add("@uf", endereco.UF);
             param.Add("@cidade", endereco.Cidade);
             param.Add("@bairro", endereco.Bairro);
-            param.Add("@tipoEndereco", endereco.TipoEndereco);
+            param.Add("@tipoEndereco", endereco.TipoEndereco, DbType.Int32);
             param.Add("@funcionarioId", endereco.FuncionarioId);
 
             try
