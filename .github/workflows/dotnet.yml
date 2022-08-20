@@ -37,20 +37,6 @@ jobs:
                             "-targetdir:/home/runner/work/sso/sso/test/Cadastro.Test/report/" \
                             "-reporttypes:Html" \
                             "-sourcedirs:/home/runner/work/sso/sso/test/Cadastro.Test/"
-    - name: Gerador test report
-      run: |
-              dotnet tool install -g trx2junit
-              export PATH="$PATH:/root/.dotnet/tools"
-              trx2junit /home/runner/work/sso/sso/test/Cadastro.Test/output/*.trx
-    - uses: dorny/test-reporter@v1.5.0
-      with:
-        #artifact: test-results                                             # artifact name
-        list-tests: 'all'
-        fail-on-error: 'false'
-        only-summary: 'false'
-        name: Testes                                                       # Name of the check run which will be created
-        path: '/home/runner/work/sso/sso/test/Cadastro.Test/output/*.xml'  # Path to test results (inside artifact .zip)
-        reporter: java-junit
     - uses: dorny/test-reporter@v1.5.0
       with:
         #artifact: test-results                                             # artifact name
