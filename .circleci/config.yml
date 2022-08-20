@@ -76,7 +76,7 @@ jobs:
      - run:
          name: Run Test
          command:
-           dotnet test Exemplo.SSO.sln --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/" 
+           dotnet test Exemplo.SSO.sln --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/" -r /root/project/test/Cadastro.Test/output/  --logger "trx"
      - run:
          name: fim da analise
          command:
@@ -90,12 +90,19 @@ jobs:
                             "-targetdir:/root/project/results/report/" \
                             "-reporttypes:Html" \
                             "-sourcedirs:/root/project/test/Cadastro.Test/results/"  
+
+     - run:
+         name: Teste result for circleci
+         command: |
+              dotnet tool install -g trx2junit
+              export PATH="$PATH:/root/.dotnet/tools"
+              trx2junit /root/project/test/Cadastro.Test/output/*.trx
     # Armazenamento do conteudo da pasta result
      - store_artifacts:
           path: /root/project/results/report/
 
      - store_test_results:
-          path: /root/project/test/Cadastro.Test/results/
+          path: /root/project/test/Cadastro.Test/output/
           
 # Definição dos trabalhos que serção executados
 workflows:
