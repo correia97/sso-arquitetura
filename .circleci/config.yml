@@ -76,7 +76,7 @@ jobs:
      - run:
          name: Run Test
          command:
-           dotnet test Exemplo.SSO.sln --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/"
+           dotnet test Exemplo.SSO.sln --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/" 
      - run:
          name: fim da analise
          command:
@@ -95,7 +95,7 @@ jobs:
           path: /root/project/results/report/
 
      - store_test_results:
-          path: /root/project/results/report/
+          path: /root/project/test/Cadastro.Test/results/
           
 # Definição dos trabalhos que serção executados
 workflows:
