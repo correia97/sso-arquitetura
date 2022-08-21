@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,21 +19,18 @@ namespace Cadastro.API.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IConnection connection)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
-
-            model = connection.CreateModel();
         }
-        private IModel model;
 
 
         [HttpGet]
         [Route("weatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
+            _logger.LogInformation($"GET weatherForecast User {this.User?.Identity?.Name}");
             var rng = new Random();
-            var xxx = this.User;
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
@@ -48,6 +44,7 @@ namespace Cadastro.API.Controllers
         [Route("weatherForecast")]
         public IEnumerable<WeatherForecast> Post()
         {
+            _logger.LogInformation($"POST weatherForecast User {this.User?.Identity?.Name}");
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -61,10 +58,10 @@ namespace Cadastro.API.Controllers
         [HttpGet]
         [Authorize]
         [Route("authorization")]
-        public IEnumerable<WeatherForecast> Get2()
+        public IEnumerable<WeatherForecast> GetWithAutorization()
         {
+            _logger.LogInformation($"GET authorization User {this.User?.Identity?.Name}");
             var rng = new Random();
-            var xxx = this.User;
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

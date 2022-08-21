@@ -13,7 +13,7 @@ namespace Cadastro.Data.Repositories
         IReadRepository<T, U> where T : EntityBase<U>
     {
         protected readonly NpgsqlConnection connection;
-        public BaseRepository(IConfiguration configuration)
+        protected BaseRepository(IConfiguration configuration)
         {
             connection = new NpgsqlConnection(configuration.GetConnectionString("Base"));
         }

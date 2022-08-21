@@ -7,7 +7,6 @@ namespace Domain.ValueObject
     {
         protected DataNascimento()
         {
-
         }
 
         [JsonConstructor]
@@ -30,7 +29,7 @@ namespace Domain.ValueObject
         }
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return this.ToString().Length;
         }
     }
 }

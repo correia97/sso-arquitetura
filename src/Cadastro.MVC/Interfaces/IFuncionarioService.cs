@@ -8,9 +8,9 @@ namespace Cadastro.MVC.Interfaces
 {
     public interface IFuncionarioService
     {
-        Task<Response<FuncionarioResponse>> RecuperarFuncionario(Guid idtoken, string token);
+        Task<Response<FuncionarioResponse>> RecuperarFuncionario(Guid id, string token);
         Task<Response<IEnumerable<FuncionarioResponse>>> ListarFuncionarios(string token);
-        Task<Response<bool>> CadastrarFuncionario(FuncionarioRequest requesttoken, string token);
-        Task<Response<bool>> AtualizarFuncionario(FuncionarioRequest requesttokentoken, string token);
+        Task<Response<bool>> CadastrarFuncionario(FuncionarioRequest request, string token);
+        Task<Response<bool>> AtualizarFuncionario(FuncionarioRequest request, string token);
     }
 }

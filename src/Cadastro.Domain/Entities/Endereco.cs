@@ -64,7 +64,7 @@ namespace Domain.Entities
         }
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return this.ToString().Length;
         }
     }
 }

@@ -112,7 +112,10 @@ namespace Cadastro.Data.Repositories
             try
             {
                 var result = await connection.ExecuteAsync(query, param);
-                return data.Id;
+                if (result > 0)
+                    return data.Id;
+
+                return Guid.Empty;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
             {

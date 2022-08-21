@@ -96,9 +96,9 @@ IHost host = Host.CreateDefaultBuilder(args)
                 .AddConsoleExporter()
                 .AddJaegerExporter(exporter =>
                 {
-                    exporter.AgentHost = "jaeger";
-                    exporter.AgentPort = 6831;
-                    exporter.Endpoint = new Uri("http://jaeger:14268/api/traces");
+                    exporter.AgentHost = context.Configuration.GetSection("jaeger:host").Value;
+                    exporter.AgentPort = int.Parse(context.Configuration.GetSection("jaeger:port").Value);
+                    exporter.Endpoint = new Uri(context.Configuration.GetSection("jaeger:url").Value);
                     exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
                 });
         });
@@ -111,7 +111,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             {
                 options.StartHttpListener = true;
                 // Use your endpoint and port here
-                options.HttpListenerPrefixes = new string[] { "http://prometheus:9090/", "http://localhost/", "http://api.localhost/" };
+                options.HttpListenerPrefixes = new string[] { $"{context.Configuration.GetSection("prometheus:url").Value}:{context.Configuration.GetSection("prometheus:port").Value}" };
                 options.ScrapeResponseCacheDurationMilliseconds = 0;
             })
             .AddAspNetCoreInstrumentation()

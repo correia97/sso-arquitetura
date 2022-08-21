@@ -36,7 +36,7 @@ namespace Domain.ValueObject
         }
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return this.ToString().Length;
         }
 
     }

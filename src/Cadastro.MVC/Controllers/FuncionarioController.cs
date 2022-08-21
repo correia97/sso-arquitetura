@@ -15,13 +15,11 @@ namespace Cadastro.MVC.Controllers
     {
         private readonly ILogger<FuncionarioController> _logger;
         private readonly IFuncionarioService _apiService;
-        private readonly IConfiguration _configuration;
 
-        public FuncionarioController(ILogger<FuncionarioController> logger, IFuncionarioService apiService, IConfiguration configuration)
+        public FuncionarioController(ILogger<FuncionarioController> logger, IFuncionarioService apiService)
         {
             _logger = logger;
             _apiService = apiService;
-            _configuration = configuration;
         }
 
         // GET: FuncionarioController

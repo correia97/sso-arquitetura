@@ -48,7 +48,7 @@ namespace Cadastro.Domain.Services
 
                 var result = await _repositoryWrite.Inserir(funcionario);
 
-                return true;
+                return result != Guid.Empty;
             }
             catch (Exception ex)
             {

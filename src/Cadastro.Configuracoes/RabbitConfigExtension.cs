@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-
+using System.Diagnostics;
 
 namespace Cadastro.Configuracoes
 {
@@ -28,18 +28,23 @@ namespace Cadastro.Configuracoes
             {
                 IModel model = connection.CreateModel();
                 var cadastrarResult = model.QueueDeclare("cadastrar", true, false, false);
-                var atualizarrResult = model.QueueDeclare("atualizar", true, false, false);
-                var notificarResult = model.QueueDeclare("notificar", true, false, false);
-                model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
+                Debug.WriteLine($"Queue {cadastrarResult.QueueName} message count {cadastrarResult.MessageCount}");
 
+                var atualizarrResult = model.QueueDeclare("atualizar", true, false, false);
+                Debug.WriteLine($"Queue {atualizarrResult.QueueName} message count {atualizarrResult.MessageCount}");
+
+                var notificarResult = model.QueueDeclare("notificar", true, false, false);
+                Debug.WriteLine($"Queue {notificarResult.QueueName} message count {notificarResult.MessageCount}");
+
+                model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
                 model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
                 model.QueueBind("cadastrar", "cadastro", "cadastrar");
                 model.QueueBind("atualizar", "cadastro", "atualizar");
                 model.QueueBind("notificar", "evento", "");
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
                 throw;
             }
         }

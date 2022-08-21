@@ -36,8 +36,6 @@ namespace Cadastro.Configuracoes
                                                                                             IWebHostEnvironment environment,
                                                                                             IConfiguration configuration)
         {
-            var clientId = configuration.GetValue<string>("ClientId");
-            var clientSecret = configuration.GetValue<string>("ClientSecret");
             var complement = configuration.GetValue<string>("UrlComplement");
             var authUrl = $"{configuration.GetValue<string>("BaseAuthUrl")}{complement}";
             var audience = configuration.GetValue<string>("Audience");
@@ -110,16 +108,12 @@ namespace Cadastro.Configuracoes
                                                                                     IWebHostEnvironment environment,
                                                                                     IConfiguration configuration)
         {
-
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
             var clientId = configuration.GetValue<string>("ClientId");
             var clientSecret = configuration.GetValue<string>("ClientSecret");
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(clientSecret)) { KeyId = clientId };
-
             var complement = configuration.GetValue<string>("UrlComplement");
             var baseUrl = configuration.GetValue<string>("BaseAuthUrl");
             var authUrl = $"{baseUrl}{complement}";
-            var audience = configuration.GetValue<string>("Audience");
 
             services.AddAuthentication(options =>
             {

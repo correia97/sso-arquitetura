@@ -15,15 +15,13 @@ namespace Cadastro.API.Services
 {
     public class FuncionarioAppService : IFuncionarioAppService
     {
-        private readonly IConnection _connection;
         private readonly IFuncionarioReadRepository _repository;
         private readonly IModel _channel;
         private readonly ILogger<FuncionarioAppService> _logger;
         public FuncionarioAppService(IConnection connection, IFuncionarioReadRepository repository, ILogger<FuncionarioAppService> logger)
         {
             _repository = repository;
-            _connection = connection;
-            _channel = _connection.CreateModel();
+            _channel = connection.CreateModel();
             _logger = logger;
         }
 

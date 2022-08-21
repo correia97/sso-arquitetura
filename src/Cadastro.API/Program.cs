@@ -100,6 +100,7 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddHealthChecks();
+var jaeger = builder.Configuration.GetSection("jaeger");
 
 builder.Services.AddOpenTelemetryTracing(traceProvider =>
 {
@@ -120,9 +121,9 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
         .AddConsoleExporter()
         .AddJaegerExporter(exporter =>
         {
-            exporter.AgentHost = "jaeger";
-            exporter.AgentPort = 6831;
-            exporter.Endpoint = new Uri("http://jaeger:14268/api/traces");
+            exporter.AgentHost = builder.Configuration.GetSection("jaeger:host").Value;
+            exporter.AgentPort = int.Parse(builder.Configuration.GetSection("jaeger:port").Value); 
+            exporter.Endpoint = new Uri(builder.Configuration.GetSection("jaeger:url").Value);
             exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
         });
 });
@@ -140,7 +141,7 @@ builder.Services.AddOpenTelemetryMetrics(config =>
         .AddPrometheusExporter(options =>
         {
             options.StartHttpListener = true;
-            options.HttpListenerPrefixes = new string[] { "http://prometheus:9090/", "http://localhost/", "http://api.localhost/" };
+            options.HttpListenerPrefixes = new string[] {$"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
             options.ScrapeResponseCacheDurationMilliseconds = 0;
         })
         .AddAspNetCoreInstrumentation()
