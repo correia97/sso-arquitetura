@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -95,14 +96,13 @@ namespace Cadastro.WorkerService
                 }
                 else
                 {
-                    model.BasicNack(deliveryTag, false, false);
-
+                    model.BasicReject(deliveryTag, false);
                     _logger.LogInformation("Cadastrar failed at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
                 }
             }
             catch (Exception ex)
             {
-                model.BasicNack(deliveryTag, false, false);
+                model.BasicNack(deliveryTag, false, true);
 
                 _logger.LogError(ex, "Cadastrar failed at: {0:dd/MM/yyyy HH:mm:ss}  ex: {1}", DateTimeOffset.Now);
 
@@ -123,49 +123,53 @@ namespace Cadastro.WorkerService
                 {
                     if (funcionario.Telefones != null && funcionario.Telefones.Any())
                     {
-                        foreach (var item in funcionario.Telefones)
-                        {
-                            if (item.Id > 0)
-                                await _repository.AtualizarTelefone(item);
-                            else
-                                await _repository.InserirTelefone(item);
-                        }
+                        await TratarTelefones(funcionario.Telefones);
                     }
 
                     if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
                     {
-                        if (funcionario.EnderecoResidencial.Id > 0)
-                            await _repository.AtualizarEndereco(funcionario.EnderecoResidencial);
-                        else
-                            await _repository.InserirEndereco(funcionario.EnderecoResidencial);
+                        await TratarEndereco(funcionario.EnderecoResidencial);
                     }
 
                     if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                     {
-                        if (funcionario.EnderecoComercial.Id > 0)
-                            await _repository.AtualizarEndereco(funcionario.EnderecoComercial);
-                        else
-                            await _repository.InserirEndereco(funcionario.EnderecoComercial);
+                        await TratarEndereco(funcionario.EnderecoComercial);
                     }
 
                     model.BasicAck(deliveryTag, false);
-
                     _logger.LogInformation("Atualizar success at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
                 }
                 else
                 {
-                    model.BasicNack(deliveryTag, false, false);
-
+                    model.BasicNack(deliveryTag, false, true);
                     _logger.LogInformation("Atualizar failed at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
                 }
             }
             catch (Exception ex)
             {
-                model.BasicNack(deliveryTag, false, false);
-
+                model.BasicNack(deliveryTag, false, true);
                 _logger.LogError(ex, "Atualizar failed at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
 
                 throw;
+            }
+        }
+
+        private async Task TratarEndereco(Endereco endereco)
+        {
+            if (endereco.Id > 0)
+                await _repository.AtualizarEndereco(endereco);
+            else
+                await _repository.InserirEndereco(endereco);
+        }
+
+        private async Task TratarTelefones(IEnumerable<Telefone> telefones)
+        {
+            foreach (var item in telefones)
+            {
+                if (item.Id > 0)
+                    await _repository.AtualizarTelefone(item);
+                else
+                    await _repository.InserirTelefone(item);
             }
         }
     }
