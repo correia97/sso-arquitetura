@@ -1,0 +1,12 @@
+bin/
+obj/
+/bin
+/obj
+Properties/
+/Properties
+*.md
+Dockerfile*
+.vs
+.vscode
+.github
+.circleci

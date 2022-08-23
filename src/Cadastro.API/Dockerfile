@@ -11,13 +11,22 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ./Cadastro.API.csproj API/
-RUN dotnet restore ./API/Cadastro.API.csproj
-COPY . API/
-RUN dotnet build ./API/Cadastro.API.csproj -c Release -o /app/build
+
+COPY ./src/Cadastro.API/Cadastro.API.csproj ./Cadastro.API/
+COPY ./src/Cadastro.Domain/Cadastro.Domain.csproj ./Cadastro.Domain/
+COPY ./src/Cadastro.Data/Cadastro.Data.csproj ./Cadastro.Data/
+COPY ./src/Cadastro.Configuracoes/Cadastro.Configuracoes.csproj ./Cadastro.Configuracoes/
+
+RUN dotnet restore ./Cadastro.API/Cadastro.API.csproj
+
+COPY ./src/Cadastro.API/ ./Cadastro.API/
+COPY ./src/Cadastro.Domain/ ./Cadastro.Domain/
+COPY ./src/Cadastro.Data/ ./Cadastro.Data/
+COPY ./src/Cadastro.Configuracoes/ ./Cadastro.Configuracoes/
+RUN dotnet build ./Cadastro.API/Cadastro.API.csproj -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish ./API/Cadastro.API.csproj -c Release -o /app/publish
+RUN dotnet publish ./Cadastro.API/Cadastro.API.csproj -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

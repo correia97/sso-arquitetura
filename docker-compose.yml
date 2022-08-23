@@ -30,7 +30,6 @@ services:
       context: .
       dockerfile: src/Cadastro.WorkerService/Dockerfile
     networks:
-      - externo
       - base
     depends_on:
       - db
