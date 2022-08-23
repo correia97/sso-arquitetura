@@ -1,8 +1,10 @@
 using Cadastro.Configuracoes;
 using Cadastro.Data.Repositories;
 using Cadastro.Domain.Interfaces;
+using Cadastro.Domain.Services;
 using Cadastro.WorkerService;
 using Cadastro.WorkerServices.Migrations;
+using Domain.Entities;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,8 +60,6 @@ void CreateDataBase(IConfiguration configuration)
     }
 }
 
-
-
 IConfiguration configuration = default;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -68,6 +68,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         configuration = context.Configuration;
         services.AddHostedService<Worker>();
         services.AddTransient<IFuncionarioWriteRepository, FuncionarioRepository>();
+        services.AddTransient<IFuncionarioReadRepository, FuncionarioRepository>();
+        services.AddTransient<IFuncionarioService, FuncionarioService>();
         services.AddFluentMigratorCore();
         services.AddRabbitCustomConfiguration(context.Configuration);
         services.ConfigureRunner(rb =>
@@ -98,11 +100,8 @@ IHost host = Host.CreateDefaultBuilder(args)
                 {
                     exporter.AgentHost = context.Configuration.GetSection("jaeger:host").Value;
                     exporter.AgentPort = int.Parse(context.Configuration.GetSection("jaeger:port").Value);
-                    exporter.Endpoint = new Uri(context.Configuration.GetSection("jaeger:url").Value);
-                    exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
                 });
         });
-
 
         services.AddOpenTelemetryMetrics(config =>
         {
@@ -114,6 +113,7 @@ IHost host = Host.CreateDefaultBuilder(args)
                 options.HttpListenerPrefixes = new string[] { $"{context.Configuration.GetSection("prometheus:url").Value}:{context.Configuration.GetSection("prometheus:port").Value}" };
                 options.ScrapeResponseCacheDurationMilliseconds = 0;
             })
+            .AddMeter()
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation();
             // The rest of your setup code goes here too

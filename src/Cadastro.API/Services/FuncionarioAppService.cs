@@ -65,11 +65,12 @@ namespace Cadastro.API.Services
         {
             try
             {
-                var funcionario = await _repository.ObterPorId(id);
+                var connection = _repository.RecuperarConexao();
+                var funcionario = await _repository.ObterPorId(connection, null, id);
                 if (funcionario == null)
                     return null;
-                var enderecos = await _repository.ObterEnderecosPorFuncionarioId(id);
-                var telefones = await _repository.ObterTelefonesPorFuncionarioId(id);
+                var enderecos = await _repository.ObterEnderecosPorFuncionarioId(connection, null, id);
+                var telefones = await _repository.ObterTelefonesPorFuncionarioId(connection, null, id);
 
                 if (telefones != null && telefones.Any())
                     funcionario.AtualizarTelefones(telefones);
@@ -95,7 +96,8 @@ namespace Cadastro.API.Services
         {
             try
             {
-                var funcionario = await _repository.ObterTodos();
+                var connection = _repository.RecuperarConexao();
+                var funcionario = await _repository.ObterTodos(connection, null);
                 var result = new List<FuncionarioResponse>();
                 foreach (var item in funcionario)
                 {

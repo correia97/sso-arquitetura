@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -18,13 +16,13 @@ namespace Cadastro.WorkerService
     {
         private readonly ILogger<Worker> _logger;
         private readonly IConnection _connection;
-        private readonly IFuncionarioWriteRepository _repository;
+        private readonly IFuncionarioService _service;
 
-        public Worker(ILogger<Worker> logger, IConnection connection, IFuncionarioWriteRepository repository)
+        public Worker(ILogger<Worker> logger, IConnection connection, IFuncionarioService repository)
         {
             _logger = logger;
             _connection = connection;
-            _repository = repository;
+            _service = repository;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,26 +68,10 @@ namespace Cadastro.WorkerService
             {
                 var funcionario = JsonSerializer.Deserialize<Funcionario>(message);
 
-                var id = await _repository.Inserir(funcionario);
+                var result = await _service.Cadastrar(funcionario);
 
-                if (id != Guid.Empty)
-                {
-                    if (funcionario.Telefones != null && funcionario.Telefones.Any())
-                    {
-                        foreach (var item in funcionario.Telefones)
-                            await _repository.InserirTelefone(item);
-                    }
-
-                    if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
-                    {
-                        await _repository.InserirEndereco(funcionario.EnderecoResidencial);
-                    }
-
-                    if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
-                    {
-                        await _repository.InserirEndereco(funcionario.EnderecoComercial);
-                    }
-
+                if (result)
+                {                    
                     model.BasicAck(deliveryTag, false);
 
                     _logger.LogInformation("Cadastrar success at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
@@ -103,10 +85,7 @@ namespace Cadastro.WorkerService
             catch (Exception ex)
             {
                 model.BasicNack(deliveryTag, false, true);
-
                 _logger.LogError(ex, "Cadastrar failed at: {0:dd/MM/yyyy HH:mm:ss}  ex: {1}", DateTimeOffset.Now);
-
-                throw;
             }
         }
 
@@ -118,24 +97,9 @@ namespace Cadastro.WorkerService
             {
                 var funcionario = JsonSerializer.Deserialize<Funcionario>(message);
 
-                var success = await _repository.Atualizar(funcionario);
+                var success = await _service.Atualizar(funcionario, "");
                 if (success)
                 {
-                    if (funcionario.Telefones != null && funcionario.Telefones.Any())
-                    {
-                        await TratarTelefones(funcionario.Telefones);
-                    }
-
-                    if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
-                    {
-                        await TratarEndereco(funcionario.EnderecoResidencial);
-                    }
-
-                    if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
-                    {
-                        await TratarEndereco(funcionario.EnderecoComercial);
-                    }
-
                     model.BasicAck(deliveryTag, false);
                     _logger.LogInformation("Atualizar success at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
                 }
@@ -149,27 +113,6 @@ namespace Cadastro.WorkerService
             {
                 model.BasicNack(deliveryTag, false, true);
                 _logger.LogError(ex, "Atualizar failed at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
-
-                throw;
-            }
-        }
-
-        private async Task TratarEndereco(Endereco endereco)
-        {
-            if (endereco.Id > 0)
-                await _repository.AtualizarEndereco(endereco);
-            else
-                await _repository.InserirEndereco(endereco);
-        }
-
-        private async Task TratarTelefones(IEnumerable<Telefone> telefones)
-        {
-            foreach (var item in telefones)
-            {
-                if (item.Id > 0)
-                    await _repository.AtualizarTelefone(item);
-                else
-                    await _repository.InserirTelefone(item);
             }
         }
     }

@@ -9,26 +9,27 @@ global:
 
 scrape_configs: 
   - job_name: 'cadastro.api'    
-    scrape_interval: 5s   
+    scrape_interval: 15s   
     static_configs:
       - targets: ['cadastro.api:80']
       
   - job_name: 'cadastro.mvc'    
-    scrape_interval: 5s   
+    scrape_interval: 15s   
     static_configs:
       - targets: ['cadastro.mvc:80']
       
   - job_name: 'nginx'    
-    scrape_interval: 5s   
+    scrape_interval: 15s   
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['192.168.0.17:80']
+      - targets: ['nginx:80']
 
   - job_name: 'prometheus'        
     static_configs:
       - targets: ['localhost:9090']  
   
-  - job_name: 'rabbitmq-server'
+  - job_name: 'rabbitmq-server' 
+    scrape_interval: 15s
     static_configs:
       - targets: ['rabbitmq:15692']
          

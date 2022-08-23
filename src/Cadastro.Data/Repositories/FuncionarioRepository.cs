@@ -20,9 +20,221 @@ namespace Cadastro.Data.Repositories
         {
             _logger = logger;
         }
-
-        public override async Task<bool> Atualizar(Funcionario data)
+        public async Task<Funcionario> ObterPorEmail(IDbConnection dbConnection, IDbTransaction transacao, string email)
         {
+            var query = @"SELECT  id
+                        , userid
+                        , matricula
+                        , cargo
+                        , ativo
+                        , datacadastro
+                        , dataatualizacao
+                        , primeironome
+                        , sobrenome
+                        , datanascimento as date
+                        , enderecoemail
+                        from public.funcionarios
+                        where enderecoemail = @email";
+            try
+            {
+                var result = await dbConnection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
+                    (funcionario, nome, dataNascimento, emailAddr) =>
+                    {
+
+                        funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
+
+                        return funcionario;
+                    }, splitOn: "primeironome, date, enderecoemail", param: new { email }, transaction: transacao);
+                return result.FirstOrDefault();
+            }
+            catch (Npgsql.NpgsqlOperationInProgressException ex)
+            {
+                _logger.LogError(ex, "ObterPorEmail erro");
+                throw;
+            }
+
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "ObterPorEmail erro");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ObterPorEmail erro");
+                throw;
+            }
+        }
+
+        public override async Task<Funcionario> ObterPorId(IDbConnection dbConnection, IDbTransaction transacao, Guid id)
+        {
+            var query = @"SELECT   id
+                        , userid
+                        , matricula
+                        , cargo
+                        , ativo
+                        , datacadastro
+                        , dataatualizacao
+                        , primeironome
+                        , sobrenome
+                        , datanascimento as date
+                        , enderecoemail
+                        FROM public.funcionarios
+                        WHERE userid = @id";
+
+            var paramId = new DynamicParameters();
+            paramId.Add("@id", id.ToString(), DbType.String);
+
+            try
+            {
+                var result = await dbConnection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
+                    (funcionario, nome, dataNascimento, emailAddr) =>
+                    {
+
+                        funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
+
+                        return funcionario;
+                    }, splitOn: "primeironome, date, enderecoemail", param: paramId, transaction: transacao);
+                return result.FirstOrDefault();
+            }
+            catch (Npgsql.NpgsqlOperationInProgressException ex)
+            {
+                _logger.LogError(ex, "ObterPorId erro");
+                throw;
+            }
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "ObterPorId erro");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ObterPorId erro");
+                throw;
+            }
+        }
+
+        public override async Task<IEnumerable<Funcionario>> ObterTodos(IDbConnection dbConnection, IDbTransaction transacao)
+        {
+            var query = @"SELECT   id
+                        , userid
+                        , matricula
+                        , cargo
+                        , ativo
+                        , datacadastro
+                        , dataatualizacao
+                        , primeironome
+                        , sobrenome
+                        , datanascimento as date
+                        , enderecoemail
+                        FROM public.funcionarios";
+            try
+            {
+                var result = await dbConnection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
+                    (funcionario, nome, dataNascimento, emailAddr) =>
+                    {
+                        funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
+
+                        return funcionario;
+                    }, splitOn: "primeironome, date, enderecoemail", transaction: transacao);
+                return result;
+            }
+            catch (Npgsql.NpgsqlOperationInProgressException ex)
+            {
+                _logger.LogError(ex, "ObterTodos erro");
+                throw;
+            }
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "ObterTodos erro");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ObterTodos erro");
+                throw;
+            }
+        }
+
+        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId(IDbConnection dbConnection, IDbTransaction transacao, Guid funcionarioId)
+        {
+            var query = @"Select id
+                        , ddi
+                        , ddd
+                        , numeroTelefone
+                        , funcionarioId
+                        from public.telefones
+                         where funcionarioId = @funcionarioId";
+
+            var param = new DynamicParameters();
+            param.Add("@funcionarioId", funcionarioId);
+
+            try
+            {
+                var result = await dbConnection.QueryAsync<Telefone>(query, param, transaction: transacao);
+                return result.ToList();
+            }
+            catch (Npgsql.NpgsqlOperationInProgressException ex)
+            {
+                _logger.LogError(ex, "ObterTelefonesPorFuncionarioId erro");
+                throw;
+            }
+
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "ObterTelefonesPorFuncionarioId erro");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ObterTelefonesPorFuncionarioId erro");
+                throw;
+            }
+        }
+
+        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId(IDbConnection dbConnection, IDbTransaction transacao, Guid funcionarioId)
+        {
+            var query = @"Select id
+                        , rua        
+                        , numero     
+                        , complemento
+                        , cep        
+                        , uf         
+                        , cidade     
+                        , bairro     
+                        , tipoEndereco     
+                        , funcionarioId 
+                        from public.enderecos
+                         where funcionarioId = @funcionarioId";
+
+            var param = new DynamicParameters();
+            param.Add("@funcionarioId", funcionarioId);
+
+            try
+            {
+                var result = await dbConnection.QueryAsync<Endereco>(query, param, transaction: transacao);
+                return result.ToList();
+            }
+            catch (Npgsql.NpgsqlOperationInProgressException ex)
+            {
+                _logger.LogError(ex, "ObterEnderecosPorFuncionarioId erro");
+                throw;
+            }
+
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "ObterEnderecosPorFuncionarioId erro");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ObterEnderecosPorFuncionarioId erro");
+                throw;
+            }
+        }
+
+        public override async Task<bool> Atualizar(Funcionario data, IDbConnection dbConnection, IDbTransaction transacao)
+        {
+
             var query = @"UPDATE public.funcionarios SET
                           matricula       =@matricula
                         , cargo           =@cargo
@@ -40,16 +252,18 @@ namespace Cadastro.Data.Repositories
             param.Add("@matricula", string.IsNullOrEmpty(data.Matricula) ? "" : data.Matricula);
             param.Add("@cargo", string.IsNullOrEmpty(data.Cargo) ? "" : data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
-            param.Add("@dataCadastro", DateTimeOffset.FromFileTime(data.DataCadastro.ToFileTimeUtc()), DbType.DateTimeOffset);
-            param.Add("@dataAtualizacao", DateTimeOffset.FromFileTime(DateTime.Now.ToFileTimeUtc()), DbType.DateTimeOffset);
+            param.Add("@dataCadastro", data.DataCadastro.ToUniversalTime(), DbType.DateTimeOffset);
+            param.Add("@dataAtualizacao", DateTime.Now.ToUniversalTime(), DbType.DateTimeOffset);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? DateTimeOffset.FromFileTime(data.DataNascimento.Date.ToFileTimeUtc()) : null, DbType.DateTimeOffset);
+            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTimeOffset);
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(sql: query, param: param, transaction: transacao);
+
+
                 return result > 0;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
@@ -70,7 +284,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public override async Task<Guid> Inserir(Funcionario data)
+        public override async Task<Guid> Inserir(Funcionario data, IDbConnection dbConnection, IDbTransaction transacao)
         {
             var query = @"INSERT into public.funcionarios
                            (id
@@ -102,16 +316,16 @@ namespace Cadastro.Data.Repositories
             param.Add("@matricula", string.IsNullOrEmpty(data.Matricula) ? "" : data.Matricula);
             param.Add("@cargo", string.IsNullOrEmpty(data.Cargo) ? "" : data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
-            param.Add("@dataCadastro", DateTimeOffset.FromFileTime(data.DataCadastro.ToFileTimeUtc()), DbType.DateTimeOffset);
-            param.Add("@dataAtualizacao", data.DataAtualizacao.HasValue ? DateTimeOffset.FromFileTime(data.DataAtualizacao.Value.ToFileTimeUtc()) : null, DbType.DateTimeOffset);
+            param.Add("@dataCadastro", data.DataCadastro.ToUniversalTime(), DbType.DateTimeOffset);
+            param.Add("@dataAtualizacao", data.DataAtualizacao.HasValue ? data.DataAtualizacao.Value.ToUniversalTime() : null, DbType.DateTimeOffset);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? DateTimeOffset.FromFileTime(data.DataNascimento.Date.ToFileTimeUtc()) : null, DbType.DateTimeOffset);
+            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTimeOffset);
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(sql: query, param: param, transaction: transacao);
                 if (result > 0)
                     return data.Id;
 
@@ -135,142 +349,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<Funcionario> ObterPorEmail(string email)
-        {
-            var query = @"SELECT  id
-                        , userid
-                        , matricula
-                        , cargo
-                        , ativo
-                        , datacadastro
-                        , dataatualizacao
-                        , primeironome
-                        , sobrenome
-                        , datanascimento as date
-                        , enderecoemail
-                        from public.funcionarios
-                        where enderecoemail = @email";
-            try
-            {
-                var result = await connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
-                    (funcionario, nome, dataNascimento, emailAddr) =>
-                    {
-
-                        funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
-
-                        return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", param: new { email });
-                return result.FirstOrDefault();
-            }
-            catch (Npgsql.NpgsqlOperationInProgressException ex)
-            {
-                _logger.LogError(ex, "ObterPorEmail erro");
-                throw;
-            }
-
-            catch (Npgsql.PostgresException ex)
-            {
-                _logger.LogError(ex, "ObterPorEmail erro");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ObterPorEmail erro");
-                throw;
-            }
-        }
-
-        public override async Task<Funcionario> ObterPorId(Guid id)
-        {
-            var query = @"SELECT   id
-                        , userid
-                        , matricula
-                        , cargo
-                        , ativo
-                        , datacadastro
-                        , dataatualizacao
-                        , primeironome
-                        , sobrenome
-                        , datanascimento as date
-                        , enderecoemail
-                        FROM public.funcionarios
-                        WHERE userid = @id";
-
-            var paramId = new DynamicParameters();
-            paramId.Add("@id", id.ToString(), DbType.String);
-
-            try
-            {
-                var result = await connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
-                    (funcionario, nome, dataNascimento, emailAddr) =>
-                    {
-
-                        funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
-
-                        return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", param: paramId);
-                return result.FirstOrDefault();
-            }
-            catch (Npgsql.NpgsqlOperationInProgressException ex)
-            {
-                _logger.LogError(ex, "ObterPorId erro");
-                throw;
-            }
-            catch (Npgsql.PostgresException ex)
-            {
-                _logger.LogError(ex, "ObterPorId erro");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ObterPorId erro");
-                throw;
-            }
-        }
-
-        public override async Task<IEnumerable<Funcionario>> ObterTodos()
-        {
-            var query = @"SELECT   id
-                        , userid
-                        , matricula
-                        , cargo
-                        , ativo
-                        , datacadastro
-                        , dataatualizacao
-                        , primeironome
-                        , sobrenome
-                        , datanascimento as date
-                        , enderecoemail
-                        FROM public.funcionarios";
-            try
-            {
-                var result = await connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
-                    (funcionario, nome, dataNascimento, emailAddr) =>
-                    {
-                        funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
-
-                        return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail");
-                return result;
-            }
-            catch (Npgsql.NpgsqlOperationInProgressException ex)
-            {
-                _logger.LogError(ex, "ObterTodos erro");
-                throw;
-            }
-            catch (Npgsql.PostgresException ex)
-            {
-                _logger.LogError(ex, "ObterTodos erro");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ObterTodos erro");
-                throw;
-            }
-        }
-
-        public async Task<bool> AtualizarEndereco(Endereco endereco)
+        public async Task<bool> AtualizarEndereco(Endereco endereco, IDbConnection dbConnection, IDbTransaction transacao)
         {
             var query = @"UPDATE public.enderecos SET
                           rua           =@rua
@@ -286,7 +365,7 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@rua", endereco.Rua);
             param.Add("@numero", endereco.Numero);
-            param.Add("@complemento", endereco.Complemento);
+            param.Add("@complemento", endereco.Complemento.Substring(0,19));
             param.Add("@cep", endereco.CEP);
             param.Add("@uf", endereco.UF);
             param.Add("@cidade", endereco.Cidade);
@@ -296,7 +375,7 @@ namespace Cadastro.Data.Repositories
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(query, param, transacao);
                 return result > 0;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
@@ -317,7 +396,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> AtualizarTelefone(Telefone telefone)
+        public async Task<bool> AtualizarTelefone(Telefone telefone, IDbConnection dbConnection, IDbTransaction transacao)
         {
             var query = @"UPDATE public.telefones SET
                           ddi                       =@ddi
@@ -334,7 +413,7 @@ namespace Cadastro.Data.Repositories
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(query, param, transacao);
                 return result > 0;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
@@ -355,7 +434,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> InserirEndereco(Endereco endereco)
+        public async Task<bool> InserirEndereco(Endereco endereco, IDbConnection dbConnection, IDbTransaction transacao)
         {
             var query = @"INSERT into public.enderecos
                         ( rua        
@@ -391,7 +470,7 @@ namespace Cadastro.Data.Repositories
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(query, param, transacao);
                 return result > 0;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
@@ -412,7 +491,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> InserirTelefone(Telefone telefone)
+        public async Task<bool> InserirTelefone(Telefone telefone, IDbConnection dbConnection, IDbTransaction transacao)
         {
             var query = @"INSERT into public.telefones
                            (ddi
@@ -432,7 +511,7 @@ namespace Cadastro.Data.Repositories
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(query, param, transacao);
                 return result > 0;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
@@ -453,7 +532,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> RemoverEndereco(int id)
+        public async Task<bool> RemoverEndereco(int id, IDbConnection dbConnection, IDbTransaction transacao)
         {
             var query = @"delete from public.enderecos
                            where id = @id";
@@ -463,7 +542,7 @@ namespace Cadastro.Data.Repositories
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(query, param, transacao);
                 return result > 0;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
@@ -484,7 +563,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> RemoverTelefone(int id)
+        public async Task<bool> RemoverTelefone(int id, IDbConnection dbConnection, IDbTransaction transacao)
         {
             var query = @"delete from public.telefones
                            where id = @id";
@@ -494,7 +573,7 @@ namespace Cadastro.Data.Repositories
 
             try
             {
-                var result = await connection.ExecuteAsync(query, param);
+                var result = await dbConnection.ExecuteAsync(query, param, transacao);
                 return result > 0;
             }
             catch (Npgsql.NpgsqlOperationInProgressException ex)
@@ -511,83 +590,6 @@ namespace Cadastro.Data.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "RemoverTelefone erro");
-                throw;
-            }
-        }
-
-        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId(Guid funcionarioId)
-        {
-            var query = @"Select id
-                        , ddi
-                        , ddd
-                        , numeroTelefone
-                        , funcionarioId
-                        from public.telefones
-                         where funcionarioId = @funcionarioId";
-
-            var param = new DynamicParameters();
-            param.Add("@funcionarioId", funcionarioId);
-
-            try
-            {
-                var result = await connection.QueryAsync<Telefone>(query, param);
-                return result.ToList();
-            }
-            catch (Npgsql.NpgsqlOperationInProgressException ex)
-            {
-                _logger.LogError(ex, "ObterTelefonesPorFuncionarioId erro");
-                throw;
-            }
-
-            catch (Npgsql.PostgresException ex)
-            {
-                _logger.LogError(ex, "ObterTelefonesPorFuncionarioId erro");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ObterTelefonesPorFuncionarioId erro");
-                throw;
-            }
-        }
-
-        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId(Guid funcionarioId)
-        {
-            var query = @"Select id
-                        , rua        
-                        , numero     
-                        , complemento
-                        , cep        
-                        , uf         
-                        , cidade     
-                        , bairro     
-                        , tipoEndereco     
-                        , funcionarioId 
-                        from public.enderecos
-                         where funcionarioId = @funcionarioId";
-
-            var param = new DynamicParameters();
-            param.Add("@funcionarioId", funcionarioId);
-
-            try
-            {
-                var result = await connection.QueryAsync<Endereco>(query, param);
-                return result.ToList();
-            }
-            catch (Npgsql.NpgsqlOperationInProgressException ex)
-            {
-                _logger.LogError(ex, "ObterEnderecosPorFuncionarioId erro");
-                throw;
-            }
-
-            catch (Npgsql.PostgresException ex)
-            {
-                _logger.LogError(ex, "ObterEnderecosPorFuncionarioId erro");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ObterEnderecosPorFuncionarioId erro");
                 throw;
             }
         }

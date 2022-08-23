@@ -7,7 +7,7 @@ namespace Cadastro.WorkerService.Migrations
     {
         public override void Up()
         {
-            Create.Column("datanascimento").OnTable("funcionarios").AsDateTime().Nullable();
+            Create.Column("datanascimento").OnTable("funcionarios").AsDateTimeOffset().Nullable();
         }
         public override void Down()
         {

@@ -3,7 +3,10 @@ using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Cadastro.Domain.Services
 {
@@ -20,48 +23,107 @@ namespace Cadastro.Domain.Services
         }
         public async Task<bool> Atualizar(Funcionario funcionario, string currentUserId)
         {
+
+            var connection = _repositoryWrite.RecuperarConexao();
+            var transaction = await _repositoryWrite.IniciarTransacao(connection);
             try
             {
-                Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
+                Funcionario baseFuncionario = await _repositoryRead.ObterPorId(connection, transaction, funcionario.Id);
                 baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
                 baseFuncionario.AtualizarTelefones(funcionario.Telefones);
                 baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
                 baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
-                var result = await _repositoryWrite.Atualizar(funcionario);
+                var result = await _repositoryWrite.Atualizar(baseFuncionario, connection, transaction);
 
+                if (!result)
+                {
+                    await _repositoryWrite.CancelarTransacao(connection, transaction);
+                    return result;
+                }
+                if (funcionario.Telefones != null && funcionario.Telefones.Any())
+                {
+                    await TratarTelefones(funcionario.Telefones, connection, transaction);
+                }
+
+                if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
+                {
+                    await TratarEndereco(funcionario.EnderecoResidencial, connection, transaction);
+                }
+
+                if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
+                {
+                    await TratarEndereco(funcionario.EnderecoComercial, connection, transaction);
+                }
+                await _repositoryWrite.CompletarTransacao(connection, transaction);
                 return result;
             }
             catch (Exception ex)
             {
+                await _repositoryWrite.CancelarTransacao(connection, transaction);
                 _logger.LogError(ex, "Erro ao atualizar");
                 return false;
+            }
+            finally
+            {
+              await _repositoryWrite.DesalocarConexao(connection);
             }
         }
 
         public async Task<bool> Cadastrar(Funcionario funcionario)
         {
+            var connection = _repositoryWrite.RecuperarConexao();
+            var transaction = await _repositoryWrite.IniciarTransacao(connection);
+
             try
             {
-                Funcionario data = await _repositoryRead.ObterPorEmail(funcionario.Email.EnderecoEmail);
+                Funcionario data = await _repositoryRead.ObterPorEmail(connection, transaction, funcionario.Email.EnderecoEmail);
                 if (data != null)
                     return false;
 
-                var result = await _repositoryWrite.Inserir(funcionario);
+                var result = await _repositoryWrite.Inserir(funcionario, connection, transaction);
 
-                return result != Guid.Empty;
+                if (result == Guid.Empty)
+                {
+                    await _repositoryWrite.CancelarTransacao(connection, transaction);
+                    return false;
+                }
+                if (funcionario.Telefones != null && funcionario.Telefones.Any())
+                {
+                    foreach (var item in funcionario.Telefones)
+                        await _repositoryWrite.InserirTelefone(item, connection, transaction);
+                }
+
+                if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
+                {
+                    await _repositoryWrite.InserirEndereco(funcionario.EnderecoResidencial, connection, transaction);
+                }
+
+                if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
+                {
+                    await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial, connection, transaction);
+                }
+                await _repositoryWrite.CompletarTransacao(connection, transaction);
+
+                return true;
             }
             catch (Exception ex)
             {
+                await _repositoryWrite.CancelarTransacao(connection, transaction);
                 _logger.LogError(ex, "Erro ao cadastrar");
                 return false;
+            }
+            finally
+            {
+                await _repositoryWrite.DesalocarConexao(connection);
             }
         }
 
         public async Task<Funcionario> ObterPorId(Guid id)
         {
+            var connection = _repositoryRead.RecuperarConexao();
             try
             {
-                Funcionario data = await _repositoryRead.ObterPorId(id);
+                Funcionario data = await _repositoryRead.ObterPorId(connection, null, id);
                 return data;
             }
             catch (Exception ex)
@@ -69,19 +131,47 @@ namespace Cadastro.Domain.Services
                 _logger.LogError(ex, "Erro ao recuperar por ID");
                 return null;
             }
+            finally
+            {
+                await _repositoryRead.DesalocarConexao(connection);
+            }
         }
 
         public async Task<IEnumerable<Funcionario>> ObterTodos()
         {
+            var connection = _repositoryRead.RecuperarConexao();
             try
             {
-                IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos();
+                IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos(connection, null);
                 return data;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao recuperar todos");
                 return null;
+            }
+            finally
+            {
+                await _repositoryRead.DesalocarConexao(connection);
+            }
+        }
+
+        private async Task TratarEndereco(Endereco endereco, IDbConnection dbConnection, IDbTransaction transaction)
+        {
+            if (endereco.Id > 0)
+                await _repositoryWrite.AtualizarEndereco(endereco, dbConnection, transaction);
+            else
+                await _repositoryWrite.InserirEndereco(endereco, dbConnection, transaction);
+        }
+
+        private async Task TratarTelefones(IEnumerable<Telefone> telefones, IDbConnection dbConnection, IDbTransaction transaction)
+        {
+            foreach (var item in telefones)
+            {
+                if (item.Id > 0)
+                    await _repositoryWrite.AtualizarTelefone(item, dbConnection, transaction);
+                else
+                    await _repositoryWrite.InserirTelefone(item, dbConnection, transaction);
             }
         }
     }

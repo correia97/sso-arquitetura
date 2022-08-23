@@ -6,11 +6,13 @@ using Cadastro.Domain.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -23,8 +25,6 @@ string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-
 builder.Services.AddControllers()
                 .AddJsonOptions(opt =>
                                 {
@@ -81,7 +81,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = JwtBearerDefaults.AuthenticationScheme
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
@@ -100,31 +100,44 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddHealthChecks();
-var jaeger = builder.Configuration.GetSection("jaeger");
+
 
 builder.Services.AddOpenTelemetryTracing(traceProvider =>
 {
     traceProvider
         .AddSource(typeof(FuncionarioAppService).Assembly.GetName().Name)
-        .SetResourceBuilder(
-                ResourceBuilder.CreateDefault()
+        .SetResourceBuilder(ResourceBuilder.CreateDefault()
                 .AddService(serviceName: typeof(FuncionarioAppService).Assembly.GetName().Name,
                             serviceVersion: typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString()))
         .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddSqlClientInstrumentation(
-            options =>
+        .AddAspNetCoreInstrumentation((options) => options.Enrich
+        = (activity, eventName, rawObject) =>
+        {
+            if (eventName.Equals("OnStartActivity"))
             {
-                options.SetDbStatementForText = true;
-                options.RecordException = true;
-            })
+                if (rawObject is HttpRequest httpRequest)
+                {
+                    activity.SetTag("requestProtocol", httpRequest.Protocol);
+                }
+            }
+            else if (eventName.Equals("OnStopActivity"))
+            {
+                if (rawObject is HttpResponse httpResponse)
+                {
+                    activity.SetTag("responseLength", httpResponse.ContentLength);
+                }
+            }
+        })
+        .AddSqlClientInstrumentation(options =>
+        {
+            options.SetDbStatementForText = true;
+            options.RecordException = true;
+        })
         .AddConsoleExporter()
         .AddJaegerExporter(exporter =>
         {
             exporter.AgentHost = builder.Configuration.GetSection("jaeger:host").Value;
             exporter.AgentPort = int.Parse(builder.Configuration.GetSection("jaeger:port").Value); 
-            exporter.Endpoint = new Uri(builder.Configuration.GetSection("jaeger:url").Value);
-            exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
         });
 });
 
@@ -144,9 +157,22 @@ builder.Services.AddOpenTelemetryMetrics(config =>
             options.HttpListenerPrefixes = new string[] {$"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
             options.ScrapeResponseCacheDurationMilliseconds = 0;
         })
+        .AddMeter()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation();
 });
+
+
+var meterProvider = Sdk.CreateMeterProviderBuilder()
+    .AddPrometheusExporter(options =>
+    {
+        options.StartHttpListener = true;
+        options.HttpListenerPrefixes = new string[] { $"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
+        options.ScrapeResponseCacheDurationMilliseconds = 0;
+    })
+    .Build();
+
+builder.Services.AddSingleton(meterProvider);
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
@@ -183,6 +209,7 @@ app.UseSwaggerUI(c =>
 });
 
 //app.UseHttpsRedirection();
+//app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.UseStaticFiles();
 

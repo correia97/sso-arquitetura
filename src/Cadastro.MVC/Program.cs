@@ -14,9 +14,6 @@ using System;
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
 
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMVCCustomAuthenticationConfig(builder.Environment, builder.Configuration);
@@ -45,8 +42,6 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
         {
             exporter.AgentHost = builder.Configuration.GetSection("jaeger:host").Value;
             exporter.AgentPort = int.Parse(builder.Configuration.GetSection("jaeger:port").Value);
-            exporter.Endpoint = new Uri(builder.Configuration.GetSection("jaeger:url").Value);
-            exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
         });
 });
 
@@ -67,6 +62,7 @@ builder.Services.AddOpenTelemetryMetrics(config =>
         options.HttpListenerPrefixes = new string[] { $"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
         options.ScrapeResponseCacheDurationMilliseconds = 0;
     })
+    .AddMeter()
     .AddAspNetCoreInstrumentation()
     .AddHttpClientInstrumentation();
     // The rest of your setup code goes here too

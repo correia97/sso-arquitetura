@@ -22,19 +22,17 @@ builder.Services.AddOpenTelemetryTracing(traceProvider =>
                     serviceVersion: typeof(FuncionarioGrpcService).Assembly.GetName().Version!.ToString()))
         .AddHttpClientInstrumentation()
         .AddAspNetCoreInstrumentation()
-        .AddSqlClientInstrumentation(
-                    options =>
-                    {
-                        options.SetDbStatementForText = true;
-                        options.RecordException = true;
-                    })
+        .AddSqlClientInstrumentation(options =>
+        {
+            options.SetDbStatementForText = true;
+            options.RecordException = true;
+        })
         .AddConsoleExporter()
         .AddJaegerExporter(exporter =>
         {
-            exporter.AgentHost = "jaeger";
-            exporter.AgentPort = 6831;
-            exporter.Endpoint = new Uri("http://jaeger:14268/api/traces");
-            exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.HttpBinaryThrift;
+            exporter.AgentHost = builder.Configuration.GetSection("jaeger:host").Value;
+            exporter.AgentPort = int.Parse(builder.Configuration.GetSection("jaeger:port").Value);
+
         });
 });
 
