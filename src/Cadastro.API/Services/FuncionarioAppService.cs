@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OpenTelemetry.Trace;
 
 namespace Cadastro.API.Services
 {
@@ -18,15 +19,18 @@ namespace Cadastro.API.Services
         private readonly IFuncionarioReadRepository _repository;
         private readonly IModel _channel;
         private readonly ILogger<FuncionarioAppService> _logger;
-        public FuncionarioAppService(IConnection connection, IFuncionarioReadRepository repository, ILogger<FuncionarioAppService> logger)
+        private readonly Tracer _trace;
+        public FuncionarioAppService(IConnection connection, IFuncionarioReadRepository repository, ILogger<FuncionarioAppService> logger, Tracer trace)
         {
             _repository = repository;
             _channel = connection.CreateModel();
             _logger = logger;
+            _trace = trace;
         }
 
         public bool Cadastrar(Funcionario funcionario)
         {
+            using var span = _trace.StartSpan("Cadastrar", SpanKind.Internal);
             try
             {
                 IBasicProperties props = _channel.CreateBasicProperties();
@@ -45,6 +49,7 @@ namespace Cadastro.API.Services
 
         public bool Atualizar(Funcionario funcionario, string currentUserId)
         {
+            using var span = _trace.StartSpan("Atualizar", SpanKind.Internal);
             try
             {
                 IBasicProperties props = _channel.CreateBasicProperties();
@@ -63,6 +68,7 @@ namespace Cadastro.API.Services
 
         public async Task<FuncionarioResponse> ObterPorId(Guid id)
         {
+            using var span = _trace.StartSpan("ObterPorId", SpanKind.Internal);
             try
             {
                 var connection = _repository.RecuperarConexao();
@@ -94,6 +100,7 @@ namespace Cadastro.API.Services
 
         public async Task<IEnumerable<FuncionarioResponse>> ObterTodos()
         {
+            using var span = _trace.StartSpan("ObterTodos", SpanKind.Internal);
             try
             {
                 var connection = _repository.RecuperarConexao();

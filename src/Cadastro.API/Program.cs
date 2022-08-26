@@ -1,3 +1,4 @@
+using Cadastro.API.Controllers.V1;
 using Cadastro.API.Interfaces;
 using Cadastro.API.Services;
 using Cadastro.Configuracoes;
@@ -179,6 +180,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 builder.Services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
 
 builder.Services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
+
+builder.Services.AddSingleton(TracerProvider.Default.GetTracer(typeof(FuncionarioController).Name));
 
 builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 

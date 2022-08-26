@@ -13,6 +13,7 @@ services:
       - rabbitmq
       - db
       - jaeger
+      - prometheus
 
   cadastro.mvc:
     image: ${DOCKER_REGISTRY-}cadastromvc
@@ -22,6 +23,10 @@ services:
       dockerfile: src/Cadastro.MVC/Dockerfile
     networks:
       - externo
+    depends_on:
+      - prometheus
+      - jaeger
+      - cadastro.api
 
   cadastro.workerservice:
     image: ${DOCKER_REGISTRY-}cadastroworker
@@ -35,6 +40,7 @@ services:
       - db
       - rabbitmq
       - jaeger
+      - prometheus
 
   cadastro.angular:
     image: angular
@@ -44,6 +50,8 @@ services:
     container_name: cadastro.angular
     depends_on:
       - cadastro.api
+      - jaeger
+      - prometheus
     networks:
       - externo
     ports:
@@ -62,7 +70,7 @@ services:
       - 5432:5432
     networks:
       - base
-    restart: unless-stopped
+    #restart: unless-stopped
     volumes:
       - dbData:/var/lib/postgresql/data
 
@@ -123,6 +131,8 @@ services:
         - COLLECTOR_OTLP_ENABLED=true
         - COLLECTOR_ZIPKIN_HOST_PORT=:9411
         - JAEGER_AGENT_HOST="jaeger"
+        - PROMETHEUS_SERVER_URL=http://prometheus:9090
+        - METRICS_STORAGE_TYPE=prometheus
     ports:
       - 6831:6831/udp 
       - 6832:6832/udp 
@@ -137,7 +147,7 @@ services:
     networks:
       - externo
     depends_on:
-      - db
+      - prometheus
 
   prometheus:
     image: prom/prometheus:v2.37.0
@@ -146,8 +156,6 @@ services:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
     ports:
       - "9091:9090"
-    depends_on:
-      - cadastro.api
     networks:
       - externo
       - base

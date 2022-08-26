@@ -33,7 +33,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.ObterTodos()).ReturnsAsync(new List<FuncionarioResponse>());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = await controller.Get() as OkObjectResult;
+            var result = await controller.Get(Guid.NewGuid()) as OkObjectResult;
 
             _service.Verify(x => x.ObterTodos(), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -46,7 +46,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.ObterTodos()).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = await controller.Get() as BadRequestObjectResult;
+            var result = await controller.Get(Guid.NewGuid()) as BadRequestObjectResult;
 
             _service.Verify(x => x.ObterTodos(), Times.Once);
             result.StatusCode.Should().Be(400);
@@ -145,7 +145,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Cadastrar(It.IsAny<Funcionario>())).Returns(true);
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Post(funcionarioReq) as OkObjectResult;
+            var result = controller.Post(Guid.NewGuid(), funcionarioReq) as OkObjectResult;
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -206,7 +206,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Cadastrar(It.IsAny<Funcionario>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Post(funcionarioReq) as BadRequestObjectResult;
+            var result = controller.Post(Guid.NewGuid(), funcionarioReq) as BadRequestObjectResult;
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(400);
@@ -268,7 +268,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>())).Returns(true);
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Patch(funcionarioReq) as OkObjectResult;
+            var result = controller.Patch(Guid.NewGuid(),funcionarioReq) as OkObjectResult;
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -331,7 +331,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Patch(funcionarioReq) as BadRequestObjectResult;
+            var result = controller.Patch(Guid.NewGuid(), funcionarioReq) as BadRequestObjectResult;
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(400);

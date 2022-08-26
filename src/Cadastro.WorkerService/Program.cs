@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -66,10 +67,12 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         configuration = context.Configuration;
+
         services.AddHostedService<Worker>();
-        services.AddTransient<IFuncionarioWriteRepository, FuncionarioRepository>();
-        services.AddTransient<IFuncionarioReadRepository, FuncionarioRepository>();
-        services.AddTransient<IFuncionarioService, FuncionarioService>();
+        services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>();
+        services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
+        services.AddScoped<IFuncionarioService, FuncionarioService>();
+        services.AddSingleton(TracerProvider.Default.GetTracer(typeof(Worker).Name));
         services.AddFluentMigratorCore();
         services.AddRabbitCustomConfiguration(context.Configuration);
         services.ConfigureRunner(rb =>
@@ -118,8 +121,22 @@ IHost host = Host.CreateDefaultBuilder(args)
             .AddHttpClientInstrumentation();
             // The rest of your setup code goes here too
         });
+
+        var meterProvider = Sdk.CreateMeterProviderBuilder()
+            .AddPrometheusExporter(options =>
+            {
+                options.StartHttpListener = true;
+                options.HttpListenerPrefixes = new string[] { $"{configuration.GetSection("prometheus:url").Value}:{configuration.GetSection("prometheus:port").Value}" };
+                options.ScrapeResponseCacheDurationMilliseconds = 0;
+            })
+            .Build();
+
+        services.AddSingleton(meterProvider);
     })
     .Build();
+
+
+
 
 UpdateDatabase(host.Services, configuration);
 

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -21,7 +22,10 @@ builder.Services.AddMVCCustomAuthenticationConfig(builder.Environment, builder.C
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
+
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
+
+builder.Services.AddSingleton(TracerProvider.Default.GetTracer(typeof(FuncionarioService).Name));
 
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
@@ -30,11 +34,11 @@ builder.Services.AddHealthChecks();
 builder.Services.AddOpenTelemetryTracing(traceProvider =>
 {
     traceProvider
-        .AddSource(typeof(WeatherForecastService).Assembly.GetName().Name)
+        .AddSource(typeof(FuncionarioService).Assembly.GetName().Name)
         .SetResourceBuilder(
             ResourceBuilder.CreateDefault()
-                .AddService(serviceName: typeof(WeatherForecastService).Assembly.GetName().Name,
-                    serviceVersion: typeof(WeatherForecastService).Assembly.GetName().Version!.ToString()))
+                .AddService(serviceName: typeof(FuncionarioService).Assembly.GetName().Name,
+                    serviceVersion: typeof(FuncionarioService).Assembly.GetName().Version!.ToString()))
         .AddHttpClientInstrumentation()
         .AddAspNetCoreInstrumentation()
         .AddConsoleExporter()
@@ -50,8 +54,8 @@ builder.Services.AddOpenTelemetryMetrics(config =>
     config
         .SetResourceBuilder(
             ResourceBuilder.CreateDefault()
-                .AddService(serviceName: typeof(WeatherForecastService).Assembly.GetName().Name,
-                    serviceVersion: typeof(WeatherForecastService).Assembly.GetName().Version!.ToString())
+                .AddService(serviceName: typeof(FuncionarioService).Assembly.GetName().Name,
+                    serviceVersion: typeof(FuncionarioService).Assembly.GetName().Version!.ToString())
                 .AddEnvironmentVariableDetector()
             .AddTelemetrySdk()
                 )
@@ -67,6 +71,18 @@ builder.Services.AddOpenTelemetryMetrics(config =>
     .AddHttpClientInstrumentation();
     // The rest of your setup code goes here too
 });
+
+var meterProvider = Sdk.CreateMeterProviderBuilder()
+    .AddPrometheusExporter(options =>
+    {
+        options.StartHttpListener = true;
+        options.HttpListenerPrefixes = new string[] { $"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
+        options.ScrapeResponseCacheDurationMilliseconds = 0;
+    })
+    .Build();
+
+
+builder.Services.AddSingleton(meterProvider);
 
 // Add services to the container.
 builder.Services.AddRazorPages();

@@ -2,6 +2,7 @@ using Cadastro.Domain.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -17,10 +18,12 @@ namespace Cadastro.WorkerService
         private readonly ILogger<Worker> _logger;
         private readonly IConnection _connection;
         private readonly IFuncionarioService _service;
+        private readonly Tracer _tracer;
 
-        public Worker(ILogger<Worker> logger, IConnection connection, IFuncionarioService repository)
+        public Worker(ILogger<Worker> logger, Tracer tracer, IConnection connection, IFuncionarioService repository)
         {
             _logger = logger;
+            _tracer = tracer;
             _connection = connection;
             _service = repository;
         }
@@ -62,8 +65,8 @@ namespace Cadastro.WorkerService
 
         public async Task Cadastrar(string message, IModel model, ulong deliveryTag)
         {
-            _logger.LogInformation("Cadastrar started at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
-
+            using var span = _tracer.StartRootSpan("Cadastrar", SpanKind.Consumer);
+            _logger.LogInformation("Cadastrar started at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);            
             try
             {
                 var funcionario = JsonSerializer.Deserialize<Funcionario>(message);
@@ -71,7 +74,7 @@ namespace Cadastro.WorkerService
                 var result = await _service.Cadastrar(funcionario);
 
                 if (result)
-                {                    
+                {
                     model.BasicAck(deliveryTag, false);
 
                     _logger.LogInformation("Cadastrar success at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
@@ -91,6 +94,7 @@ namespace Cadastro.WorkerService
 
         public async Task Atualizar(string message, IModel model, ulong deliveryTag)
         {
+            using var span = _tracer.StartRootSpan("Atualizar", SpanKind.Consumer);
             _logger.LogInformation("Atualizar started at: {0:dd/MM/yyyy HH:mm:ss}", DateTimeOffset.Now);
 
             try

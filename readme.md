@@ -10,13 +10,16 @@ sequenceDiagram
 	participant API
 	participant Keycloak
 	participant RabbitMQ
+	participant Worker
 	
 	alt logged
 			Funcionario->>+MVC: Get Home  
 			MVC-->>+API: Get Wheather
 			API->>+Keycloak: Is Token Valid?
 			Keycloak-->>-API: True
-			API->>RabbitMQ: publish
+			API->>RabbitMQ: publish	message		
+			Worker->>+RabbitMQ: Get message	
+			Worker->>+RabbitMQ: publish Event
 			API-->>-MVC: json result
 			MVC-->>-Funcionario: Html 
   else not logged      
@@ -36,6 +39,7 @@ sequenceDiagram
 	participant API
 	participant Keycloak
 	participant RabbitMQ
+	participant Worker
 	
 
       Funcionario->>+MVC: Login

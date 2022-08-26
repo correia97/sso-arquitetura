@@ -1,12 +1,12 @@
 ﻿using Cadastro.Domain.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 
 namespace Cadastro.Domain.Services
 {
@@ -15,15 +15,17 @@ namespace Cadastro.Domain.Services
         private readonly IFuncionarioReadRepository _repositoryRead;
         private readonly IFuncionarioWriteRepository _repositoryWrite;
         private readonly ILogger<FuncionarioService> _logger;
-        public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite, ILogger<FuncionarioService> logger)
+        private readonly Tracer _tracer;
+        public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite, ILogger<FuncionarioService> logger, Tracer tracer)
         {
             _repositoryRead = repositoryRead;
             _repositoryWrite = repositoryWrite;
             _logger = logger;
+            _tracer = tracer;
         }
         public async Task<bool> Atualizar(Funcionario funcionario, string currentUserId)
         {
-
+            using var span = _tracer.StartActiveSpan("Atualizar",SpanKind.Internal);
             var connection = _repositoryWrite.RecuperarConexao();
             var transaction = await _repositoryWrite.IniciarTransacao(connection);
             try
@@ -71,6 +73,7 @@ namespace Cadastro.Domain.Services
 
         public async Task<bool> Cadastrar(Funcionario funcionario)
         {
+            using var span = _tracer.StartActiveSpan("Cadastrar", SpanKind.Internal);
             var connection = _repositoryWrite.RecuperarConexao();
             var transaction = await _repositoryWrite.IniciarTransacao(connection);
 
@@ -120,6 +123,8 @@ namespace Cadastro.Domain.Services
 
         public async Task<Funcionario> ObterPorId(Guid id)
         {
+
+            using var span = _tracer.StartActiveSpan("ObterPorId", SpanKind.Internal);
             var connection = _repositoryRead.RecuperarConexao();
             try
             {
@@ -139,6 +144,8 @@ namespace Cadastro.Domain.Services
 
         public async Task<IEnumerable<Funcionario>> ObterTodos()
         {
+
+            using var span = _tracer.StartActiveSpan("ObterTodos", SpanKind.Internal);
             var connection = _repositoryRead.RecuperarConexao();
             try
             {
@@ -158,6 +165,8 @@ namespace Cadastro.Domain.Services
 
         private async Task TratarEndereco(Endereco endereco, IDbConnection dbConnection, IDbTransaction transaction)
         {
+
+            using var span = _tracer.StartActiveSpan("TratarEndereco", SpanKind.Internal);
             if (endereco.Id > 0)
                 await _repositoryWrite.AtualizarEndereco(endereco, dbConnection, transaction);
             else
@@ -166,6 +175,8 @@ namespace Cadastro.Domain.Services
 
         private async Task TratarTelefones(IEnumerable<Telefone> telefones, IDbConnection dbConnection, IDbTransaction transaction)
         {
+
+            using var span = _tracer.StartActiveSpan("TratarTelefones", SpanKind.Internal);
             foreach (var item in telefones)
             {
                 if (item.Id > 0)

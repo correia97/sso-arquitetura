@@ -32,7 +32,7 @@ namespace Cadastro.API.Controllers.V1
         [Route("funcionario")]
         [SwaggerResponse(200, "Funcionarios localizado", typeof(IEnumerable<FuncionarioResponse>))]
         [SwaggerResponse(400, "Funcionarios não localizado")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromHeader] Guid correlationId)
         {
             try
             {
@@ -45,11 +45,12 @@ namespace Cadastro.API.Controllers.V1
                 return BadRequest(ex);
             }
         }
+        
         [HttpGet]
         [Route("funcionario/{id:guid}")]
         [SwaggerResponse(200, "Funcionario localizado", typeof(FuncionarioResponse))]
         [SwaggerResponse(400, "Funcionario não localizado")]
-        public async Task<IActionResult> Get(Guid id)
+        public async Task<IActionResult> Get([FromHeader] Guid correlationId, Guid id)
         {
             try
             {
@@ -68,7 +69,7 @@ namespace Cadastro.API.Controllers.V1
         [Route("funcionario")]
         [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
         [SwaggerResponse(400, "Funcionario não recebido")]
-        public IActionResult Post([FromBody] FuncionarioRequest funcionario)
+        public IActionResult Post([FromHeader] Guid correlationId, [FromBody] FuncionarioRequest funcionario)
         {
             try
             {
@@ -116,7 +117,7 @@ namespace Cadastro.API.Controllers.V1
         [Route("funcionario")]
         [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
         [SwaggerResponse(400, "Funcionario não recebido")]
-        public IActionResult Patch([FromBody] FuncionarioRequest funcionario)
+        public IActionResult Patch([FromHeader] Guid correlationId, [FromBody] FuncionarioRequest funcionario)
         {
             try
             {
