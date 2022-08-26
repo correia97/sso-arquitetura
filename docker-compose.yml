@@ -128,22 +128,14 @@ services:
     image: jaegertracing/all-in-one:1.37
     container_name: jaeger
     environment:
-        - COLLECTOR_OTLP_ENABLED=true
-        - COLLECTOR_ZIPKIN_HOST_PORT=:9411
-        - JAEGER_AGENT_HOST="jaeger"
         - PROMETHEUS_SERVER_URL=http://prometheus:9090
         - METRICS_STORAGE_TYPE=prometheus
     ports:
-      - 6831:6831/udp 
-      - 6832:6832/udp 
-      - 5778:5778 
-      - 16686:16686 
-      - 4317:4317 
-      - 4318:4318 
-      - 14250:14250 
-      - 14268:14268 
-      - 14269:14269 
-      - 9411:9411 
+      - 14250:14250
+      - 14268:14268
+      - 6831:6831/udp
+      - 16686:16686
+      - 16685:16685
     networks:
       - externo
     depends_on:
@@ -155,7 +147,7 @@ services:
     volumes: 
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
     ports:
-      - "9091:9090"
+      - 9091:9090
     networks:
       - externo
       - base
@@ -166,7 +158,7 @@ services:
     environment:
         - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
     ports:
-      - "3000:3000"
+      - 3000:3000
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:

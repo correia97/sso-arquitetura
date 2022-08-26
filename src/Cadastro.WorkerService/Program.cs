@@ -4,13 +4,13 @@ using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
 using Cadastro.WorkerService;
 using Cadastro.WorkerServices.Migrations;
-using Domain.Entities;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -66,13 +66,15 @@ IConfiguration configuration = default;
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
+        var serviceName = nameof(Worker);
+        var serviceVersion = typeof(Worker).Assembly.GetName().Version!.ToString() ?? "unknown";
         configuration = context.Configuration;
-
+        services.AddLogging();
         services.AddHostedService<Worker>();
         services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioService, FuncionarioService>();
-        services.AddSingleton(TracerProvider.Default.GetTracer(typeof(Worker).Name));
+        services.AddSingleton(TracerProvider.Default.GetTracer(serviceName));
         services.AddFluentMigratorCore();
         services.AddRabbitCustomConfiguration(context.Configuration);
         services.ConfigureRunner(rb =>
@@ -82,63 +84,12 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
         });
 
-        services.AddOpenTelemetryTracing(traceProvider =>
-        {
-            traceProvider
-                .AddSource(typeof(Worker).Assembly.GetName().Name)
-                .SetResourceBuilder(
-                    ResourceBuilder.CreateDefault()
-                        .AddService(serviceName: typeof(Worker).Assembly.GetName().Name,
-                            serviceVersion: typeof(Worker).Assembly.GetName().Version!.ToString()))
-                .AddHttpClientInstrumentation()
-                .AddAspNetCoreInstrumentation()
-                .AddSqlClientInstrumentation(
-                    options =>
-                    {
-                        options.SetDbStatementForText = true;
-                        options.RecordException = true;
-                    })
-                .AddConsoleExporter()
-                .AddJaegerExporter(exporter =>
-                {
-                    exporter.AgentHost = context.Configuration.GetSection("jaeger:host").Value;
-                    exporter.AgentPort = int.Parse(context.Configuration.GetSection("jaeger:port").Value);
-                });
-        });
-
-        services.AddOpenTelemetryMetrics(config =>
-        {
-            config
-            .AddPrometheusExporter(options =>
-            {
-                options.StartHttpListener = true;
-                // Use your endpoint and port here
-                options.HttpListenerPrefixes = new string[] { $"{context.Configuration.GetSection("prometheus:url").Value}:{context.Configuration.GetSection("prometheus:port").Value}" };
-                options.ScrapeResponseCacheDurationMilliseconds = 0;
-            })
-            .AddMeter()
-            .AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation();
-            // The rest of your setup code goes here too
-        });
-
-        var meterProvider = Sdk.CreateMeterProviderBuilder()
-            .AddPrometheusExporter(options =>
-            {
-                options.StartHttpListener = true;
-                options.HttpListenerPrefixes = new string[] { $"{configuration.GetSection("prometheus:url").Value}:{configuration.GetSection("prometheus:port").Value}" };
-                options.ScrapeResponseCacheDurationMilliseconds = 0;
-            })
-            .Build();
-
-        services.AddSingleton(meterProvider);
+        services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, configuration);
+        services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, configuration);
     })
     .Build();
 
-
-
-
 UpdateDatabase(host.Services, configuration);
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+//AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 await host.RunAsync();

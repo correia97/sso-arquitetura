@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -102,78 +104,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHealthChecks();
 
+var serviceName = typeof(FuncionarioAppService).Assembly.GetName().Name;
+var serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString() ?? "unknown";
 
-builder.Services.AddOpenTelemetryTracing(traceProvider =>
-{
-    traceProvider
-        .AddSource(typeof(FuncionarioAppService).Assembly.GetName().Name)
-        .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService(serviceName: typeof(FuncionarioAppService).Assembly.GetName().Name,
-                            serviceVersion: typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString()))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation((options) => options.Enrich
-        = (activity, eventName, rawObject) =>
-        {
-            if (eventName.Equals("OnStartActivity"))
-            {
-                if (rawObject is HttpRequest httpRequest)
-                {
-                    activity.SetTag("requestProtocol", httpRequest.Protocol);
-                }
-            }
-            else if (eventName.Equals("OnStopActivity"))
-            {
-                if (rawObject is HttpResponse httpResponse)
-                {
-                    activity.SetTag("responseLength", httpResponse.ContentLength);
-                }
-            }
-        })
-        .AddSqlClientInstrumentation(options =>
-        {
-            options.SetDbStatementForText = true;
-            options.RecordException = true;
-        })
-        .AddConsoleExporter()
-        .AddJaegerExporter(exporter =>
-        {
-            exporter.AgentHost = builder.Configuration.GetSection("jaeger:host").Value;
-            exporter.AgentPort = int.Parse(builder.Configuration.GetSection("jaeger:port").Value); 
-        });
-});
-
-builder.Services.AddOpenTelemetryMetrics(config =>
-{
-    config
-        .SetResourceBuilder(
-            ResourceBuilder.CreateDefault()
-                .AddService(serviceName: typeof(FuncionarioAppService).Assembly.GetName().Name,
-                            serviceVersion: typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString())
-                .AddEnvironmentVariableDetector()
-                .AddTelemetrySdk()
-                )
-        .AddPrometheusExporter(options =>
-        {
-            options.StartHttpListener = true;
-            options.HttpListenerPrefixes = new string[] {$"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
-            options.ScrapeResponseCacheDurationMilliseconds = 0;
-        })
-        .AddMeter()
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation();
-});
-
-
-var meterProvider = Sdk.CreateMeterProviderBuilder()
-    .AddPrometheusExporter(options =>
-    {
-        options.StartHttpListener = true;
-        options.HttpListenerPrefixes = new string[] { $"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
-        options.ScrapeResponseCacheDurationMilliseconds = 0;
-    })
-    .Build();
-
-builder.Services.AddSingleton(meterProvider);
+builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
@@ -181,7 +117,7 @@ builder.Services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
 
 builder.Services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
 
-builder.Services.AddSingleton(TracerProvider.Default.GetTracer(typeof(FuncionarioController).Name));
+builder.Services.AddSingleton(TracerProvider.Default.GetTracer(serviceName));
 
 builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 

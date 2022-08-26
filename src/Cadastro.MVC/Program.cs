@@ -3,10 +3,12 @@ using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -31,58 +33,11 @@ builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
 builder.Services.AddHealthChecks();
 
-builder.Services.AddOpenTelemetryTracing(traceProvider =>
-{
-    traceProvider
-        .AddSource(typeof(FuncionarioService).Assembly.GetName().Name)
-        .SetResourceBuilder(
-            ResourceBuilder.CreateDefault()
-                .AddService(serviceName: typeof(FuncionarioService).Assembly.GetName().Name,
-                    serviceVersion: typeof(FuncionarioService).Assembly.GetName().Version!.ToString()))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddConsoleExporter()
-        .AddJaegerExporter(exporter =>
-        {
-            exporter.AgentHost = builder.Configuration.GetSection("jaeger:host").Value;
-            exporter.AgentPort = int.Parse(builder.Configuration.GetSection("jaeger:port").Value);
-        });
-});
-
-builder.Services.AddOpenTelemetryMetrics(config =>
-{
-    config
-        .SetResourceBuilder(
-            ResourceBuilder.CreateDefault()
-                .AddService(serviceName: typeof(FuncionarioService).Assembly.GetName().Name,
-                    serviceVersion: typeof(FuncionarioService).Assembly.GetName().Version!.ToString())
-                .AddEnvironmentVariableDetector()
-            .AddTelemetrySdk()
-                )
-    .AddPrometheusExporter(options =>
-    {
-        options.StartHttpListener = true;
-        // Use your endpoint and port here
-        options.HttpListenerPrefixes = new string[] { $"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
-        options.ScrapeResponseCacheDurationMilliseconds = 0;
-    })
-    .AddMeter()
-    .AddAspNetCoreInstrumentation()
-    .AddHttpClientInstrumentation();
-    // The rest of your setup code goes here too
-});
-
-var meterProvider = Sdk.CreateMeterProviderBuilder()
-    .AddPrometheusExporter(options =>
-    {
-        options.StartHttpListener = true;
-        options.HttpListenerPrefixes = new string[] { $"{builder.Configuration.GetSection("prometheus:url").Value}:{builder.Configuration.GetSection("prometheus:port").Value}" };
-        options.ScrapeResponseCacheDurationMilliseconds = 0;
-    })
-    .Build();
-
-
-builder.Services.AddSingleton(meterProvider);
+var serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
+var serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version!.ToString() ?? "unknown";
+builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
 
 // Add services to the container.
 builder.Services.AddRazorPages();

@@ -33,7 +33,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.ObterTodos()).ReturnsAsync(new List<FuncionarioResponse>());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = await controller.Get(Guid.NewGuid()) as OkObjectResult;
+            var result = await controller.Get(correlationId: Guid.NewGuid()) as OkObjectResult;
 
             _service.Verify(x => x.ObterTodos(), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -46,7 +46,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.ObterTodos()).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = await controller.Get(Guid.NewGuid()) as BadRequestObjectResult;
+            var result = await controller.Get(correlationId: Guid.NewGuid()) as BadRequestObjectResult;
 
             _service.Verify(x => x.ObterTodos(), Times.Once);
             result.StatusCode.Should().Be(400);
@@ -70,7 +70,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.ObterPorId(It.IsAny<Guid>())).ReturnsAsync(new FuncionarioResponse(funcionario));
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = await controller.Get(Guid.NewGuid()) as OkObjectResult;
+            var result = await controller.Get(correlationId: Guid.NewGuid(), id: Guid.NewGuid()) as OkObjectResult;
 
             _service.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -83,7 +83,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.ObterPorId(It.IsAny<Guid>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = await controller.Get(Guid.NewGuid()) as BadRequestObjectResult;
+            var result = await controller.Get(correlationId: Guid.NewGuid(), id: Guid.NewGuid()) as BadRequestObjectResult;
 
             _service.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
             result.StatusCode.Should().Be(400);
@@ -206,7 +206,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Cadastrar(It.IsAny<Funcionario>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Post(Guid.NewGuid(), funcionarioReq) as BadRequestObjectResult;
+            var result = controller.Post(correlationId: Guid.NewGuid(), funcionarioReq) as BadRequestObjectResult;
 
             _service.Verify(x => x.Cadastrar(It.IsAny<Funcionario>()), Times.Once);
             result.StatusCode.Should().Be(400);
@@ -268,7 +268,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>())).Returns(true);
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Patch(Guid.NewGuid(),funcionarioReq) as OkObjectResult;
+            var result = controller.Patch(correlationId: Guid.NewGuid(), funcionarioReq) as OkObjectResult;
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(200);
@@ -331,7 +331,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _service.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
-            var result = controller.Patch(Guid.NewGuid(), funcionarioReq) as BadRequestObjectResult;
+            var result = controller.Patch(correlationId: Guid.NewGuid(), funcionarioReq) as BadRequestObjectResult;
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<string>()), Times.Once);
             result.StatusCode.Should().Be(400);

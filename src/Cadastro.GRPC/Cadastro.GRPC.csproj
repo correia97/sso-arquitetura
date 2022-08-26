@@ -31,4 +31,10 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.0.0-rc9.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj" />
+    <ProjectReference Include="..\Cadastro.Data\Cadastro.Data.csproj" />
+    <ProjectReference Include="..\Cadastro.Domain\Cadastro.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

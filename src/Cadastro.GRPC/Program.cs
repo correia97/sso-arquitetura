@@ -1,4 +1,6 @@
+using Cadastro.Configuracoes;
 using Cadastro.GRPC.Services;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -11,30 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc();
 
 
+var serviceName = typeof(FuncionarioGrpcService).Assembly.GetName().Name;
+var serviceVersion = typeof(FuncionarioGrpcService).Assembly.GetName().Version!.ToString() ?? "unknown";
 
-builder.Services.AddOpenTelemetryTracing(traceProvider =>
-{
-    traceProvider
-        .AddSource(typeof(FuncionarioGrpcService).Assembly.GetName().Name)
-        .SetResourceBuilder(
-            ResourceBuilder.CreateDefault()
-                .AddService(serviceName: typeof(FuncionarioGrpcService).Assembly.GetName().Name,
-                    serviceVersion: typeof(FuncionarioGrpcService).Assembly.GetName().Version!.ToString()))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddSqlClientInstrumentation(options =>
-        {
-            options.SetDbStatementForText = true;
-            options.RecordException = true;
-        })
-        .AddConsoleExporter()
-        .AddJaegerExporter(exporter =>
-        {
-            exporter.AgentHost = builder.Configuration.GetSection("jaeger:host").Value;
-            exporter.AgentPort = int.Parse(builder.Configuration.GetSection("jaeger:port").Value);
+builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
 
-        });
-});
 
 var app = builder.Build();
 
