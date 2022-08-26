@@ -45,7 +45,7 @@ namespace Cadastro.API.Controllers.V1
                 return BadRequest(ex);
             }
         }
-        
+
         [HttpGet]
         [Route("funcionario/{id:guid}")]
         [SwaggerResponse(200, "Funcionario localizado", typeof(FuncionarioResponse))]

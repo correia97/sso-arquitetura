@@ -4,12 +4,12 @@ using Cadastro.MVC.Models.Response;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Configuration;
+using OpenTelemetry.Trace;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using OpenTelemetry.Trace;
 
 namespace Cadastro.MVC.Services
 {

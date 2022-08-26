@@ -3,12 +3,10 @@ using Cadastro.Domain.Services;
 using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.Extensions.Logging;
-using Npgsql;
+using OpenTelemetry.Trace;
 using System.Data;
-using System.Data.Common;
 using Xunit;
 using Xunit.Abstractions;
-using OpenTelemetry.Trace;
 
 namespace Cadastro.Test.Domain
 {
@@ -49,15 +47,15 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(funcionario.Id);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbConnection, IDbTransaction, string>((connection, transacao, email) =>
+                .Callback<IDbTransaction, string>((transacao, email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
@@ -69,8 +67,8 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
             result.Should().BeTrue();
         }
 
@@ -86,12 +84,12 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .ReturnsAsync(funcionario)
-                .Callback<IDbConnection, IDbTransaction, string>((conection, transacao, email) =>
+                .Callback<IDbTransaction, string>((transacao, email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
@@ -103,8 +101,8 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Never);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
             result.Should().BeFalse();
         }
 
@@ -120,10 +118,10 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
@@ -132,7 +130,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
             result.Should().BeFalse();
         }
 
@@ -153,15 +151,15 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(funcionario.Id);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbConnection, IDbTransaction, string>((connection, transaction, email) =>
+                .Callback<IDbTransaction, string>((transaction, email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
@@ -173,8 +171,8 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
             result.Should().BeTrue();
         }
 
@@ -195,12 +193,12 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .ReturnsAsync(funcionario)
-                .Callback<IDbConnection, IDbTransaction, string>((conection, transaction, email) =>
+                .Callback<IDbTransaction, string>((transaction, email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
@@ -212,8 +210,8 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Never);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
             result.Should().BeFalse();
         }
         #endregion
@@ -247,12 +245,12 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(true)
-                .Callback<Funcionario, IDbConnection, IDbTransaction>((atualizado, connection, trnsaction) =>
+                .Callback<Funcionario, IDbTransaction>((atualizado, trnsaction) =>
                 {
                     Output.WriteLine($"Callback Atualizar: {atualizado.ToJson()}");
                     atualizado.Nome.SobreNome.Should().Be(funcionarioAtualizado.Nome.SobreNome);
@@ -265,9 +263,9 @@ namespace Cadastro.Test.Domain
 
                 });
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .ReturnsAsync(funcionario)
-                .Callback<IDbConnection, IDbTransaction, Guid>((connection, transacao, id) =>
+                .Callback<IDbTransaction, Guid>((transacao, id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                     Assert.Equal(funcionarioAtualizado.Id, id);
@@ -279,8 +277,8 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
             result.Should().BeTrue();
         }
 
@@ -303,13 +301,13 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbConnection, IDbTransaction, Guid>((connection, transacao, id)=>
+                .Callback<IDbTransaction, Guid>((transacao, id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                 });
@@ -320,7 +318,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
             result.Should().BeFalse();
         }
         #endregion
@@ -344,12 +342,12 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .ReturnsAsync(funcionario)
-                .Callback<IDbConnection, IDbTransaction, Guid>((connection, transacao, id) =>
+                .Callback<IDbTransaction, Guid>((transacao, id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                     Assert.Equal(funcionario.Id, id);
@@ -361,7 +359,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
             result.Should().NotBeNull();
         }
 
@@ -371,12 +369,12 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbConnection, IDbTransaction, Guid>((connection, transacao, id) =>
+                .Callback<IDbTransaction, Guid>((transacao, id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                 });
@@ -387,7 +385,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
             result.Should().BeNull();
         }
 
@@ -398,10 +396,10 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .Throws(new Exception("Teste"));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
@@ -410,7 +408,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
             result.Should().BeNull();
         }
         #endregion
@@ -435,10 +433,10 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new List<Funcionario>() { funcionario });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
@@ -447,7 +445,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbTransaction>()), Times.Once);
             result.Should().NotBeNull();
             result.Should().HaveCount(1);
         }
@@ -459,10 +457,10 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new List<Funcionario>());
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
@@ -471,7 +469,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbTransaction>()), Times.Once);
             result.Should().NotBeNull();
             result.Should().HaveCount(0);
         }
@@ -482,10 +480,10 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Setup(x => x.RecuperarConexao())
                 .Returns(_mockConexao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao(It.IsAny<IDbConnection>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
                 .ReturnsAsync(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .Throws(new Exception("Teste"));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
@@ -494,7 +492,7 @@ namespace Cadastro.Test.Domain
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbTransaction>()), Times.Once);
             result.Should().BeNull();
         }
         #endregion

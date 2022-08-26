@@ -4,13 +4,13 @@ using Cadastro.Domain.Enums;
 using Cadastro.Domain.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using OpenTelemetry.Trace;
 
 namespace Cadastro.API.Services
 {
@@ -72,11 +72,11 @@ namespace Cadastro.API.Services
             try
             {
                 var connection = _repository.RecuperarConexao();
-                var funcionario = await _repository.ObterPorId(connection, null, id);
+                var funcionario = await _repository.ObterPorId( null, id);
                 if (funcionario == null)
                     return null;
-                var enderecos = await _repository.ObterEnderecosPorFuncionarioId(connection, null, id);
-                var telefones = await _repository.ObterTelefonesPorFuncionarioId(connection, null, id);
+                var enderecos = await _repository.ObterEnderecosPorFuncionarioId( null, id);
+                var telefones = await _repository.ObterTelefonesPorFuncionarioId( null, id);
 
                 if (telefones != null && telefones.Any())
                     funcionario.AtualizarTelefones(telefones);
@@ -104,7 +104,7 @@ namespace Cadastro.API.Services
             try
             {
                 var connection = _repository.RecuperarConexao();
-                var funcionario = await _repository.ObterTodos(connection, null);
+                var funcionario = await _repository.ObterTodos( null);
                 var result = new List<FuncionarioResponse>();
                 foreach (var item in funcionario)
                 {

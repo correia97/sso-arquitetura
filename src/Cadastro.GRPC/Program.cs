@@ -1,8 +1,5 @@
 using Cadastro.Configuracoes;
 using Cadastro.GRPC.Services;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 

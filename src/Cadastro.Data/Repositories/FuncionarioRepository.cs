@@ -20,7 +20,7 @@ namespace Cadastro.Data.Repositories
         {
             _logger = logger;
         }
-        public async Task<Funcionario> ObterPorEmail(IDbConnection dbConnection, IDbTransaction transacao, string email)
+        public async Task<Funcionario> ObterPorEmail(IDbTransaction transacao, string email)
         {
             var query = @"SELECT  id
                         , userid
@@ -65,7 +65,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public override async Task<Funcionario> ObterPorId(IDbConnection dbConnection, IDbTransaction transacao, Guid id)
+        public override async Task<Funcionario> ObterPorId(IDbTransaction transacao, Guid id)
         {
             var query = @"SELECT   id
                         , userid
@@ -113,7 +113,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public override async Task<IEnumerable<Funcionario>> ObterTodos(IDbConnection dbConnection, IDbTransaction transacao)
+        public override async Task<IEnumerable<Funcionario>> ObterTodos(IDbTransaction transacao)
         {
             var query = @"SELECT   id
                         , userid
@@ -155,7 +155,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId(IDbConnection dbConnection, IDbTransaction transacao, Guid funcionarioId)
+        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId(IDbTransaction transacao, Guid funcionarioId)
         {
             var query = @"Select id
                         , ddi
@@ -191,7 +191,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId(IDbConnection dbConnection, IDbTransaction transacao, Guid funcionarioId)
+        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId(IDbTransaction transacao, Guid funcionarioId)
         {
             var query = @"Select id
                         , rua        
@@ -232,7 +232,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public override async Task<bool> Atualizar(Funcionario data, IDbConnection dbConnection, IDbTransaction transacao)
+        public override async Task<bool> Atualizar(Funcionario data, IDbTransaction transacao)
         {
 
             var query = @"UPDATE public.funcionarios SET
@@ -284,7 +284,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public override async Task<Guid> Inserir(Funcionario data, IDbConnection dbConnection, IDbTransaction transacao)
+        public override async Task<Guid> Inserir(Funcionario data, IDbTransaction transacao)
         {
             var query = @"INSERT into public.funcionarios
                            (id
@@ -349,7 +349,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> AtualizarEndereco(Endereco endereco, IDbConnection dbConnection, IDbTransaction transacao)
+        public async Task<bool> AtualizarEndereco(Endereco endereco, IDbTransaction transacao)
         {
             var query = @"UPDATE public.enderecos SET
                           rua           =@rua
@@ -365,7 +365,7 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@rua", endereco.Rua);
             param.Add("@numero", endereco.Numero);
-            param.Add("@complemento", endereco.Complemento.Substring(0,19));
+            param.Add("@complemento", endereco.Complemento.Substring(0, 19));
             param.Add("@cep", endereco.CEP);
             param.Add("@uf", endereco.UF);
             param.Add("@cidade", endereco.Cidade);
@@ -396,7 +396,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> AtualizarTelefone(Telefone telefone, IDbConnection dbConnection, IDbTransaction transacao)
+        public async Task<bool> AtualizarTelefone(Telefone telefone, IDbTransaction transacao)
         {
             var query = @"UPDATE public.telefones SET
                           ddi                       =@ddi
@@ -434,7 +434,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> InserirEndereco(Endereco endereco, IDbConnection dbConnection, IDbTransaction transacao)
+        public async Task<bool> InserirEndereco(Endereco endereco, IDbTransaction transacao)
         {
             var query = @"INSERT into public.enderecos
                         ( rua        
@@ -491,7 +491,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> InserirTelefone(Telefone telefone, IDbConnection dbConnection, IDbTransaction transacao)
+        public async Task<bool> InserirTelefone(Telefone telefone, IDbTransaction transacao)
         {
             var query = @"INSERT into public.telefones
                            (ddi
@@ -532,7 +532,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> RemoverEndereco(int id, IDbConnection dbConnection, IDbTransaction transacao)
+        public async Task<bool> RemoverEndereco(int id, IDbTransaction transacao)
         {
             var query = @"delete from public.enderecos
                            where id = @id";
@@ -563,7 +563,7 @@ namespace Cadastro.Data.Repositories
             }
         }
 
-        public async Task<bool> RemoverTelefone(int id, IDbConnection dbConnection, IDbTransaction transacao)
+        public async Task<bool> RemoverTelefone(int id, IDbTransaction transacao)
         {
             var query = @"delete from public.telefones
                            where id = @id";

@@ -8,7 +8,7 @@ namespace Cadastro.MVC.Models.Response
     {
         [JsonConstructor]
         public FuncionarioResponse(string userId, string matricula, string cargo, string nome,
-            string sobreNome, string email, DateTime? dataNascimento, bool ativo, List<TelefoneResponse> telefones, 
+            string sobreNome, string email, DateTime? dataNascimento, bool ativo, List<TelefoneResponse> telefones,
             EnderecoResponse enderecoComercial, EnderecoResponse enderecoResidencial)
         {
             UserId = userId;

@@ -7,10 +7,10 @@ namespace Cadastro.Domain.Interfaces
 {
     public interface IReadRepository<T, U> where T : EntityBase<U>
     {
-        Task<T> ObterPorId(IDbConnection dbConnection, IDbTransaction transaction, U id);
-        Task<IEnumerable<T>> ObterTodos(IDbConnection dbConnection, IDbTransaction transaction);
+        Task<T> ObterPorId( IDbTransaction transaction, U id);
+        Task<IEnumerable<T>> ObterTodos( IDbTransaction transaction);
 
         IDbConnection RecuperarConexao();
-        Task DesalocarConexao(IDbConnection dbConnection);
+        Task DesalocarConexao();
     }
 }

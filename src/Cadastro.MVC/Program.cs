@@ -3,16 +3,10 @@ using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
-using OpenTelemetry;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using System;
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
