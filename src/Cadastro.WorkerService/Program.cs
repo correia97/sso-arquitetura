@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Npgsql;
 using OpenTelemetry.Trace;
 using System;
+using System.Data;
 using System.Threading;
 
 void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
@@ -41,8 +42,8 @@ void CreateDataBase(IConfiguration configuration)
     {
         string connStr = configuration.GetConnectionString("Base");
         connStr = connStr.Replace("Database=funcionarios;", "");
-        var m_conn = new NpgsqlConnection(connStr);
-        var m_createdb_cmd = new NpgsqlCommand(@"CREATE DATABASE funcionarios", m_conn);
+        using var m_conn = new NpgsqlConnection(connStr);
+        using var m_createdb_cmd = new NpgsqlCommand(@"CREATE DATABASE funcionarios", m_conn);
         m_conn.Open();
         m_createdb_cmd.ExecuteNonQuery();
         m_conn.Close();
@@ -67,6 +68,12 @@ IHost host = Host.CreateDefaultBuilder(args)
         configuration = context.Configuration;
         services.AddLogging();
         services.AddHostedService<Worker>();
+
+        services.AddScoped<IDbConnection>(sp => {
+            var connection = new NpgsqlConnection(context.Configuration.GetConnectionString("Base"));
+            connection.Open();
+            return connection;
+        });
         services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioService, FuncionarioService>();

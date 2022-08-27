@@ -11,6 +11,5 @@ namespace Cadastro.Domain.Interfaces
         Task<IEnumerable<T>> ObterTodos( IDbTransaction transaction);
 
         IDbConnection RecuperarConexao();
-        Task DesalocarConexao();
     }
 }

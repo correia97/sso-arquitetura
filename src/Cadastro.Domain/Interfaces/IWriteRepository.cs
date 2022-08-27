@@ -9,10 +9,9 @@ namespace Cadastro.Domain.Interfaces
         IDbConnection RecuperarConexao();
         Task<U> Inserir(T data, IDbTransaction transaction);
         Task<bool> Atualizar(T data, IDbTransaction transaction);
-        Task<IDbTransaction> IniciarTransacao();
-        Task CancelarTransacao(IDbTransaction transaction);
-        Task CompletarTransacao(IDbTransaction transaction);
-        Task DesalocarConexao();
+        IDbTransaction IniciarTransacao();
+        void CancelarTransacao(IDbTransaction transaction);
+        void CompletarTransacao(IDbTransaction transaction);
 
     }
 }
