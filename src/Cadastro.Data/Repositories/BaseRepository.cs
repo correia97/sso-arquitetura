@@ -14,15 +14,14 @@ namespace Cadastro.Data.Repositories
     {
 
         protected readonly string conexao;
-        protected readonly IDbConnection dbConnection;
-        protected BaseRepository(IConfiguration configuration)
+        protected readonly IDbConnection connection;
+        protected BaseRepository(IDbConnection connection)
         {
-            conexao = configuration.GetConnectionString("Base");
-            dbConnection = new NpgsqlConnection(conexao);
+            this.connection = connection;
         }
         public virtual IDbConnection RecuperarConexao()
         {
-            return dbConnection;
+            return connection;
         }
         public abstract Task<IEnumerable<T>> ObterTodos(IDbTransaction transaction);
 
@@ -32,39 +31,20 @@ namespace Cadastro.Data.Repositories
 
         public abstract Task<bool> Atualizar(T data, IDbTransaction transaction);
 
-        public virtual async Task<IDbTransaction> IniciarTransacao()
+        public virtual IDbTransaction IniciarTransacao()
         {
-            AbrirConexao();
-            return await ((NpgsqlConnection)dbConnection).BeginTransactionAsync();
+            return connection.BeginTransaction();
         }
 
-        public virtual async Task DesalocarConexao()
+        public virtual void CancelarTransacao(IDbTransaction transaction)
         {
-            FecharConexao();
-            await ((NpgsqlConnection)dbConnection).DisposeAsync();
+            transaction.Rollback();
         }
 
-        public virtual async Task CancelarTransacao(IDbTransaction transaction)
+        public virtual void CompletarTransacao(IDbTransaction transaction)
         {
-            await ((NpgsqlTransaction)transaction).RollbackAsync();
-            FecharConexao();
+            transaction.Commit();
         }
-
-        public virtual async Task CompletarTransacao(IDbTransaction transaction)
-        {
-            await ((NpgsqlTransaction)transaction).CommitAsync();
-            FecharConexao();
-        }
-        protected void AbrirConexao()
-        {
-            if (dbConnection.State != ConnectionState.Open)
-                dbConnection.Open();
-        }
-
-        protected void FecharConexao()
-        {
-            if (dbConnection.State != ConnectionState.Open)
-                dbConnection.Open();
-        }
+       
     }
 }

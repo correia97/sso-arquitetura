@@ -23,10 +23,10 @@ namespace Cadastro.Domain.Services
             _logger = logger;
             _tracer = tracer;
         }
-        public async Task<bool> Atualizar(Funcionario funcionario, string currentUserId)
+        public async Task Atualizar(Funcionario funcionario)
         {
             using var span = _tracer.StartActiveSpan("Atualizar", SpanKind.Internal);
-            var transaction = await _repositoryWrite.IniciarTransacao();
+            var transaction = _repositoryWrite.IniciarTransacao();
             try
             {
                 Funcionario baseFuncionario = await _repositoryRead.ObterPorId(transaction, funcionario.Id);
@@ -38,8 +38,8 @@ namespace Cadastro.Domain.Services
 
                 if (!result)
                 {
-                    await _repositoryWrite.CancelarTransacao(transaction);
-                    return result;
+                    _repositoryWrite.CancelarTransacao(transaction);
+                    // return result;
                 }
                 if (funcionario.Telefones != null && funcionario.Telefones.Any())
                 {
@@ -55,107 +55,69 @@ namespace Cadastro.Domain.Services
                 {
                     await TratarEndereco(funcionario.EnderecoComercial, transaction);
                 }
-                await _repositoryWrite.CompletarTransacao(transaction);
-                return result;
+                _repositoryWrite.CompletarTransacao(transaction);
+                //return result;
             }
             catch (Exception ex)
             {
-                await _repositoryWrite.CancelarTransacao(transaction);
+                _repositoryWrite.CancelarTransacao(transaction);
                 _logger.LogError(ex, "Erro ao atualizar");
-                return false;
-            }
-            finally
-            {
-                await _repositoryWrite.DesalocarConexao();
+                //return false;
             }
         }
 
-        public async Task<bool> Cadastrar(Funcionario funcionario)
+        public async Task Cadastrar(Funcionario funcionario)
         {
             using var span = _tracer.StartActiveSpan("Cadastrar", SpanKind.Internal);
-            var transaction = await _repositoryWrite.IniciarTransacao();
+            var transaction =  _repositoryWrite.IniciarTransacao();
 
-            try
+
+            Funcionario data = await _repositoryRead.ObterPorEmail(transaction, funcionario.Email.EnderecoEmail);
+            if (data != null)
+                throw new InvalidOperationException("Funcionario já existe");
+
+            var result = await _repositoryWrite.Inserir(funcionario, transaction);
+
+            if (result == Guid.Empty)
             {
-                Funcionario data = await _repositoryRead.ObterPorEmail(transaction, funcionario.Email.EnderecoEmail);
-                if (data != null)
-                    return false;
-
-                var result = await _repositoryWrite.Inserir(funcionario, transaction);
-
-                if (result == Guid.Empty)
-                {
-                    await _repositoryWrite.CancelarTransacao(transaction);
-                    return false;
-                }
-
-                if (funcionario.Telefones != null && funcionario.Telefones.Any())
-                {
-                    foreach (var item in funcionario.Telefones)
-                        await _repositoryWrite.InserirTelefone(item, transaction);
-                }
-
-                if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
-                {
-                    await _repositoryWrite.InserirEndereco(funcionario.EnderecoResidencial, transaction);
-                }
-
-                if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
-                {
-                    await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial, transaction);
-                }
-                await _repositoryWrite.CompletarTransacao(transaction);
-
-                return true;
+                _repositoryWrite.CancelarTransacao(transaction);
+                throw new InvalidOperationException("Deu muito ruim!");
             }
-            catch (Exception ex)
+
+            if (funcionario.Telefones != null && funcionario.Telefones.Any())
             {
-                await _repositoryWrite.CancelarTransacao(transaction);
-                _logger.LogError(ex, "Erro ao cadastrar");
-                return false;
+                foreach (var item in funcionario.Telefones)
+                    await _repositoryWrite.InserirTelefone(item, transaction);
             }
-            finally
+
+            if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
             {
-                await _repositoryWrite.DesalocarConexao();
+                await _repositoryWrite.InserirEndereco(funcionario.EnderecoResidencial, transaction);
             }
+
+            if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
+            {
+                await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial, transaction);
+            }
+            _repositoryWrite.CompletarTransacao(transaction);
+
         }
 
         public async Task<Funcionario> ObterPorId(Guid id)
         {
             using var span = _tracer.StartActiveSpan("ObterPorId", SpanKind.Internal);
-            try
-            {
-                Funcionario data = await _repositoryRead.ObterPorId(null, id);
-                return data;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao recuperar por ID");
-                return null;
-            }
-            finally
-            {
-                await _repositoryRead.DesalocarConexao();
-            }
+
+            Funcionario data = await _repositoryRead.ObterPorId(null, id);
+            return data;
+
         }
 
         public async Task<IEnumerable<Funcionario>> ObterTodos()
         {
             using var span = _tracer.StartActiveSpan("ObterTodos", SpanKind.Internal);
-            try
-            {
-                IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos(null);
-                return data;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao recuperar todos");
-                return null;
-            }
-            finally
-            {
-                await _repositoryRead.DesalocarConexao();
-            }
+            IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos(null);
+            return data;
+
         }
 
         private async Task TratarEndereco(Endereco endereco, IDbTransaction transaction)

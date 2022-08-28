@@ -48,7 +48,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(funcionario.Id);
@@ -63,13 +63,14 @@ namespace Cadastro.Test.Domain
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
 
-            bool result = await service.Cadastrar(funcionario);
+            await service.Cadastrar(funcionario);
 
-            Output.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
-            result.Should().BeTrue();
+            
+            true.Should().BeTrue();
         }
 
         [Fact]
@@ -85,7 +86,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .ReturnsAsync(funcionario)
@@ -97,13 +98,13 @@ namespace Cadastro.Test.Domain
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
 
-            bool result = await service.Cadastrar(funcionario);
+            await service.Cadastrar(funcionario);
 
-            Output.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
-            result.Should().BeFalse();
+            true.Should().BeFalse();
         }
 
         [Fact]
@@ -119,19 +120,19 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
 
-            bool result = await service.Cadastrar(funcionario);
+            await service.Cadastrar(funcionario);
 
-            Output.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            result.Should().BeFalse();
+            true.Should().BeFalse();
         }
 
         [Fact]
@@ -152,7 +153,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(funcionario.Id);
@@ -167,13 +168,13 @@ namespace Cadastro.Test.Domain
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
 
-            bool result = await service.Cadastrar(funcionario);
+            await service.Cadastrar(funcionario);
 
-            Output.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
-            result.Should().BeTrue();
+            true.Should().BeTrue();
         }
 
         [Fact]
@@ -194,7 +195,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .ReturnsAsync(funcionario)
@@ -206,13 +207,13 @@ namespace Cadastro.Test.Domain
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
 
-            bool result = await service.Cadastrar(funcionario);
+            await service.Cadastrar(funcionario);
 
-            Output.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
-            result.Should().BeFalse();
+            true.Should().BeFalse();
         }
         #endregion
 
@@ -246,7 +247,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(true)
@@ -273,13 +274,13 @@ namespace Cadastro.Test.Domain
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
 
-            bool result = await service.Atualizar(funcionarioAtualizado, "");
+            await service.Atualizar(funcionarioAtualizado);
 
-            Output.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
-            result.Should().BeTrue();
+            true.Should().BeTrue();
         }
 
         [Fact]
@@ -302,7 +303,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
@@ -314,12 +315,12 @@ namespace Cadastro.Test.Domain
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
 
-            bool result = await service.Atualizar(funcionarioAtualizado, "");
+            await service.Atualizar(funcionarioAtualizado);
 
-            Output.WriteLine($"Result: {result}");
+            Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
-            result.Should().BeFalse();
+            true.Should().BeFalse();
         }
         #endregion
 
@@ -343,7 +344,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .ReturnsAsync(funcionario)
@@ -370,7 +371,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .ReturnsAsync((Funcionario)null)
@@ -397,7 +398,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .Throws(new Exception("Teste"));
@@ -434,7 +435,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new List<Funcionario>() { funcionario });
@@ -458,7 +459,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new List<Funcionario>());
@@ -481,7 +482,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockConexao.Object);
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .ReturnsAsync(_mockTransacao.Object);
+                .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .Throws(new Exception("Teste"));
