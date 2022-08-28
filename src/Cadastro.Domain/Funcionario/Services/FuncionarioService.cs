@@ -63,7 +63,7 @@ namespace Cadastro.Domain.Services
             {
                 _repositoryWrite.CancelarTransacao(transaction);
                 _logger.LogError(ex, "Erro ao atualizar");
-                //return false;
+                throw;
             }
         }
 
