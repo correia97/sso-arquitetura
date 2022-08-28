@@ -243,7 +243,7 @@ namespace Cadastro.Test.Domain
                 .Returns(_mockTransacao.Object);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
-                .ReturnsAsync((Funcionario)null)
+                .ReturnsAsync((Funcionario)funcionarioAtualizado)
                 .Callback<IDbTransaction, Guid>((transacao, id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
@@ -257,7 +257,7 @@ namespace Cadastro.Test.Domain
             Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
 
         }
 
