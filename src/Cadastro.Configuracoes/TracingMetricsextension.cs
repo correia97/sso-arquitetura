@@ -14,6 +14,13 @@ namespace Cadastro.Configuracoes
     {
         public static IServiceCollection AddCustomOpenTelemetryTracing(this IServiceCollection services, string serviceName, string serviceVersion, IConfiguration config)
         {
+            services.AddOpenTracing(opt =>
+            {
+                opt.AddAspNetCore();
+                opt.AddLoggerProvider();
+                opt.AddMicrosoftSqlClient();                
+            });
+
             services.AddOpenTelemetryTracing(traceProvider =>
             {
                 traceProvider
@@ -51,15 +58,14 @@ namespace Cadastro.Configuracoes
                     {
                         exporter.AgentHost = config.GetSection("jaeger:host").Value;
                         exporter.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
-                        exporter.Endpoint = new Uri(config.GetSection("jaeger:url").Value);
-                        exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.UdpCompactThrift;
+                       // exporter.Endpoint = new Uri(config.GetSection("jaeger:url").Value);
+                        //exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.UdpCompactThrift;
                     });
             });
             return services;
         }
         public static IServiceCollection AddCustomOpenTelemetryMetrics(this IServiceCollection services, string serviceName, string serviceVersion, IConfiguration config)
         {
-
             var meterProvider = Sdk.CreateMeterProviderBuilder()
                 .AddPrometheusExporter(options =>
                 {

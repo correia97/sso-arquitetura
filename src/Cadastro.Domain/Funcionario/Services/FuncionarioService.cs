@@ -30,6 +30,7 @@ namespace Cadastro.Domain.Services
             try
             {
                 Funcionario baseFuncionario = await _repositoryRead.ObterPorId(transaction, funcionario.Id);
+
                 baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
                 baseFuncionario.AtualizarTelefones(funcionario.Telefones);
                 baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
@@ -69,8 +70,7 @@ namespace Cadastro.Domain.Services
         public async Task Cadastrar(Funcionario funcionario)
         {
             using var span = _tracer.StartActiveSpan("Cadastrar", SpanKind.Internal);
-            var transaction =  _repositoryWrite.IniciarTransacao();
-
+            var transaction = _repositoryWrite.IniciarTransacao();
 
             Funcionario data = await _repositoryRead.ObterPorEmail(transaction, funcionario.Email.EnderecoEmail);
             if (data != null)

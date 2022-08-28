@@ -23,7 +23,13 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.6" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.6" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.0.0-rc9.6" />
+		<PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.8.0" />
 		<PackageReference Include="Polly" Version="7.2.3" />
+		<PackageReference Include="prometheus-net" Version="6.0.0" />
+		<PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="6.0.0" />
+		<PackageReference Include="prometheus-net.DotNetRuntime" Version="4.2.4" />
+		<PackageReference Include="Prometheus.Client.DependencyInjection" Version="1.2.0" />
+		<PackageReference Include="Prometheus.Client.HttpRequestDurations" Version="3.6.0" />
 		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
 	</ItemGroup>
 

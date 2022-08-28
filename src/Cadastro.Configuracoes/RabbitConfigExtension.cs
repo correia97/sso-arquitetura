@@ -10,15 +10,23 @@ namespace Cadastro.Configuracoes
     {
         public static IServiceCollection AddRabbitCustomConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton(sp =>
+            try
             {
-                ConnectionFactory factory = new ConnectionFactory();
-                factory.Uri = new System.Uri(configuration.GetValue<string>("rabbit"));
+                var factory = new ConnectionFactory
+                {
+                    Uri = new Uri(configuration.GetValue<string>("rabbit"))
+                };
                 IConnection connection = factory.CreateConnection();
                 SetupRabbitMQ(connection);
-                return connection;
-            });
 
+                services.AddSingleton(connection);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
             return services;
         }
 
@@ -26,7 +34,7 @@ namespace Cadastro.Configuracoes
         {
             try
             {
-                IModel model = connection.CreateModel();
+                using IModel model = connection.CreateModel();
                 var cadastrarResult = model.QueueDeclare("cadastrar", true, false, false);
                 Debug.WriteLine($"Queue {cadastrarResult.QueueName} message count {cadastrarResult.MessageCount}");
 

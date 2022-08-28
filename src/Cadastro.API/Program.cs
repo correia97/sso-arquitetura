@@ -15,6 +15,13 @@ using OpenTelemetry.Trace;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Text.Json.Serialization;
+using Prometheus;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Prometheus.Client;
+using Prometheus.HttpClientMetrics;
+using Prometheus.DotNetRuntime;
+using Microsoft.Extensions.Options;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -28,8 +35,6 @@ builder.Services.AddControllers()
                                     opt.JsonSerializerOptions.UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement;
                                 });
 
-
-
 builder.Services.AddApiVersioning(x =>
 {
     x.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
@@ -37,6 +42,7 @@ builder.Services.AddApiVersioning(x =>
     x.ReportApiVersions = true;
     x.ApiVersionReader = new UrlSegmentApiVersionReader();
 });
+
 builder.Services.AddVersionedApiExplorer(p =>
 {
     p.GroupNameFormat = "'v'VVV";
@@ -95,7 +101,7 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks().ForwardToPrometheus(); 
 
 var serviceName = typeof(FuncionarioAppService).Assembly.GetName().Name;
 var serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString() ?? "unknown";
@@ -114,7 +120,14 @@ builder.Services.AddSingleton(TracerProvider.Default.GetTracer(serviceName));
 
 builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 
-builder.Services.AddLogging();
+builder.Services.AddHttpClient(Options.DefaultName)
+        .UseHttpClientMetrics();
+
+builder.Services.AddLogging().AddHttpLogging(opt =>
+{
+    opt.LoggingFields = HttpLoggingFields.All;
+});
+
 
 var app = builder.Build();
 
@@ -143,9 +156,13 @@ app.UseSwaggerUI(c =>
 //app.UseHttpsRedirection();
 //app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
+app.UseHttpLogging();
+
+app.UseHealthChecks("/health");
+
 app.UseStaticFiles();
 
-app.UseRouting();
+app.UseRouting(); 
 
 app.UseCors(MyAllowSpecificOrigins);
 
