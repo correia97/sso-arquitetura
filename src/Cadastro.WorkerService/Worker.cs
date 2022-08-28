@@ -1,15 +1,9 @@
 using Cadastro.Domain.Services;
 using Domain.Entities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +11,8 @@ namespace Cadastro.WorkerService
 {
     public class Worker : RabbitMQWorkerService
     {
-        public Worker(ILogger<Worker> logger, Tracer tracer, IConnection connection, IServiceProvider serviceProvider) : base(logger, tracer, connection, serviceProvider)
+        public Worker(ILogger<Worker> logger, Tracer tracer, IConnection connection, IServiceProvider serviceProvider) 
+            : base(logger, tracer, connection, serviceProvider)
         {
         }
 

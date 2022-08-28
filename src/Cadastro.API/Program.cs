@@ -22,6 +22,9 @@ using Prometheus.Client;
 using Prometheus.HttpClientMetrics;
 using Prometheus.DotNetRuntime;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
+using System.Data;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -109,6 +112,12 @@ var serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version!.T
 builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
 builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
 builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
+
+builder.Services.AddScoped<IDbConnection>(sp => {
+    var connection = new NpgsqlConnection(builder.Configuration.GetConnectionString("Base"));
+    connection.Open();
+    return connection;
+});
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 

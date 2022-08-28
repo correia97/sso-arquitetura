@@ -1,5 +1,7 @@
 using Cadastro.Configuracoes;
 using Cadastro.GRPC.Services;
+using Npgsql;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,12 @@ var serviceVersion = typeof(FuncionarioGrpcService).Assembly.GetName().Version!.
 builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
 builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
 builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
+
+builder.Services.AddScoped<IDbConnection>(sp => {
+    var connection = new NpgsqlConnection(builder.Configuration.GetConnectionString("Base"));
+    connection.Open();
+    return connection;
+});
 
 
 var app = builder.Build();
