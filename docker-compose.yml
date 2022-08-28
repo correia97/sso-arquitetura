@@ -9,11 +9,11 @@ services:
     networks:
       - externo
       - base 
-    depends_on:    
-      - rabbitmq
-      - db
-      - jaeger
-      - prometheus
+    depends_on:   
+       db:
+         condition: service_started
+       rabbitmq:
+         condition: service_healthy
 
   cadastro.mvc:
     image: ${DOCKER_REGISTRY-}cadastromvc
@@ -24,8 +24,6 @@ services:
     networks:
       - externo
     depends_on:
-      - prometheus
-      - jaeger
       - cadastro.api
 
   cadastro.workerservice:
@@ -37,10 +35,10 @@ services:
     networks:
       - base
     depends_on:
-      - db
-      - rabbitmq
-      - jaeger
-      - prometheus
+       db:
+         condition: service_started
+       rabbitmq:
+         condition: service_healthy
 
   cadastro.angular:
     image: angular
@@ -50,8 +48,6 @@ services:
     container_name: cadastro.angular
     depends_on:
       - cadastro.api
-      - jaeger
-      - prometheus
     networks:
       - externo
     ports:
@@ -90,7 +86,7 @@ services:
     healthcheck:
       test: [ "CMD", "nc", "-z", "localhost", "5672" ]
       timeout: 5s
-      retries: 3
+      retries: 5
     volumes:
       - mq_data:/var/lib/rabbitmq/mnesia
     networks: 
@@ -124,48 +120,6 @@ services:
   #    - 8088:8080
   #    - 9099:9090
 
-  jaeger:
-    image: jaegertracing/all-in-one:1.37
-    container_name: jaeger
-    environment:
-        - PROMETHEUS_SERVER_URL=http://prometheus:9090
-        - METRICS_STORAGE_TYPE=prometheus
-    ports:
-      - 14250:14250
-      - 14268:14268
-      - 6831:6831/udp
-      - 16686:16686
-      - 16685:16685
-    networks:
-      - externo
-    depends_on:
-      - prometheus
-
-  prometheus:
-    image: prom/prometheus:v2.37.0
-    container_name: prometheus    
-    volumes: 
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
-    ports:
-      - 9091:9090
-    networks:
-      - externo
-      - base
-
-  grafana:
-    image: grafana/grafana-oss:9.0.6
-    container_name: grafana     
-    environment:
-        - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
-    ports:
-      - 3000:3000
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    networks:
-      - externo
-
   nginx:
     image: nginx:1.23.1-alpine
     container_name: nginx
@@ -184,9 +138,12 @@ services:
       - externo
     depends_on:
       #- fusionauth
-      - cadastro.mvc
-      - cadastro.angular      
-      - cadastro.api      
+      cadastro.mvc:
+         condition: service_started
+      cadastro.angular:
+         condition: service_started      
+      cadastro.api:
+         condition: service_started      
       #- keycloak
     environment: 
       - NGINX_HOST=localhost
@@ -198,5 +155,4 @@ networks:
 volumes:
   dbData:
   mq_data:
-  grafana_data:
 

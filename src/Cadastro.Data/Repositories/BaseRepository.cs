@@ -1,7 +1,5 @@
 ﻿using Cadastro.Domain.Interfaces;
 using Domain.Entities;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -45,6 +43,6 @@ namespace Cadastro.Data.Repositories
         {
             transaction.Commit();
         }
-       
+
     }
 }

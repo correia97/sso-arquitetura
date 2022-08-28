@@ -9,9 +9,9 @@
         "nginx": "StartWithoutDebugging",
         "rabbitmq": "StartWithoutDebugging",
         "cadastro.angular": "StartWithoutDebugging",
-        "cadastro.api": "StartWithoutDebugging",
-        "cadastro.mvc": "StartWithoutDebugging",
-        "cadastro.workerservice": "StartWithoutDebugging"
+        "cadastro.api": "StartDebugging",
+        "cadastro.mvc": "StartDebugging",
+        "cadastro.workerservice": "StartDebugging"
       }
     }
   }

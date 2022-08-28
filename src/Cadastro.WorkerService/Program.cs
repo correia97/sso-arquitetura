@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
-using OpenTelemetry.Trace;
 using System;
 using System.Data;
 using System.Threading;
@@ -63,13 +62,12 @@ IConfiguration configuration = default;
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        var serviceName = nameof(Worker);
-        var serviceVersion = typeof(Worker).Assembly.GetName().Version!.ToString() ?? "unknown";
         configuration = context.Configuration;
         services.AddLogging();
         services.AddHostedService<Worker>();
 
-        services.AddScoped<IDbConnection>(sp => {
+        services.AddScoped<IDbConnection>(sp =>
+        {
             var connection = new NpgsqlConnection(context.Configuration.GetConnectionString("Base"));
             connection.Open();
             return connection;
@@ -77,7 +75,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioService, FuncionarioService>();
-        services.AddSingleton(TracerProvider.Default.GetTracer(serviceName));
         services.AddFluentMigratorCore();
         services.AddRabbitCustomConfiguration(context.Configuration);
         services.ConfigureRunner(rb =>
@@ -86,9 +83,6 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.WithGlobalConnectionString("Base");
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
         });
-
-        services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, configuration);
-        services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, configuration);
     })
     .Build();
 

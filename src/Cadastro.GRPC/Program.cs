@@ -12,16 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc();
 
 
-var serviceName = typeof(FuncionarioGrpcService).Assembly.GetName().Name;
-var serviceVersion = typeof(FuncionarioGrpcService).Assembly.GetName().Version!.ToString() ?? "unknown";
-
-builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
-builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
-builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
-
-builder.Services.AddScoped<IDbConnection>(sp => {
+builder.Services.AddScoped<IDbConnection>(sp =>
+{
     var connection = new NpgsqlConnection(builder.Configuration.GetConnectionString("Base"));
-    connection.Open();
     return connection;
 });
 

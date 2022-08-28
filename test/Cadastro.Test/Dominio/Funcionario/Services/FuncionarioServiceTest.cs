@@ -3,7 +3,6 @@ using Cadastro.Domain.Services;
 using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry.Trace;
 using System.Data;
 using Xunit;
 using Xunit.Abstractions;
@@ -18,7 +17,6 @@ namespace Cadastro.Test.Domain
         public readonly Mock<IFuncionarioWriteRepository> _mockFuncionarioRepositorioEscrita;
         public readonly Faker _faker;
         public readonly Mock<ILogger<FuncionarioService>> _mockLogger;
-        public readonly Tracer _tracer;
         private ITestOutputHelper Output { get; }
 
         public FuncionarioServiceTest(ITestOutputHelper outputHelper)
@@ -29,7 +27,6 @@ namespace Cadastro.Test.Domain
             _mockConexao = new Mock<IDbConnection>();
             _faker = new Faker("pt_BR");
             _mockLogger = new Mock<ILogger<FuncionarioService>>();
-            _tracer = TracerProvider.Default.GetTracer("FuncionarioServiceTest");
             Output = outputHelper;
         }
 
@@ -61,7 +58,7 @@ namespace Cadastro.Test.Domain
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await service.Cadastrar(funcionario);
 
@@ -96,7 +93,7 @@ namespace Cadastro.Test.Domain
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
@@ -125,7 +122,7 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.Cadastrar(funcionario));
 
@@ -166,7 +163,7 @@ namespace Cadastro.Test.Domain
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await service.Cadastrar(funcionario);
 
@@ -205,7 +202,7 @@ namespace Cadastro.Test.Domain
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
@@ -250,7 +247,7 @@ namespace Cadastro.Test.Domain
                     Assert.Equal(funcionarioAtualizado.Id, id);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await service.Atualizar(funcionarioAtualizado);
 
@@ -294,7 +291,7 @@ namespace Cadastro.Test.Domain
                     Output.WriteLine($"Callback ObterPorId: {id}");
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await service.Atualizar(funcionarioAtualizado);
 
@@ -335,7 +332,7 @@ namespace Cadastro.Test.Domain
                     Assert.Equal(funcionario.Id, id);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             var result = await service.ObterPorId(funcionario.Id);
 
@@ -361,7 +358,7 @@ namespace Cadastro.Test.Domain
                     Output.WriteLine($"Callback Email: {id}");
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             var result = await service.ObterPorId(Guid.NewGuid());
 
@@ -384,7 +381,7 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
                 .Throws(new Exception("Teste"));
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.ObterPorId(Guid.NewGuid()));
 
@@ -419,7 +416,7 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new List<Funcionario>() { funcionario });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             var result = await service.ObterTodos();
 
@@ -443,7 +440,7 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new List<Funcionario>());
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             var result = await service.ObterTodos();
 
@@ -466,7 +463,7 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
                 .Throws(new Exception("Teste"));
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object, _tracer);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.ObterTodos());
 

@@ -1,7 +1,6 @@
 using Cadastro.Domain.Services;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using System;
 using System.Threading;
@@ -11,8 +10,8 @@ namespace Cadastro.WorkerService
 {
     public class Worker : RabbitMQWorkerService
     {
-        public Worker(ILogger<Worker> logger, Tracer tracer, IConnection connection, IServiceProvider serviceProvider) 
-            : base(logger, tracer, connection, serviceProvider)
+        public Worker(ILogger<Worker> logger,  IConnection connection, IServiceProvider serviceProvider)
+            : base(logger,  connection, serviceProvider)
         {
         }
 
@@ -24,6 +23,5 @@ namespace Cadastro.WorkerService
 
             await Task.Delay(1000, stoppingToken);
         }
-
     }
 }

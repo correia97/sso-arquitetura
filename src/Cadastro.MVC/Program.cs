@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
-using OpenTelemetry.Trace;
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
@@ -21,17 +20,9 @@ builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 
-builder.Services.AddSingleton(TracerProvider.Default.GetTracer(typeof(FuncionarioService).Name));
-
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
 builder.Services.AddHealthChecks();
-
-var serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
-var serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version!.ToString() ?? "unknown";
-builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
-builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
-builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
 
 // Add services to the container.
 builder.Services.AddRazorPages();

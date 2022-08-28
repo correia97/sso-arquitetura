@@ -8,23 +8,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
-using OpenTelemetry.Trace;
+using Npgsql;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
-using System.Text.Json.Serialization;
-using Prometheus;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Prometheus.Client;
-using Prometheus.HttpClientMetrics;
-using Prometheus.DotNetRuntime;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
 using System.Data;
+using System.Text.Json.Serialization;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -104,18 +97,11 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddHealthChecks().ForwardToPrometheus(); 
+builder.Services.AddHealthChecks();
 
-var serviceName = typeof(FuncionarioAppService).Assembly.GetName().Name;
-var serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version!.ToString() ?? "unknown";
-
-builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
-builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
-builder.Services.AddCustomOpenTelemetryLogging(serviceName, serviceVersion, builder.Logging);
-
-builder.Services.AddScoped<IDbConnection>(sp => {
+builder.Services.AddScoped<IDbConnection>(sp =>
+{
     var connection = new NpgsqlConnection(builder.Configuration.GetConnectionString("Base"));
-    connection.Open();
     return connection;
 });
 
@@ -125,18 +111,11 @@ builder.Services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
 
 builder.Services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
 
-builder.Services.AddSingleton(TracerProvider.Default.GetTracer(serviceName));
-
 builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 
-builder.Services.AddHttpClient(Options.DefaultName)
-        .UseHttpClientMetrics();
+builder.Services.AddHttpClient(Options.DefaultName);
 
-builder.Services.AddLogging().AddHttpLogging(opt =>
-{
-    opt.LoggingFields = HttpLoggingFields.All;
-});
-
+builder.Services.AddLogging();
 
 var app = builder.Build();
 
@@ -165,13 +144,11 @@ app.UseSwaggerUI(c =>
 //app.UseHttpsRedirection();
 //app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
-app.UseHttpLogging();
-
 app.UseHealthChecks("/health");
 
 app.UseStaticFiles();
 
-app.UseRouting(); 
+app.UseRouting();
 
 app.UseCors(MyAllowSpecificOrigins);
 
