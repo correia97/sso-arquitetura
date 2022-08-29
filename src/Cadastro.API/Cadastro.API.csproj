@@ -11,6 +11,7 @@
     <None Remove="Controllers\WeatherForecastController.cs~RF87b526.TMP" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Elastic.Apm.NetCoreAll" Version="1.17.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />

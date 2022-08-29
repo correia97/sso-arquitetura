@@ -887,7 +887,7 @@ monitoring.elasticsearch:
   # Scheme and port can be left out and will be set to the default (`http` and `9200`).
   # In case you specify and additional path, the scheme is required: `http://elasticsearch:9200/path`.
   # IPv6 addresses should always be defined as: `https://[2001:db8::1]:9200`.
-  #hosts: ["elasticsearch:9200"]
+  hosts: ["elasticsearch:9200"]
 
   # Set gzip compression level.
   #compression_level: 0
@@ -907,7 +907,7 @@ monitoring.elasticsearch:
   # The number of times a particular Elasticsearch index operation is attempted. If
   # the indexing operation doesn't succeed after this many retries, the events are
   # dropped. The default is 3.
-  #max_retries: 3
+  max_retries: 5
 
   # The maximum number of events to bulk in a single Elasticsearch bulk API index request.
   # The default is 50.

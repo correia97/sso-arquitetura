@@ -4,10 +4,10 @@ metricbeat.config:
     # Reload module configs as they change:
     reload.enabled: false
 
-metricbeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
+# metricbeat.autodiscover:
+#   providers:
+#     - type: docker
+#       hints.enabled: true
 
 metricbeat.modules:
 - module: docker
@@ -28,7 +28,10 @@ metricbeat.modules:
   metricsets:
     - node
     - node_stats
-  enabled: true
+    - cluster_stats
+    - index
+  enabled: true  
+  hosts: ["elasticsearch:9200"] 
 
 - module: nginx
   metricsets: ["stubstatus"]
@@ -37,16 +40,10 @@ metricbeat.modules:
   # Nginx hosts
   hosts: ["http://nginx"]
   # Path to server status. Default nginx_status
-  server_status_path: "nginx_status"
-
-- module: postgresql
-  metricsets: ["status"]
-  hosts: ["postgres://db:5432"]
-  username: postgres
-  password: postgres
+  server_status_path: "metrics"
 
 - module: rabbitmq
-  metricsets: ["node", "queue", "connection", "exchange", "shovel"]
+  metricsets: ["node", "queue", "connection", "exchange"]
   enabled: true
   period: 10s
   hosts: ["rabbitmq:15672"]
@@ -57,7 +54,7 @@ processors:
   - add_cloud_metadata: ~
 
 output.elasticsearch:
-  hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+  hosts: ["elasticsearch:9200"]
 
 
 setup.kibana:

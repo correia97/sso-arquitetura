@@ -4,6 +4,7 @@ using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
 using Cadastro.WorkerService;
 using Cadastro.WorkerServices.Migrations;
+using Elastic.Apm.NetCoreAll;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -87,6 +88,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
         });
     })
+    .UseAllElasticApm()
     .Build();
 
 UpdateDatabase(host.Services, configuration);

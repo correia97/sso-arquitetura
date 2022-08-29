@@ -8,6 +8,9 @@ using Serilog.Sinks.RabbitMQ.Sinks.RabbitMQ;
 using Serilog.Sinks.RabbitMQ;
 using Microsoft.Extensions.Logging;
 
+using Elastic.Apm;
+using Elastic.Apm.Logging;
+
 namespace Cadastro.Configuracoes
 {
     public static class LoggingExtension

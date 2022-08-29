@@ -94,7 +94,7 @@ services:
       - externo
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     container_name: elasticsearch
     environment:
       - xpack.security.enabled=false
@@ -132,7 +132,7 @@ services:
       - base   
   
   kibana:
-    image:  docker.elastic.co/kibana/kibana:8.4.0
+    image: docker.elastic.co/kibana/kibana:7.10.2
     container_name: kibana
     volumes:
       - kibana_data:/usr/share/kibana/data
@@ -163,60 +163,86 @@ services:
       elasticsearch:
         condition: service_healthy
 
-  # apmserver:
-  #   image: docker.elastic.co/apm/apm-server:8.4.0
-  #   container_name: apmserver
-  #   ports:
-  #     - 8200:8200
-  #     - 5066:5066
-  #   volumes:
-  #     - "./elastic/apm-server.docker.yml:/usr/share/apm-server/apm-server.yml:ro"
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  #     kibana:
-  #       condition: service_started 
-  #   networks:    
-  #     - externo
-  #     - base   
+  apmserver:
+    image: ${DOCKER_REGISTRY-}apm-server:7.17.6
+    container_name: apmserver
+    build: 
+      context: ./src/elastic/apmserver/
+      dockerfile: Dockerfile
+    environment:
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false  
+    ports:
+      - 8200:8200
+      - 5066:5066
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy 
+    networks:    
+      - externo
+      - base   
 
-  # metricbeat:   
-  #   image: docker.elastic.co/beats/metricbeat:8.4.0
-  #   container_name: metricbeat
-  #   command:
-  #     - setup -E setup.kibana.host=kibana:5601   
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  #     kibana:
-  #       condition: service_started  
-  #   volumes:
-  #     - "./elastic/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro"
-  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
-  #     - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
-  #     - "/proc:/hostfs/proc:ro"
-  #     - "/:/hostfs:ro"
-  #   networks:    
-  #     - externo
-  #     - base 
+  metricbeat:   
+    image: ${DOCKER_REGISTRY-}metricbeat:7.10.2
+    container_name: metricbeat
+    build: 
+      context: ./src/elastic/metricbeats/
+      dockerfile: Dockerfile
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
+      - "/proc:/hostfs/proc:ro"
+      - "/:/hostfs:ro"
+    networks:    
+      - externo
+      - base 
 
-  # logstash:
-  #   image: docker.elastic.co/logstash/logstash:8.4.0
-  #   container_name: logstash  
-  #   environment:      
-  #     LS_JAVA_OPTS: -Xms256m -Xmx256m
-  #   volumes:
-  #     - ./elastic/pipelines/:/usr/share/logstash/pipeline/   
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     kibana:
-  #       condition: service_started  
-  #   networks:    
-  #     - externo
-  #     - base 
+  heartbeat:   
+    image: ${DOCKER_REGISTRY-}heartbeat:7.10.2
+    container_name: heartbeat
+    build: 
+      context: ./src/elastic/heartbeat/
+      dockerfile: Dockerfile
+    environment:
+      - setup.kibana.host=kibana:5601 
+    ports:
+      - 5067:5067  
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    networks:    
+      - externo
+      - base 
+
+
+  logstash:
+    image: ${DOCKER_REGISTRY-}logstash:7.17.6
+    container_name: logstash  
+    build: 
+      context: ./src/elastic/logstash/
+      dockerfile: Dockerfile
+    environment:      
+      LS_JAVA_OPTS: -Xms256m -Xmx256m 
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy  
+    networks:    
+      - externo
+      - base 
 
 
 

@@ -3,6 +3,8 @@ using Cadastro.API.Services;
 using Cadastro.Configuracoes;
 using Cadastro.Data.Repositories;
 using Cadastro.Domain.Interfaces;
+using Elastic.Apm.Config;
+using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -144,6 +146,7 @@ app.UseSwaggerUI(c =>
 
 //app.UseHttpsRedirection();
 //app.UseOpenTelemetryPrometheusScrapingEndpoint();
+app.UseAllElasticApm(app.Configuration);
 
 app.UseHealthChecks("/health");
 

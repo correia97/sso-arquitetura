@@ -1,0 +1,42 @@
+heartbeat.monitors:
+- type: http
+  schedule: '@every 5s'
+  urls:
+    - http://elasticsearch:9200
+    - http://kibana:5601
+
+- type: icmp
+  schedule: '@every 5s'
+  hosts:
+    - elasticsearch
+    - kibana
+
+- type: http
+  id: service-status
+  name: Service Status
+  service_name: my-apm-service-name
+  hosts: ["http://nginx:80/status"]
+  check.response.status: [200]
+  schedule: '@every 5s'
+
+processors:
+- add_cloud_metadata: ~
+
+instrumentation:
+  enabled: true
+  hosts:
+    - http://apmserver:8200
+
+http.enabled: true
+http.port: 5067
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+setup.kibana:
+  host: "kibana:5601"
+  ssl.enabled: false
+  protocol: "http"
+
+# setup.dashboards.beat: heartbeat
+# setup.dashboards.enabled: true

@@ -1,6 +1,7 @@
 using Cadastro.Configuracoes;
 using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Services;
+using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
@@ -48,6 +49,8 @@ else
     app.UseDeveloperExceptionPage();
     IdentityModelEventSource.ShowPII = true;
 }
+
+app.UseAllElasticApm(app.Configuration);
 
 app.UseStaticFiles();
 
