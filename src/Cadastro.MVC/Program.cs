@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
+using Serilog;
+using System;
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
@@ -26,6 +28,8 @@ builder.Services.AddHealthChecks();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, typeof(FuncionarioService).Assembly.FullName);
 
 var app = builder.Build();
 
@@ -65,5 +69,17 @@ app.UseEndpoints(endpoints =>
 app.MapHealthChecks("/health");
 
 //app.UseOpenTelemetryPrometheusScrapingEndpoint(); 
-
-app.Run();
+try
+{
+    Log.Information("Starting MVC Core Serilog");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+    return;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

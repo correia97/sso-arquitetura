@@ -93,6 +93,134 @@ services:
       - base
       - externo
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.0
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - discovery.type=single-node
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - network.host=0.0.0.0
+      - cluster.name="elastic_stack_logging"
+      - node.name="elastic_stack_logging_data"
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+      - ELASTIC_PASSWORD="elastic123"
+    mem_limit: 1073741824  
+    healthcheck:
+      interval: 15s
+      retries: 10
+      test: 
+        [
+          "CMD-SHELL",
+          "curl -I -s -L http://localhost:9200 || exit 1"
+        ]
+    volumes:
+      - elk_data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:    
+      - externo
+      - base   
+  
+  kibana:
+    image:  docker.elastic.co/kibana/kibana:8.4.0
+    container_name: kibana
+    volumes:
+      - kibana_data:/usr/share/kibana/data
+    environment:
+      - SERVERNAME=kibana
+      - SERVERHOST="0"
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD="elastic123"
+      - xpack.reporting.roles.enabled=false
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 50
+    ports: 
+      - 5601:5601
+    networks:
+      - externo
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  # apmserver:
+  #   image: docker.elastic.co/apm/apm-server:8.4.0
+  #   container_name: apmserver
+  #   ports:
+  #     - 8200:8200
+  #     - 5066:5066
+  #   volumes:
+  #     - "./elastic/apm-server.docker.yml:/usr/share/apm-server/apm-server.yml:ro"
+  #   depends_on:
+  #     elasticsearch:
+  #       condition: service_healthy
+  #     kibana:
+  #       condition: service_started 
+  #   networks:    
+  #     - externo
+  #     - base   
+
+  # metricbeat:   
+  #   image: docker.elastic.co/beats/metricbeat:8.4.0
+  #   container_name: metricbeat
+  #   command:
+  #     - setup -E setup.kibana.host=kibana:5601   
+  #   depends_on:
+  #     elasticsearch:
+  #       condition: service_healthy
+  #     kibana:
+  #       condition: service_started  
+  #   volumes:
+  #     - "./elastic/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro"
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #     - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
+  #     - "/proc:/hostfs/proc:ro"
+  #     - "/:/hostfs:ro"
+  #   networks:    
+  #     - externo
+  #     - base 
+
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:8.4.0
+  #   container_name: logstash  
+  #   environment:      
+  #     LS_JAVA_OPTS: -Xms256m -Xmx256m
+  #   volumes:
+  #     - ./elastic/pipelines/:/usr/share/logstash/pipeline/   
+  #   depends_on:
+  #     elasticsearch:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+  #     kibana:
+  #       condition: service_started  
+  #   networks:    
+  #     - externo
+  #     - base 
+
+
+
+
   #keycloak:
   #  image: quay.io/keycloak/keycloak:19.0
   #  container_name: keycloak
@@ -155,4 +283,6 @@ networks:
 volumes:
   dbData:
   mq_data:
+  elk_data:
+  kibana_data:
 

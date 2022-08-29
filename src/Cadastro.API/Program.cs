@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Data;
@@ -115,7 +116,7 @@ builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 
 builder.Services.AddHttpClient(Options.DefaultName);
 
-builder.Services.AddLogging();
+Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, typeof(FuncionarioAppService).Assembly.FullName);
 
 var app = builder.Build();
 
@@ -160,4 +161,18 @@ app.MapHealthChecks("/health");
 
 app.MapControllers();
 
-app.Run();
+try
+{
+    Log.Information("Starting API Core Serilog");
+    app.Run();
+
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+    return;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

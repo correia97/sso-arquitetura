@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
+using Serilog;
 using System;
 using System.Data;
 using System.Threading;
@@ -63,7 +64,9 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         configuration = context.Configuration;
-        services.AddLogging();
+
+        Log.Logger = LoggingExtension.AddCustomLogging(services, configuration, typeof(Worker).Assembly.FullName);
+
         services.AddHostedService<Worker>();
 
         services.AddScoped<IDbConnection>(sp =>
@@ -89,4 +92,18 @@ IHost host = Host.CreateDefaultBuilder(args)
 UpdateDatabase(host.Services, configuration);
 
 //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-await host.RunAsync();
+
+try
+{
+    Log.Information("Starting WorkerService Core Serilog");
+    await host.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+    return;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

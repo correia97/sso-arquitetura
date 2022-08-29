@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using Serilog;
 using System.Diagnostics;
 
 namespace Cadastro.Configuracoes
@@ -44,11 +45,17 @@ namespace Cadastro.Configuracoes
                 var notificarResult = model.QueueDeclare("notificar", true, false, false);
                 Debug.WriteLine($"Queue {notificarResult.QueueName} message count {notificarResult.MessageCount}");
 
+                var logsResult = model.QueueDeclare("logs", true, false, false);
+                Debug.WriteLine($"Queue {notificarResult.QueueName} message count {logsResult.MessageCount}");
+
                 model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
                 model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
+                model.ExchangeDeclare("logs", ExchangeType.Fanout, true);
+                
                 model.QueueBind("cadastrar", "cadastro", "cadastrar");
                 model.QueueBind("atualizar", "cadastro", "atualizar");
                 model.QueueBind("notificar", "evento", "");
+                model.QueueBind("logs", "logs", "");
             }
             catch (Exception ex)
             {
