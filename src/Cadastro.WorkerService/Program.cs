@@ -80,7 +80,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioService, FuncionarioService>();
         services.AddFluentMigratorCore();
-        services.AddRabbitCustomConfiguration(context.Configuration);
+        services.AddRabbitCustomConfiguration(context.Configuration);        
         services.ConfigureRunner(rb =>
         {
             rb.AddPostgres11_0();

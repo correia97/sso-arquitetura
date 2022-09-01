@@ -1,14 +1,12 @@
 ﻿using Cadastro.API.Interfaces;
 using Cadastro.API.Models.Response;
-using Cadastro.Domain.Enums;
-using Cadastro.Domain.Interfaces;
+using Cadastro.Domain.Services;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Polly;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,33 +15,23 @@ namespace Cadastro.API.Services
 {
     public class FuncionarioAppService : IFuncionarioAppService
     {
-        private readonly IFuncionarioReadRepository _repository;
-        private readonly IConnection _connection;
+        private readonly IFuncionarioService _service;
+        private IConnection _connection { get; set; }
         private readonly ILogger<FuncionarioAppService> _logger;
         private readonly AsyncPolicy _retryAsyncPolicy;
-        private readonly Policy _retryPolicy;
-        public FuncionarioAppService(IConnection connection, IFuncionarioReadRepository repository, ILogger<FuncionarioAppService> logger)
+        private readonly IModel _model;
+        public FuncionarioAppService(IModel model, IFuncionarioService service, ILogger<FuncionarioAppService> logger)
         {
-            _repository = repository;
-            _connection = connection;
+            _service = service;
+            _model = model;
             _logger = logger;
+
             _retryAsyncPolicy = Policy.Handle<Exception>()
-                        .Or<Exception>()
-                        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                        .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                         (exception, timeSpan, retryCount, context) =>
                         {
                             // Add logic to be executed before each retry, such as logging
-
-                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTimeOffset.Now);
-                        });
-            _retryPolicy = Policy.Handle<TimeoutException>()
-                        .Or<Exception>()
-                        .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                        (exception, timeSpan, retryCount, context) =>
-                        {
-                            // Add logic to be executed before each retry, such as logging
-
-                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTimeOffset.Now);
+                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
                         });
         }
 
@@ -51,18 +39,17 @@ namespace Cadastro.API.Services
         {
             try
             {
-                using var model = _retryPolicy.Execute(() => _connection.CreateModel());
-                IBasicProperties props = model.CreateBasicProperties();
+                IBasicProperties props = _model.CreateBasicProperties();
                 props.ContentType = "text/json";
                 props.DeliveryMode = 2;
                 var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
-                model.BasicPublish("cadastro", "cadastrar", props, messageBodyBytes);
+                _model.BasicPublish("cadastro", "cadastrar", props, messageBodyBytes);
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Cadastrar");
-                return false;
+                throw;
             }
         }
 
@@ -70,12 +57,11 @@ namespace Cadastro.API.Services
         {
             try
             {
-                using var model = _retryPolicy.Execute(() => _connection.CreateModel());
-                IBasicProperties props = model.CreateBasicProperties();
+                IBasicProperties props = _model.CreateBasicProperties();
                 props.ContentType = "text/json";
                 props.DeliveryMode = 2;
                 var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
-                model.BasicPublish("cadastro", "atualizar", props, messageBodyBytes);
+                _model.BasicPublish("cadastro", "atualizar", props, messageBodyBytes);
                 return true;
             }
             catch (Exception ex)
@@ -91,23 +77,9 @@ namespace Cadastro.API.Services
             {
                 var funcionario = await _retryAsyncPolicy.ExecuteAsync(async () =>
                 {
-                    var funcionario = await _repository.ObterPorId(null, id);
+                    var funcionario = await _service.ObterPorId(id);
                     if (funcionario == null)
                         return null;
-                    var enderecos = await _repository.ObterEnderecosPorFuncionarioId(null, id);
-                    var telefones = await _repository.ObterTelefonesPorFuncionarioId(null, id);
-
-                    if (telefones != null && telefones.Any())
-                        funcionario.AtualizarTelefones(telefones);
-
-                    if (enderecos != null && enderecos.Any())
-                    {
-                        if (enderecos.Any(x => x.TipoEndereco == TipoEnderecoEnum.Comercial))
-                            funcionario.AtualizarEnderecoComercial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEnderecoEnum.Comercial));
-
-                        if (enderecos.Any(x => x.TipoEndereco == TipoEnderecoEnum.Residencial))
-                            funcionario.AtualizarEnderecoResidencial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEnderecoEnum.Residencial));
-                    }
                     return funcionario;
                 });
                 return new FuncionarioResponse(funcionario);
@@ -123,7 +95,7 @@ namespace Cadastro.API.Services
         {
             try
             {
-                var funcionario = await _retryAsyncPolicy.ExecuteAsync(() => _repository.ObterTodos(null));
+                var funcionario = await _retryAsyncPolicy.ExecuteAsync(() => _service.ObterTodos());
                 var result = new List<FuncionarioResponse>();
                 foreach (var item in funcionario)
                 {

@@ -23,11 +23,11 @@ namespace Cadastro.Data.Repositories
             _logger = logger;
             _retryPolicy = Policy.Handle<PostgresException>()
                         .Or<Exception>()
-                        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(3, retryAttempt)),
                         (exception, timeSpan, retryCount, context) =>
                         {
                             // Add logic to be executed before each retry, such as logging
-                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTimeOffset.Now);
+                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
                         });
         }
         public async Task<Funcionario> ObterPorEmail(IDbTransaction transacao, string email)
@@ -170,12 +170,12 @@ namespace Cadastro.Data.Repositories
             param.Add("@matricula", string.IsNullOrEmpty(data.Matricula) ? "" : data.Matricula);
             param.Add("@cargo", string.IsNullOrEmpty(data.Cargo) ? "" : data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
-            param.Add("@dataCadastro", data.DataCadastro.ToUniversalTime(), DbType.DateTimeOffset);
-            param.Add("@dataAtualizacao", DateTime.Now.ToUniversalTime(), DbType.DateTimeOffset);
+            param.Add("@dataCadastro", data.DataCadastro.ToUniversalTime(), DbType.DateTime);
+            param.Add("@dataAtualizacao", DateTime.Now.ToUniversalTime(), DbType.DateTime);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTimeOffset);
+            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTime);
 
             var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: transacao));
             return result > 0;
@@ -189,8 +189,7 @@ namespace Cadastro.Data.Repositories
                         , matricula
                         , cargo
                         , ativo
-                        , datacadastro
-                        , dataatualizacao
+                        , datacadastro                        
                         , primeironome
                         , sobrenome
                         , enderecoemail
@@ -200,8 +199,7 @@ namespace Cadastro.Data.Repositories
                         ,@matricula
                         ,@cargo
                         ,@ativo
-                        ,@dataCadastro
-                        ,@dataAtualizacao
+                        ,@dataCadastro                        
                         ,@primeiroNome
                         ,@sobreNome
                         ,@enderecoEmail
@@ -213,12 +211,11 @@ namespace Cadastro.Data.Repositories
             param.Add("@matricula", string.IsNullOrEmpty(data.Matricula) ? "" : data.Matricula);
             param.Add("@cargo", string.IsNullOrEmpty(data.Cargo) ? "" : data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
-            param.Add("@dataCadastro", data.DataCadastro.ToUniversalTime(), DbType.DateTimeOffset);
-            param.Add("@dataAtualizacao", data.DataAtualizacao.HasValue ? data.DataAtualizacao.Value.ToUniversalTime() : null, DbType.DateTimeOffset);
+            param.Add("@dataCadastro", data.DataCadastro.ToUniversalTime(), DbType.DateTime);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
-            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTimeOffset);
+            param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTime);
 
             var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: transacao));
             if (result > 0)

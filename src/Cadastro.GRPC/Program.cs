@@ -1,4 +1,3 @@
-using Cadastro.Configuracoes;
 using Cadastro.GRPC.Services;
 using Npgsql;
 using System.Data;

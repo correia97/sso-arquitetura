@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using Serilog;
-using System.Diagnostics;
 
 namespace Cadastro.Configuracoes
 {
@@ -13,53 +12,66 @@ namespace Cadastro.Configuracoes
         {
             try
             {
-                var factory = new ConnectionFactory
-                {
-                    Uri = new Uri(configuration.GetValue<string>("rabbit"))
-                };
-                IConnection connection = factory.CreateConnection();
-                SetupRabbitMQ(connection);
-
+                IConnection connection = CreateConnection(configuration);
+                IModel model = connection.CreateModel();
+                SetupRabbitMQ(model);
                 services.AddSingleton(connection);
-
+                services.AddSingleton(model);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Log.Logger.Error(ex, "Erro ao Criar Conexão com RabbitMq");
                 throw;
             }
             return services;
         }
 
-        private static void SetupRabbitMQ(IConnection connection)
+        public static IConnection CreateConnection(IConfiguration configuration)
+        {
+            var factory = new ConnectionFactory
+            {
+                Uri = new Uri(configuration.GetValue<string>("rabbit"))
+            };
+            IConnection connection = factory.CreateConnection();
+            return connection;
+        }
+
+        private static void SetupRabbitMQ(IModel model)
         {
             try
             {
-                using IModel model = connection.CreateModel();
-                var cadastrarResult = model.QueueDeclare("cadastrar", true, false, false);
-                Debug.WriteLine($"Queue {cadastrarResult.QueueName} message count {cadastrarResult.MessageCount}");
+                var cadastrarArgs = new Dictionary<string, object>();
+                cadastrarArgs.Add("x-dead-letter-exchange", "cadastrar_deadletter");
+                cadastrarArgs.Add("x-dead-letter-routing-key", "cadastrar_deadletter");
+                var cadastrarResult = model.QueueDeclare("cadastrar", true, false, false, cadastrarArgs);
+                var cadastrarDeadResult = model.QueueDeclare("cadastrar_deadletter", true, false, false);
 
-                var atualizarrResult = model.QueueDeclare("atualizar", true, false, false);
-                Debug.WriteLine($"Queue {atualizarrResult.QueueName} message count {atualizarrResult.MessageCount}");
+                var atualizarArgs = new Dictionary<string, object>();
+                atualizarArgs.Add("x-dead-letter-exchange", "atualizar_deadletter");
+                atualizarArgs.Add("x-dead-letter-routing-key", "atualizar_deadletter");
+                var atualizarDeadResult = model.QueueDeclare("atualizar_deadletter", true, false, false);
+                var atualizarResult = model.QueueDeclare("atualizar", true, false, false, atualizarArgs);
 
                 var notificarResult = model.QueueDeclare("notificar", true, false, false);
-                Debug.WriteLine($"Queue {notificarResult.QueueName} message count {notificarResult.MessageCount}");
 
                 var logsResult = model.QueueDeclare("logs", true, false, false);
-                Debug.WriteLine($"Queue {notificarResult.QueueName} message count {logsResult.MessageCount}");
 
+                model.ExchangeDeclare("cadastrar_deadletter", ExchangeType.Fanout, true, false, null);
+                model.ExchangeDeclare("atualizar_deadletter", ExchangeType.Fanout, true, false, null);
                 model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
                 model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
                 model.ExchangeDeclare("logs", ExchangeType.Fanout, true);
-                
+
                 model.QueueBind("cadastrar", "cadastro", "cadastrar");
                 model.QueueBind("atualizar", "cadastro", "atualizar");
+                model.QueueBind("cadastrar_deadletter", "cadastrar_deadletter", "");
+                model.QueueBind("atualizar_deadletter", "atualizar_deadletter", "");
                 model.QueueBind("notificar", "evento", "");
                 model.QueueBind("logs", "logs", "");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Log.Logger.Error(ex, "Erro ao Criar filas");
                 throw;
             }
         }

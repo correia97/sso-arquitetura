@@ -3,7 +3,7 @@ using Cadastro.API.Services;
 using Cadastro.Configuracoes;
 using Cadastro.Data.Repositories;
 using Cadastro.Domain.Interfaces;
-using Elastic.Apm.Config;
+using Cadastro.Domain.Services;
 using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +28,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
+                .AddNewtonsoftJson(setup =>
+                {
+                    setup.AllowInputFormatterExceptionMessages = true;
+                    setup.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                })
                 .AddJsonOptions(opt =>
                                 {
                                     opt.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
@@ -112,7 +117,11 @@ builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 builder.Services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
 
+builder.Services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>();
+
 builder.Services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
+
+builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 
 builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 

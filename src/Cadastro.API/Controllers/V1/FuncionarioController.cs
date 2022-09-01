@@ -103,7 +103,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              Domain.Enums.TipoEnderecoEnum.Comercial,
                                                                              Guid.Parse(funcionario.UserId))));
 
-                return Ok(result);
+                return Ok(new { received = result });
             }
             catch (Exception ex)
             {
@@ -154,7 +154,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              Guid.Parse(funcionario.UserId)));
 
                 var result = _service.Atualizar(funcionarioModel, string.Empty);
-                return Ok(result);
+                return Ok(new { received = result });
             }
             catch (Exception ex)
             {

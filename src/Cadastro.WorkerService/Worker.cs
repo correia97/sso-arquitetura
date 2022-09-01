@@ -10,8 +10,8 @@ namespace Cadastro.WorkerService
 {
     public class Worker : RabbitMQWorkerService
     {
-        public Worker(ILogger<Worker> logger,  IConnection connection, IServiceProvider serviceProvider)
-            : base(logger,  connection, serviceProvider)
+        public Worker(ILogger<Worker> logger, IModel model, IServiceProvider serviceProvider)
+            : base(logger, model, serviceProvider)
         {
         }
 

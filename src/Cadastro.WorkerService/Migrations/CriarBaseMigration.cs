@@ -16,8 +16,8 @@ namespace Cadastro.WorkerServices.Migrations
                 .WithColumn("cargo").AsString(150)
                 .WithColumn("enderecoemail").AsString(150)
                 .WithColumn("ativo").AsBoolean()
-                .WithColumn("datacadastro").AsDateTimeOffset().NotNullable()
-                .WithColumn("dataatualizacao").AsDateTimeOffset().Nullable();
+                .WithColumn("datacadastro").AsDateTime().NotNullable()
+                .WithColumn("dataatualizacao").AsDateTime().Nullable();
 
             Create.Table("telefones")
                 .WithColumn("id").AsInt32().NotNullable().PrimaryKey().Identity()
