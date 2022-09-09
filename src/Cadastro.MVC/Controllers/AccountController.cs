@@ -3,12 +3,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace MVC.Controllers
 {
     public class AccountController : BaseController
     {
+        private readonly ILogger<AccountController> _logger;
+        public AccountController(ILogger<AccountController> logger )
+        {
+            _logger = logger;
+        }
         public async Task Login(string returnUrl = "/")
         {
             try
@@ -18,7 +24,7 @@ namespace MVC.Controllers
             }
             catch (System.Exception ex)
             {
-
+                _logger.LogError(ex, "Login");
                 throw;
             }
         }

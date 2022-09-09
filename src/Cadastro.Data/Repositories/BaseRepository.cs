@@ -1,4 +1,5 @@
-﻿using Cadastro.Domain.Interfaces;
+﻿using Cadastro.Domain.Enums;
+using Cadastro.Domain.Interfaces;
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Data;
@@ -13,36 +14,44 @@ namespace Cadastro.Data.Repositories
 
         protected readonly string conexao;
         protected readonly IDbConnection connection;
+
+        public IDbTransaction Transaction { get; private set; }
+        private TransactionStatusEnum Status { get; set; } = TransactionStatusEnum.None;
         protected BaseRepository(IDbConnection connection)
         {
             this.connection = connection;
         }
-        public virtual IDbConnection RecuperarConexao()
+
+        public virtual void IniciarTransacao()
         {
-            return connection;
-        }
-        public abstract Task<IEnumerable<T>> ObterTodos(IDbTransaction transaction);
-
-        public abstract Task<T> ObterPorId(IDbTransaction transaction, U id);
-
-        public abstract Task<U> Inserir(T data, IDbTransaction transaction);
-
-        public abstract Task<bool> Atualizar(T data, IDbTransaction transaction);
-
-        public virtual IDbTransaction IniciarTransacao()
-        {
-            return connection.BeginTransaction();
+            Transaction = connection.BeginTransaction();
+            Status = TransactionStatusEnum.Started;
         }
 
-        public virtual void CancelarTransacao(IDbTransaction transaction)
+        public virtual void CompletarTransacao()
         {
-            transaction.Rollback();
+            Transaction.Commit();
+            Status = TransactionStatusEnum.Completed;
         }
 
-        public virtual void CompletarTransacao(IDbTransaction transaction)
+        public virtual void CancelarTransacao()
         {
-            transaction.Commit();
+            Transaction.Rollback();
+            Status = TransactionStatusEnum.Canceled;
         }
+        public virtual void Dispose()
+        {
+            if (Status == TransactionStatusEnum.Started)
+                CancelarTransacao();
+        }
+
+        public abstract Task<IEnumerable<T>> ObterTodos();
+
+        public abstract Task<T> ObterPorId( U id);
+
+        public abstract Task<U> Inserir(T data);
+
+        public abstract Task<bool> Atualizar(T data);      
 
     }
 }

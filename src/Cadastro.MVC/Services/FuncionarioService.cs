@@ -15,11 +15,9 @@ namespace Cadastro.MVC.Services
     public class FuncionarioService : IFuncionarioService
     {
         private readonly string _baseUrl;
-        private readonly JsonSerializerOptions _serializerOptions;
         public FuncionarioService(IConfiguration configuration)
         {
             _baseUrl = configuration.GetValue<string>("ServiceUrl");
-            _serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
         public async Task<Response<bool>> AtualizarFuncionario(FuncionarioRequest request, string token)
         {
@@ -51,7 +49,7 @@ namespace Cadastro.MVC.Services
                                                                     .GetAsync();
             if (result.StatusCode == (int)HttpStatusCode.OK)
                 return Response<IEnumerable<FuncionarioResponse>>
-                    .SuccessResult(JsonSerializer.Deserialize<IEnumerable<FuncionarioResponse>>(await result.ResponseMessage.Content.ReadAsStringAsync(), _serializerOptions));
+                    .SuccessResult(JsonSerializer.Deserialize<IEnumerable<FuncionarioResponse>>(await result.ResponseMessage.Content.ReadAsStringAsync()));
             return Response<IEnumerable<FuncionarioResponse>>.ErrorResult(result.ResponseMessage.ReasonPhrase);
         }
 
@@ -65,7 +63,7 @@ namespace Cadastro.MVC.Services
             if (result.StatusCode == (int)HttpStatusCode.OK)
             {
                 var json = await result.ResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonSerializer.Deserialize<FuncionarioResponse>(json, _serializerOptions);
+                var response = JsonSerializer.Deserialize<FuncionarioResponse>(json);
                 return Response<FuncionarioResponse>
                     .SuccessResult(response);
             }

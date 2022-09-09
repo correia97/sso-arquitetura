@@ -1,6 +1,7 @@
 using Cadastro.Configuracoes;
 using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Services;
+using Elastic.Apm.Api;
 using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,10 +28,17 @@ builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
 builder.Services.AddHealthChecks();
 
+
+string serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
+string serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version?.ToString();
+
+// builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
+// builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, typeof(FuncionarioService).Assembly.FullName);
+Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, serviceName);
 
 var app = builder.Build();
 
@@ -50,7 +58,9 @@ else
     IdentityModelEventSource.ShowPII = true;
 }
 
-app.UseAllElasticApm(app.Configuration);
+//app.UseAllElasticApm(app.Configuration);
+
+//app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.UseStaticFiles();
 
@@ -71,7 +81,6 @@ app.UseEndpoints(endpoints =>
 
 app.MapHealthChecks("/health");
 
-//app.UseOpenTelemetryPrometheusScrapingEndpoint(); 
 try
 {
     Log.Information("Starting MVC Core Serilog");

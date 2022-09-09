@@ -4,7 +4,6 @@ using Cadastro.Configuracoes;
 using Cadastro.Data.Repositories;
 using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
-using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +20,9 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Data;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Builder.Extensions;
+using Elastic.Apm.Api;
+using System.Diagnostics;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -28,15 +30,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
-                .AddNewtonsoftJson(setup =>
-                {
-                    setup.AllowInputFormatterExceptionMessages = true;
-                    setup.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-                })
                 .AddJsonOptions(opt =>
                                 {
                                     opt.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
                                     opt.JsonSerializerOptions.UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement;
+                                    opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                                    opt.JsonSerializerOptions.Converters.Add(new ExceptionConverter());
                                 });
 
 builder.Services.AddApiVersioning(x =>
@@ -125,9 +124,18 @@ builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 
 builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 
+string serviceName = typeof(FuncionarioAppService).Assembly.GetName().Name;
+string serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version?.ToString();
+
+var activity = new ActivitySource(serviceName, serviceVersion);
+builder.Services.AddScoped<ActivitySource>(x => activity);
+
+// builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
+// builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+
 builder.Services.AddHttpClient(Options.DefaultName);
 
-Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, typeof(FuncionarioAppService).Assembly.FullName);
+Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, serviceName);
 
 var app = builder.Build();
 
@@ -155,7 +163,7 @@ app.UseSwaggerUI(c =>
 
 //app.UseHttpsRedirection();
 //app.UseOpenTelemetryPrometheusScrapingEndpoint();
-app.UseAllElasticApm(app.Configuration);
+//app.UseAllElasticApm(app.Configuration);
 
 app.UseHealthChecks("/health");
 

@@ -16,7 +16,6 @@ namespace Cadastro.API.Services
     public class FuncionarioAppService : IFuncionarioAppService
     {
         private readonly IFuncionarioService _service;
-        private IConnection _connection { get; set; }
         private readonly ILogger<FuncionarioAppService> _logger;
         private readonly AsyncPolicy _retryAsyncPolicy;
         private readonly IModel _model;

@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.Extensions.Logging;
 using System.Data;
+using System.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,94 +37,104 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task Cadastrar_OK_Quando_EMail_Nao_Existe()
         {
+            var activity = new ActivitySource("Cadastrar_OK_Quando_EMail_Nao_Existe");
             var person = _faker.Person;
             var funcionario = new Funcionario(Guid.NewGuid().ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>()))
                 .ReturnsAsync(funcionario.Id);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail( It.IsAny<string>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbTransaction, string>((transacao, email) =>
+                .Callback<string>(( email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                                                    _mockLogger.Object, activity);
 
             await service.Cadastrar(funcionario);
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail( It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
         }
 
         [Fact]
         public async Task Cadastrar_Nao_OK_Quando_EMail_Ja_Existe()
         {
+            var activity = new ActivitySource("Cadastrar_Nao_OK_Quando_EMail_Ja_Existe");
             var person = _faker.Person;
             var funcionario = new Funcionario(Guid.NewGuid().ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail( It.IsAny<string>()))
                 .ReturnsAsync(funcionario)
-                .Callback<IDbTransaction, string>((transacao, email) =>
+                .Callback< string>(( email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                 _mockLogger.Object, activity);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail( It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
         }
 
         [Fact]
         public async Task Cadastrar_Nao_OK_Quando_Banco_Nao_Acessivel()
         {
+            var activity = new ActivitySource("Cadastrar_Nao_OK_Quando_Banco_Nao_Acessivel");
             var person = _faker.Person;
             var funcionario = new Funcionario(Guid.NewGuid().ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail( It.IsAny<string>()))
                 .Throws(new Exception());
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+               _mockLogger.Object, activity);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.Cadastrar(funcionario));
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail( It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
         }
 
         [Fact]
         public async Task CadastrarComEnderecoTelefone_OK_Quando_EMail_Nao_Existe()
         {
+            var activity = new ActivitySource("CadastrarComEnderecoTelefone_OK_Quando_EMail_Nao_Existe");
             var person = _faker.Person;
             var id = Guid.NewGuid();
             var tels = new List<Telefone> {
@@ -135,34 +146,37 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>()))
                 .ReturnsAsync(funcionario.Id);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail( It.IsAny<string>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbTransaction, string>((transaction, email) =>
+                .Callback< string>(( email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+              _mockLogger.Object, activity);
 
             await service.Cadastrar(funcionario);
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail( It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
         }
 
         [Fact]
         public async Task CadastrarComEnderecoTelefone_Nao_OK_Quando_EMail_Ja_Existe()
         {
+            var activity = new ActivitySource("CadastrarComEnderecoTelefone_Nao_OK_Quando_EMail_Ja_Existe");
             var person = _faker.Person;
             var id = Guid.NewGuid();
             var tels = new List<Telefone> {
@@ -174,32 +188,35 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail( It.IsAny<string>()))
                 .ReturnsAsync(funcionario)
-                .Callback<IDbTransaction, string>((transaction, email) =>
+                .Callback< string>(( email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                _mockLogger.Object, activity);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail( It.IsAny<string>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Never);
         }
 
 
         [Fact]
         public async Task CadastrarComEnderecoTelefone_Nao_OK_Quando_Erro_Inserir()
         {
+            var activity = new ActivitySource("CadastrarComEnderecoTelefone_Nao_OK_Quando_Erro_Inserir");
             var person = _faker.Person;
             var id = Guid.NewGuid();
             var tels = new List<Telefone> {
@@ -211,31 +228,33 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.CancelarTransacao(It.IsAny<IDbTransaction>()));
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.CancelarTransacao());
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorEmail( It.IsAny<string>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbTransaction, string>((transaction, email) =>
+                .Callback< string>(( email) =>
                 {
                     Output.WriteLine($"Callback Email: {email}");
                     Assert.Equal(funcionario.Email.EnderecoEmail, email);
                 });
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>())).ReturnsAsync(Guid.Empty);
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Inserir(It.IsAny<Funcionario>())).ReturnsAsync(Guid.Empty);
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                 _mockLogger.Object, activity);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail(It.IsAny<IDbTransaction>(), It.IsAny<string>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorEmail( It.IsAny<string>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Inserir(It.IsAny<Funcionario>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.CancelarTransacao(It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.CancelarTransacao(), Times.Never);
         }
 
         #endregion
@@ -245,6 +264,7 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task AtualizarComEnderecoTelefone_Nao_OK_Quando_Registro_Nao_Existe()
         {
+            var activity = new ActivitySource("AtualizarComEnderecoTelefone_Nao_OK_Quando_Registro_Nao_Existe");
             var person = _faker.Person;
             var id = Guid.NewGuid();
 
@@ -259,25 +279,27 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new DateTime(1985, 08, 14)),
                 new Email(person.Email), telsNovo, enderecoNovo, enderecoNovo);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId( It.IsAny<Guid>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbTransaction, Guid>((transacao, id) =>
+                .Callback< Guid>(( id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                     Assert.Equal(funcionarioAtualizado.Id, id);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                _mockLogger.Object, activity);
 
             await Assert.ThrowsAsync<NullReferenceException>(async () => await service.Atualizar(funcionarioAtualizado));
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Never);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId( It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>()), Times.Never);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
         }
 
@@ -285,6 +307,7 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task AtualizarComEnderecoTelefone_Nao_OK_Quando_Registro_Nao_Atualizado()
         {
+            var activity = new ActivitySource("AtualizarComEnderecoTelefone_Nao_OK_Quando_Registro_Nao_Atualizado");
             var person = _faker.Person;
             var id = Guid.NewGuid();
 
@@ -299,22 +322,23 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new DateTime(1985, 08, 14)),
                 new Email(person.Email), telsNovo, enderecoNovo, enderecoNovo);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.CancelarTransacao(It.IsAny<IDbTransaction>()));
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.CancelarTransacao());
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId( It.IsAny<Guid>()))
                 .ReturnsAsync(funcionarioAtualizado)
-                .Callback<IDbTransaction, Guid>((transacao, id) =>
+                .Callback< Guid>(( id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                     Assert.Equal(funcionarioAtualizado.Id, id);
                 });
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Atualizar(It.IsAny<Funcionario>()))
                 .ReturnsAsync(false)
-                .Callback<Funcionario, IDbTransaction>((funcionario, transac) =>
+                .Callback<Funcionario>((funcionario) =>
                 {
                     funcionario.Nome.Should().Be(funcionarioAtualizado.Nome);
                     funcionario.DataNascimento.Should().Be(funcionarioAtualizado.DataNascimento);
@@ -322,15 +346,16 @@ namespace Cadastro.Test.Domain
                     funcionario.Matricula.Should().Be(funcionarioAtualizado.Matricula);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                 _mockLogger.Object, activity);
 
             await service.Atualizar(funcionarioAtualizado);
 
             Output.WriteLine($"Result: ok");
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId( It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Atualizar(It.IsAny<Funcionario>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.CancelarTransacao(It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.CancelarTransacao(), Times.Once);
         }
 
 
@@ -338,6 +363,7 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task AtualizarComEnderecoTelefone_OK_Quando_Registro_Existe()
         {
+            var activity = new ActivitySource("AtualizarComEnderecoTelefone_OK_Quando_Registro_Existe");
             var person = _faker.Person;
             var funcionarioId = Guid.NewGuid();
 
@@ -353,13 +379,14 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new DateTime(1985, 08, 14)),
                 new Email(person.Email), telsNovo, enderecoNovoResidencial, enderecoNovoComercial);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Transaction)
                 .Returns(_mockTransacao.Object);
 
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Atualizar(It.IsAny<Funcionario>()))
                 .ReturnsAsync(true)
-                .Callback<Funcionario, IDbTransaction>((funcionario, transac) =>
+                .Callback<Funcionario>((funcionario) =>
                 {
                     funcionario.Nome.Should().Be(funcionarioAtualizado.Nome);
                     funcionario.DataNascimento.Should().Be(funcionarioAtualizado.DataNascimento);
@@ -368,56 +395,57 @@ namespace Cadastro.Test.Domain
                 });
 
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.AtualizarEndereco(It.IsAny<Endereco>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.AtualizarEndereco(It.IsAny<Endereco>()))
                 .ReturnsAsync(true)
-                .Callback<Endereco, IDbTransaction>((endereco, transac) =>
+                .Callback<Endereco>((endereco) =>
                 {
                     endereco.Should().Be(enderecoNovoResidencial);
                 });
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.InserirEndereco(It.IsAny<Endereco>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.InserirEndereco(It.IsAny<Endereco>()))
                 .ReturnsAsync(true)
-                .Callback<Endereco, IDbTransaction>((endereco, transac) =>
+                .Callback<Endereco>((endereco) =>
                 {
                     endereco.Should().Be(enderecoNovoComercial);
                 });
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.AtualizarTelefone(It.IsAny<Telefone>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.AtualizarTelefone(It.IsAny<Telefone>()))
                 .ReturnsAsync(true)
-                .Callback<Telefone, IDbTransaction>((telefone, transac) =>
+                .Callback<Telefone>((telefone) =>
                 {
                     telefone.Should().Be(telsNovo.First(x => x.Id == 2));
                 });
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.InserirTelefone(It.IsAny<Telefone>(), It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.InserirTelefone(It.IsAny<Telefone>()))
                 .ReturnsAsync(true)
-                .Callback<Telefone, IDbTransaction>((telefone, transac) =>
+                .Callback<Telefone>((telefone) =>
                 {
                     telefone.Should().Be(telsNovo.First(x => x.Id == 0));
                 });
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId( It.IsAny<Guid>()))
                 .ReturnsAsync(new Funcionario(funcionarioId.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, "Silva"),
                 new DataNascimento(new DateTime(1987, 08, 14)),
                 new Email(person.Email), telsNovo, enderecoNovoResidencial, null))
-                .Callback<IDbTransaction, Guid>((transacao, id) =>
+                .Callback< Guid>(( id) =>
                 {
                     Output.WriteLine($"Callback ObterPorId: {id}");
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                 _mockLogger.Object, activity);
 
             await service.Atualizar(funcionarioAtualizado);
 
             Output.WriteLine($"Result: ok");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId( It.IsAny<Guid>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.AtualizarEndereco(It.IsAny<Endereco>(), It.IsAny<IDbTransaction>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.InserirEndereco(It.IsAny<Endereco>(), It.IsAny<IDbTransaction>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.AtualizarTelefone(It.IsAny<Telefone>(), It.IsAny<IDbTransaction>()), Times.Once);
-            _mockFuncionarioRepositorioEscrita.Verify(x => x.InserirTelefone(It.IsAny<Telefone>(), It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.AtualizarEndereco(It.IsAny<Endereco>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.InserirEndereco(It.IsAny<Endereco>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.AtualizarTelefone(It.IsAny<Telefone>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.InserirTelefone(It.IsAny<Telefone>()), Times.Once);
 
         }
         #endregion
@@ -427,6 +455,7 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task ObterPorId_OK_Quando_Registro_Existe()
         {
+            var activity = new ActivitySource("ObterPorId_OK_Quando_Registro_Existe");
             var person = _faker.Person;
             var id = Guid.NewGuid();
             var tels = new List<Telefone> {
@@ -438,58 +467,60 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
-            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao())
-                .Returns(_mockTransacao.Object);
-
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId( It.IsAny<Guid>()))
                 .ReturnsAsync(funcionario)
-                .Callback<IDbTransaction, Guid>((transacao, id) =>
+                .Callback< Guid>(( id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                     Assert.Equal(funcionario.Id, id);
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                 _mockLogger.Object, activity);
 
             var result = await service.ObterPorId(funcionario.Id);
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId( It.IsAny<Guid>()), Times.Once);
             result.Should().NotBeNull();
         }
 
         [Fact]
         public async Task ObterPorId_OK_Quando_Registro_Nao_Existe()
         {
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            var activity = new ActivitySource("ObterPorId_OK_Quando_Registro_Nao_Existe");
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId( It.IsAny<Guid>()))
                 .ReturnsAsync((Funcionario)null)
-                .Callback<IDbTransaction, Guid>((transacao, id) =>
+                .Callback< Guid>(( id) =>
                 {
                     Output.WriteLine($"Callback Email: {id}");
                 });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                  _mockLogger.Object, activity);
 
             var result = await service.ObterPorId(Guid.NewGuid());
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId( It.IsAny<Guid>()), Times.Once);
             result.Should().BeNull();
         }
 
         [Fact]
         public async Task ObterPorId_Nao_OK_Quando_Base_Nao_Disponivel()
         {
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()))
+            var activity = new ActivitySource("ObterPorId_Nao_OK_Quando_Base_Nao_Disponivel");
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId( It.IsAny<Guid>()))
                 .Throws(new Exception("Teste"));
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                  _mockLogger.Object, activity);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.ObterPorId(Guid.NewGuid()));
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<IDbTransaction>(), It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId( It.IsAny<Guid>()), Times.Once);
         }
         #endregion
 
@@ -498,6 +529,7 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task ObterPorTodos_OK_Quando_Registro_Existe()
         {
+            var activity = new ActivitySource("ObterPorTodos_OK_Quando_Registro_Existe");
             var person = _faker.Person;
             var id = Guid.NewGuid();
             var tels = new List<Telefone> {
@@ -509,16 +541,17 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
                 .ReturnsAsync(new List<Funcionario>() { funcionario });
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                   _mockLogger.Object, activity);
 
             var result = await service.ObterTodos();
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
             result.Should().NotBeNull();
             result.Should().HaveCount(1);
         }
@@ -526,16 +559,18 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task ObterPorTodos_OK_Quando_Registros_Nao_Existem()
         {
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
+            var activity = new ActivitySource("ObterPorTodos_OK_Quando_Registros_Nao_Existem");
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
                 .ReturnsAsync(new List<Funcionario>());
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                 _mockLogger.Object, activity);
 
             var result = await service.ObterTodos();
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
             result.Should().NotBeNull();
             result.Should().HaveCount(0);
         }
@@ -543,14 +578,16 @@ namespace Cadastro.Test.Domain
         [Fact]
         public async Task ObterPorTodos_Nao_OK_Quando_Base_Nao_Disponivel()
         {
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<IDbTransaction>()))
+            var activity = new ActivitySource("ObterPorTodos_Nao_OK_Quando_Base_Nao_Disponivel");
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
                 .Throws(new Exception("Teste"));
 
-            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object, _mockLogger.Object);
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                  _mockLogger.Object, activity);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.ObterTodos());
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<IDbTransaction>()), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
         }
         #endregion
     }

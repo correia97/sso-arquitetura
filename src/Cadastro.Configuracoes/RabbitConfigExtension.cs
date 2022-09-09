@@ -12,10 +12,9 @@ namespace Cadastro.Configuracoes
         {
             try
             {
-                IConnection connection = CreateConnection(configuration);
-                IModel model = connection.CreateModel();
+                var connection = CreateConnection(configuration);
+                var model = connection.CreateModel();
                 SetupRabbitMQ(model);
-                services.AddSingleton(connection);
                 services.AddSingleton(model);
             }
             catch (Exception ex)
@@ -26,14 +25,13 @@ namespace Cadastro.Configuracoes
             return services;
         }
 
-        public static IConnection CreateConnection(IConfiguration configuration)
+        private static IConnection CreateConnection(IConfiguration configuration)
         {
             var factory = new ConnectionFactory
             {
                 Uri = new Uri(configuration.GetValue<string>("rabbit"))
             };
-            IConnection connection = factory.CreateConnection();
-            return connection;
+            return factory.CreateConnection();
         }
 
         private static void SetupRabbitMQ(IModel model)

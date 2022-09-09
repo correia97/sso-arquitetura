@@ -14,11 +14,9 @@ namespace MVC.Services
     {
         private readonly string ServiceUrl;
         private ILogger<WeatherForecastService> _logger;
-        private readonly JsonSerializerOptions serializerOptions;
         public WeatherForecastService(IConfiguration configuration, ILogger<WeatherForecastService> logger)
         {
             ServiceUrl = configuration.GetValue<string>("ServiceUrl");
-            serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             _logger = logger;
         }
 
@@ -31,7 +29,7 @@ namespace MVC.Services
                                  .GetAsync();
 
                 if (result.ResponseMessage.IsSuccessStatusCode)
-                    return JsonSerializer.Deserialize<List<Forecast>>(await result.ResponseMessage.Content.ReadAsStringAsync(), serializerOptions);
+                    return JsonSerializer.Deserialize<List<Forecast>>(await result.ResponseMessage.Content.ReadAsStringAsync());
 
                 return null;
             }

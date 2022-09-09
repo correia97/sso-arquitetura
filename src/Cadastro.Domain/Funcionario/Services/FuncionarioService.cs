@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,95 +16,82 @@ namespace Cadastro.Domain.Services
         private readonly IFuncionarioReadRepository _repositoryRead;
         private readonly IFuncionarioWriteRepository _repositoryWrite;
         private readonly ILogger<FuncionarioService> _logger;
-        public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite, ILogger<FuncionarioService> logger)
+        private readonly ActivitySource _activitySource;
+        public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite, 
+                                     ILogger<FuncionarioService> logger, ActivitySource activitySource)
         {
             _repositoryRead = repositoryRead;
             _repositoryWrite = repositoryWrite;
             _logger = logger;
+            _activitySource = activitySource;
         }
         public async Task Atualizar(Funcionario funcionario)
         {
-            var transaction = _repositoryWrite.IniciarTransacao();
-            try
-            {
-                Funcionario baseFuncionario = await _repositoryRead.ObterPorId(transaction, funcionario.Id);
+            using var activity = _activitySource.StartActivity("Atualizar Funcionario", ActivityKind.Internal);
 
-                baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
-                baseFuncionario.AtualizarTelefones(funcionario.Telefones);
-                baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
-                baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
-                var result = await _repositoryWrite.Atualizar(baseFuncionario, transaction);
+            _repositoryWrite.IniciarTransacao();
+            Funcionario baseFuncionario = await _repositoryRead.ObterPorId( funcionario.Id);
+            baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
+            baseFuncionario.AtualizarTelefones(funcionario.Telefones);
+            baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
+            baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
 
-                if (!result)
-                    _repositoryWrite.CancelarTransacao(transaction);
+            var result = await _repositoryWrite.Atualizar(baseFuncionario);
 
-                if (funcionario.Telefones != null && funcionario.Telefones.Any())
-                    await TratarTelefones(funcionario.Telefones, transaction);
+            if (!result)
+                _repositoryWrite.CancelarTransacao();
+
+            if (funcionario.Telefones != null && funcionario.Telefones.Any())
+                await TratarTelefones(funcionario.Telefones);
+
+            if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
+                await TratarEndereco(funcionario.EnderecoResidencial);
 
 
-                if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
-                    await TratarEndereco(funcionario.EnderecoResidencial, transaction);
+            if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
+                await TratarEndereco(funcionario.EnderecoComercial);
 
-
-                if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
-                    await TratarEndereco(funcionario.EnderecoComercial, transaction);
-
-                _repositoryWrite.CompletarTransacao(transaction);
-            }
-            catch (Exception ex)
-            {
-                _repositoryWrite.CancelarTransacao(transaction);
-                _logger.LogError(ex, "Erro ao atualizar");
-                throw;
-            }
+            _repositoryWrite.CompletarTransacao();
         }
 
         public async Task Cadastrar(Funcionario funcionario)
         {
-            var transaction = _repositoryWrite.IniciarTransacao();
+            using var activity = _activitySource.StartActivity("Cadastrar Funcionario", ActivityKind.Internal);
+            _repositoryWrite.IniciarTransacao();
 
-            try
+            Funcionario data = await _repositoryRead.ObterPorEmail( funcionario.Email.EnderecoEmail);
+
+            if (data != null)
+                throw new InvalidOperationException("Funcionario já existe");
+
+            var result = await _repositoryWrite.Inserir(funcionario);
+
+            if (result == Guid.Empty)
+                throw new InvalidOperationException("Deu muito ruim!");
+
+            if (funcionario.Telefones != null && funcionario.Telefones.Any())
             {
-                Funcionario data = await _repositoryRead.ObterPorEmail(transaction, funcionario.Email.EnderecoEmail);
-
-                if (data != null)
-                    throw new InvalidOperationException("Funcionario já existe");
-
-                var result = await _repositoryWrite.Inserir(funcionario, transaction);
-
-                if (result == Guid.Empty)                
-                    throw new InvalidOperationException("Deu muito ruim!");                
-
-                if (funcionario.Telefones != null && funcionario.Telefones.Any())
-                {
-                    foreach (var item in funcionario.Telefones)
-                        await _repositoryWrite.InserirTelefone(item, transaction);
-                }
-
-                if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
-                    await _repositoryWrite.InserirEndereco(funcionario.EnderecoResidencial, transaction);
-
-
-                if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
-                    await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial, transaction);
-
-                _repositoryWrite.CompletarTransacao(transaction);
+                foreach (var item in funcionario.Telefones)
+                    await _repositoryWrite.InserirTelefone(item);
             }
-            catch (Exception ex)
-            {
-                _repositoryWrite.CancelarTransacao(transaction);
-                _logger.LogError(ex, "Erro ao Cadastrar");
-                throw;
-            }
+
+            if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
+                await _repositoryWrite.InserirEndereco(funcionario.EnderecoResidencial);
+
+
+            if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
+                await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial);
+
+            _repositoryWrite.CompletarTransacao();
         }
 
         public async Task<Funcionario> ObterPorId(Guid id)
         {
-            Funcionario funcionario = await _repositoryRead.ObterPorId(null, id);
+            using var activity = _activitySource.StartActivity("Obter Funcionario por Id", ActivityKind.Internal);
+            Funcionario funcionario = await _repositoryRead.ObterPorId( id);
 
-
-            var enderecos = await _repositoryRead.ObterEnderecosPorFuncionarioId(null, id);
-            var telefones = await _repositoryRead.ObterTelefonesPorFuncionarioId(null, id);
+            var enderecos = await _repositoryRead.ObterEnderecosPorFuncionarioId( id);
+            var telefones = await _repositoryRead.ObterTelefonesPorFuncionarioId( id);
 
             if (telefones != null && telefones.Any())
                 funcionario.AtualizarTelefones(telefones);
@@ -121,26 +109,29 @@ namespace Cadastro.Domain.Services
 
         public async Task<IEnumerable<Funcionario>> ObterTodos()
         {
-            IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos(null);
+            using var activity = _activitySource.StartActivity("Obter Funcionarios", ActivityKind.Internal);
+            IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos();
             return data;
         }
 
-        private async Task TratarEndereco(Endereco endereco, IDbTransaction transaction)
+        private async Task TratarEndereco(Endereco endereco)
         {
+            using var activity = _activitySource.StartActivity("Atualizar/Inserir Endereço", ActivityKind.Internal);
             if (endereco.Id > 0)
-                await _repositoryWrite.AtualizarEndereco(endereco, transaction);
+                await _repositoryWrite.AtualizarEndereco(endereco);
             else
-                await _repositoryWrite.InserirEndereco(endereco, transaction);
+                await _repositoryWrite.InserirEndereco(endereco);
         }
 
-        private async Task TratarTelefones(IEnumerable<Telefone> telefones, IDbTransaction transaction)
+        private async Task TratarTelefones(IEnumerable<Telefone> telefones)
         {
+            using var activity = _activitySource.StartActivity("Atualizar/Inserir Telefones", ActivityKind.Internal);
             foreach (var item in telefones)
             {
                 if (item.Id > 0)
-                    await _repositoryWrite.AtualizarTelefone(item, transaction);
+                    await _repositoryWrite.AtualizarTelefone(item);
                 else
-                    await _repositoryWrite.InserirTelefone(item, transaction);
+                    await _repositoryWrite.InserirTelefone(item);
             }
         }
     }

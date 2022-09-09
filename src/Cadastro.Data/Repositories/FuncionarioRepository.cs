@@ -30,7 +30,7 @@ namespace Cadastro.Data.Repositories
                             _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
                         });
         }
-        public async Task<Funcionario> ObterPorEmail(IDbTransaction transacao, string email)
+        public async Task<Funcionario> ObterPorEmail( string email)
         {
             var query = @"SELECT  id
                         , userid
@@ -49,15 +49,13 @@ namespace Cadastro.Data.Repositories
             var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
                     (funcionario, nome, dataNascimento, emailAddr) =>
                     {
-
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
-
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", param: new { email }, transaction: transacao));
+                    }, splitOn: "primeironome, date, enderecoemail", param: new { email }, transaction: this.Transaction));
             return result.FirstOrDefault();
         }
 
-        public override async Task<Funcionario> ObterPorId(IDbTransaction transacao, Guid id)
+        public override async Task<Funcionario> ObterPorId( Guid id)
         {
             var query = @"SELECT   id
                         , userid
@@ -79,15 +77,13 @@ namespace Cadastro.Data.Repositories
             var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
                     (funcionario, nome, dataNascimento, emailAddr) =>
                     {
-
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
-
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", param: paramId, transaction: transacao));
+                    }, splitOn: "primeironome, date, enderecoemail", param: paramId, transaction: this.Transaction));
             return result.FirstOrDefault();
         }
 
-        public override async Task<IEnumerable<Funcionario>> ObterTodos(IDbTransaction transacao)
+        public override async Task<IEnumerable<Funcionario>> ObterTodos()
         {
             var query = @"SELECT   id
                         , userid
@@ -106,13 +102,12 @@ namespace Cadastro.Data.Repositories
                     (funcionario, nome, dataNascimento, emailAddr) =>
                     {
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
-
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", transaction: transacao));
+                    }, splitOn: "primeironome, date, enderecoemail", transaction: this.Transaction));
             return result;
         }
 
-        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId(IDbTransaction transacao, Guid funcionarioId)
+        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId( Guid funcionarioId)
         {
             var query = @"Select id
                         , ddi
@@ -125,11 +120,11 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@funcionarioId", funcionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Telefone>(query, param, transaction: transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Telefone>(query, param, transaction: this.Transaction));
             return result.ToList();
         }
 
-        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId(IDbTransaction transacao, Guid funcionarioId)
+        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId( Guid funcionarioId)
         {
             var query = @"Select id
                         , rua        
@@ -147,11 +142,11 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@funcionarioId", funcionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Endereco>(query, param, transaction: transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Endereco>(query, param, transaction: this.Transaction));
             return result.ToList();
         }
 
-        public override async Task<bool> Atualizar(Funcionario data, IDbTransaction transacao)
+        public override async Task<bool> Atualizar(Funcionario data)
         {
             var query = @"UPDATE public.funcionarios SET
                           matricula       =@matricula
@@ -177,11 +172,11 @@ namespace Cadastro.Data.Repositories
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
             param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTime);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: this.Transaction));
             return result > 0;
         }
 
-        public override async Task<Guid> Inserir(Funcionario data, IDbTransaction transacao)
+        public override async Task<Guid> Inserir(Funcionario data)
         {
             var query = @"INSERT into public.funcionarios
                            (id
@@ -217,14 +212,14 @@ namespace Cadastro.Data.Repositories
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
             param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTime);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: this.Transaction));
             if (result > 0)
                 return data.Id;
 
             return Guid.Empty;
         }
 
-        public async Task<bool> AtualizarEndereco(Endereco endereco, IDbTransaction transacao)
+        public async Task<bool> AtualizarEndereco(Endereco endereco)
         {
             var query = @"UPDATE public.enderecos SET
                           rua           =@rua
@@ -248,11 +243,11 @@ namespace Cadastro.Data.Repositories
             param.Add("@tipoEndereco", endereco.TipoEndereco, DbType.Int32);
             param.Add("@id", endereco.Id);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
             return result > 0;
         }
 
-        public async Task<bool> AtualizarTelefone(Telefone telefone, IDbTransaction transacao)
+        public async Task<bool> AtualizarTelefone(Telefone telefone)
         {
             var query = @"UPDATE public.telefones SET
                           ddi                       =@ddi
@@ -267,11 +262,11 @@ namespace Cadastro.Data.Repositories
             param.Add("@ddd", telefone.DDD);
             param.Add("@numeroTelefone", telefone.NumeroTelefone);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
             return result > 0;
         }
 
-        public async Task<bool> InserirEndereco(Endereco endereco, IDbTransaction transacao)
+        public async Task<bool> InserirEndereco(Endereco endereco)
         {
             var query = @"INSERT into public.enderecos
                         ( rua        
@@ -304,11 +299,11 @@ namespace Cadastro.Data.Repositories
             param.Add("@tipoEndereco", endereco.TipoEndereco, DbType.Int32);
             param.Add("@funcionarioId", endereco.FuncionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
             return result > 0;
         }
 
-        public async Task<bool> InserirTelefone(Telefone telefone, IDbTransaction transacao)
+        public async Task<bool> InserirTelefone(Telefone telefone)
         {
             var query = @"INSERT into public.telefones
                            (ddi
@@ -326,11 +321,11 @@ namespace Cadastro.Data.Repositories
             param.Add("@telefone", telefone.NumeroTelefone);
             param.Add("@funcionarioId", telefone.FuncionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
             return result > 0;
         }
 
-        public async Task<bool> RemoverEndereco(int id, IDbTransaction transacao)
+        public async Task<bool> RemoverEndereco(int id)
         {
             var query = @"delete from public.enderecos
                            where id = @id";
@@ -338,11 +333,11 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@id", id);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
             return result > 0;
         }
 
-        public async Task<bool> RemoverTelefone(int id, IDbTransaction transacao)
+        public async Task<bool> RemoverTelefone(int id)
         {
             var query = @"delete from public.telefones
                            where id = @id";
@@ -350,7 +345,7 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@id", id);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, transacao));
+            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
             return result > 0;
         }
     }

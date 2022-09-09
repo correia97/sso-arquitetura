@@ -6,6 +6,7 @@ using Cadastro.WorkerService;
 using Cadastro.WorkerServices.Migrations;
 using Elastic.Apm.NetCoreAll;
 using FluentMigrator.Runner;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,8 @@ using Npgsql;
 using Serilog;
 using System;
 using System.Data;
+using System.Diagnostics;
+using System.Text.Json.Serialization;
 using System.Threading;
 
 void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
@@ -31,9 +34,7 @@ void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
     }
     catch (Exception ex)
     {
-
-        Console.WriteLine(ex.Message);
-        throw;
+        Log.Error(ex, "Erro ao rodar as migrations");
     }
 }
 
@@ -49,13 +50,9 @@ void CreateDataBase(IConfiguration configuration)
         m_createdb_cmd.ExecuteNonQuery();
         m_conn.Close();
     }
-    catch (PostgresException ex)
-    {
-        Console.WriteLine(ex.Message);
-    }
     catch (Exception ex)
     {
-        Console.WriteLine(ex.Message);
+        Log.Error(ex, "Erro ao criar base de dados");
     }
 }
 
@@ -66,7 +63,15 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         configuration = context.Configuration;
 
-        Log.Logger = LoggingExtension.AddCustomLogging(services, configuration, typeof(Worker).Assembly.FullName);
+        string serviceName = typeof(Worker).Assembly.GetName().Name;
+        string serviceVersion = typeof(Worker).Assembly.GetName().Version?.ToString();
+        var activity = new ActivitySource(serviceName, serviceVersion);
+        services.AddScoped<ActivitySource>(x => activity);
+
+        // services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, configuration);
+        // services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, configuration);
+
+        Log.Logger = LoggingExtension.AddCustomLogging(services, configuration, serviceName);
 
         services.AddHostedService<Worker>();
 
@@ -76,11 +81,21 @@ IHost host = Host.CreateDefaultBuilder(args)
             connection.Open();
             return connection;
         });
+
+        services.Configure<JsonOptions>(opt =>
+        {
+            opt.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
+            opt.SerializerOptions.UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement;
+            opt.SerializerOptions.PropertyNameCaseInsensitive = true;
+            opt.SerializerOptions.Converters.Add(new ExceptionConverter());
+        });
+
         services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioService, FuncionarioService>();
         services.AddFluentMigratorCore();
-        services.AddRabbitCustomConfiguration(context.Configuration);        
+
+        services.AddRabbitCustomConfiguration(configuration);
         services.ConfigureRunner(rb =>
         {
             rb.AddPostgres11_0();
@@ -88,12 +103,10 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
         });
     })
-    .UseAllElasticApm()
+    //.UseAllElasticApm()
     .Build();
 
 UpdateDatabase(host.Services, configuration);
-
-//AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 try
 {

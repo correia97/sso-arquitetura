@@ -1,3 +1,4 @@
+using Cadastro.Configuracoes;
 using Cadastro.Domain.Services;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;

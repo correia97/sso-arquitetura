@@ -1,3 +1,4 @@
+using Cadastro.Configuracoes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,25 +18,12 @@ namespace Cadastro.WorkerService
         private readonly ILogger<Worker> _logger;
         private readonly IModel _model;
         private readonly IServiceProvider _serviceProvider;
-        private readonly Policy _retryPolicy;
         private readonly AsyncPolicy _retryAsyncPolicy;
         public RabbitMQWorkerService(ILogger<Worker> logger, IModel model, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _model = model;
             _serviceProvider = serviceProvider;
-            _retryPolicy = Policy.Handle<TimeoutException>()
-                        .Or<Exception>()
-                        .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)),
-                        (exception, timeSpan, retryCount, context) =>
-                        {
-                            // Add logic to be executed before each retry, such as logging
-                            _logger.LogInformation("-------------------------------------------------------");
-                            _logger.LogInformation("-------------------------------------------------------");
-                            _logger.LogInformation("-------------------------------------------------------");
-                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
-                        });
-
 
             _retryAsyncPolicy = Policy.Handle<TimeoutException>()
                         .Or<Exception>()
