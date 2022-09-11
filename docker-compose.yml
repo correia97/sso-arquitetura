@@ -293,8 +293,6 @@ services:
   #   networks:
   #     - externo
 
-
-
   Keycloak:
    image: quay.io/keycloak/keycloak:19.0.1
    container_name: Keycloak
@@ -315,9 +313,10 @@ services:
      - KC_FEATURES=token-exchange
      - KC_HEALTH_ENABLED=true
    volumes:
-     - ./src/keycloak/realm-export 05-09-2022.json:/data/import/realm.json  
+     - ./src/keycloak/realm-export v19.0.1.json:/opt/keycloak/data/import/realm.json  
    depends_on:
-     - db
+     db:
+      condition: service_started
    networks:
      - base
      - externo
