@@ -1,6 +1,5 @@
 ﻿using Domain.Entities;
 using System;
-using System.Data;
 using System.Threading.Tasks;
 
 namespace Cadastro.Domain.Interfaces

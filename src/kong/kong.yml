@@ -1,0 +1,52 @@
+_format_version: "1.1"
+
+services:
+  - name: cadastro
+    host: cadastro.api
+    port: 80    
+    protocol: http
+    read_timeout: 60000
+    retries: 5
+    write_timeout: 60000
+    connect_timeout: 60000
+    routes:
+      - name: cadastro-route
+        strip_path: true
+        paths:
+          - /api/v1/Funcionario/funcionario
+          - /api/v1/Funcionario/funcionario/{id}
+      - name: weather-route
+        strip_path: true
+        paths:
+          - /api/weatherforecast/weatherforecast
+          - /api/weatherforecast/authorization
+
+plugins:
+  - name: key-auth
+    service: catalog
+    config:
+      hide_credentials: true
+      key_names:
+        - apikey
+
+  - name: rate-limiting
+    config:
+      minute: 5
+      policy: local
+      
+  - name: proxy-cache
+    route: weather-route
+    config:
+      content_type:
+      - "application/json; charset=utf-8"
+      cache_ttl: 30
+      strategy: memory
+      response_code:
+      - 200
+      request_method:
+      - GET
+
+consumers:
+  - username: cadastro.mvc
+    keyauth_credentials:
+      - key: cadastro-mvc-mudar12345

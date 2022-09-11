@@ -4,7 +4,6 @@ using Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,8 +16,8 @@ namespace Cadastro.Domain.Services
         private readonly IFuncionarioWriteRepository _repositoryWrite;
         private readonly ILogger<FuncionarioService> _logger;
         private readonly ActivitySource _activitySource;
-        public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite, 
-                                     ILogger<FuncionarioService> logger, ActivitySource activitySource)
+        public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite,
+                                 ILogger<FuncionarioService> logger, ActivitySource activitySource)
         {
             _repositoryRead = repositoryRead;
             _repositoryWrite = repositoryWrite;
@@ -29,24 +28,26 @@ namespace Cadastro.Domain.Services
         {
             using var activity = _activitySource.StartActivity("Atualizar Funcionario", ActivityKind.Internal);
 
-            _repositoryWrite.IniciarTransacao();
-            Funcionario baseFuncionario = await _repositoryRead.ObterPorId( funcionario.Id);
+            Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
             baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
             baseFuncionario.AtualizarTelefones(funcionario.Telefones);
             baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
             baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
 
+            _repositoryWrite.IniciarTransacao();
             var result = await _repositoryWrite.Atualizar(baseFuncionario);
 
             if (!result)
+            {
                 _repositoryWrite.CancelarTransacao();
+                throw new InvalidOperationException("Deu muito ruim!");
+            }
 
             if (funcionario.Telefones != null && funcionario.Telefones.Any())
                 await TratarTelefones(funcionario.Telefones);
 
             if (funcionario.EnderecoResidencial != null && !string.IsNullOrEmpty(funcionario.EnderecoResidencial.Rua))
                 await TratarEndereco(funcionario.EnderecoResidencial);
-
 
             if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                 await TratarEndereco(funcionario.EnderecoComercial);
@@ -57,17 +58,20 @@ namespace Cadastro.Domain.Services
         public async Task Cadastrar(Funcionario funcionario)
         {
             using var activity = _activitySource.StartActivity("Cadastrar Funcionario", ActivityKind.Internal);
-            _repositoryWrite.IniciarTransacao();
 
-            Funcionario data = await _repositoryRead.ObterPorEmail( funcionario.Email.EnderecoEmail);
+            Funcionario data = await _repositoryRead.ObterPorEmail(funcionario.Email.EnderecoEmail);
 
             if (data != null)
                 throw new InvalidOperationException("Funcionario já existe");
 
+            _repositoryWrite.IniciarTransacao();
             var result = await _repositoryWrite.Inserir(funcionario);
 
-            if (result == Guid.Empty)
+            if (!result)
+            {
+                _repositoryWrite.CancelarTransacao();
                 throw new InvalidOperationException("Deu muito ruim!");
+            }
 
             if (funcionario.Telefones != null && funcionario.Telefones.Any())
             {
@@ -88,10 +92,10 @@ namespace Cadastro.Domain.Services
         public async Task<Funcionario> ObterPorId(Guid id)
         {
             using var activity = _activitySource.StartActivity("Obter Funcionario por Id", ActivityKind.Internal);
-            Funcionario funcionario = await _repositoryRead.ObterPorId( id);
+            Funcionario funcionario = await _repositoryRead.ObterPorId(id);
 
-            var enderecos = await _repositoryRead.ObterEnderecosPorFuncionarioId( id);
-            var telefones = await _repositoryRead.ObterTelefonesPorFuncionarioId( id);
+            var enderecos = await _repositoryRead.ObterEnderecosPorFuncionarioId(id);
+            var telefones = await _repositoryRead.ObterTelefonesPorFuncionarioId(id);
 
             if (telefones != null && telefones.Any())
                 funcionario.AtualizarTelefones(telefones);

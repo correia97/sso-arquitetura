@@ -58,7 +58,7 @@ services:
       - 4200:80
 
   db:
-    image: postgres:14.5-alpine
+    image: postgres:11.17-alpine
     container_name: cadastro.db
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -76,7 +76,7 @@ services:
       - ./src/database/create_dbs.sql:/docker-entrypoint-initdb.d/init.sql
 
   rabbitmq:    
-    image: rabbitmq:3.9-plugins
+    image: rabbitmq:3.10.7-management-plugins
     container_name: rabbitmq
     build:
       context: ./src/Rabbitmq
@@ -326,7 +326,7 @@ services:
      - 9099:9090
 
   kong_setup:
-    image: kong/kong-gateway:2.8.1.4-alpine
+    image: kong/kong-gateway:3.0.0.0-alpine
     command: 
         kong migrations bootstrap
     environment:
@@ -343,9 +343,12 @@ services:
       db:
         condition: service_started  
   kong:
-    image: kong/kong-gateway:2.8.1.4-alpine
-    container_name: kong
+    image: kong/kong-gateway:3.0.0.0-alpine
+    container_name: kong    
+    volumes:
+      - ./src/kong/kong.yml:/kong/declarative/kong.yml
     environment:
+      - KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml
       - KONG_DATABASE=postgres   
       - KONG_PG_HOST=db
       - KONG_PG_PASSWORD=postgres
@@ -357,10 +360,10 @@ services:
       - KONG_ADMIN_ACCESS_LOG=/dev/stdout
       - KONG_PROXY_ERROR_LOG=/dev/stderr
       - KONG_ADMIN_ERROR_LOG=/dev/stderr
-    restart:   on-failure
+    restart: on-failure
     healthcheck:
        test:
-        - curl -i -X GET --url http://localhost:8001/services  
+        - CMD kong health
        interval: 3s
        timeout: 10s
        retries: 5
@@ -382,6 +385,24 @@ services:
       kong_setup:  
         condition: service_completed_successfully
 
+
+  konga_setup:
+    image: pantsel/konga:latest
+    command:
+      -c prepare -a postgres -u postgresql://postgres:postgres@db:5432/konga
+    environment:      
+      - DB_PG_SCHEMA=public
+      - KONGA_LOG_LEVEL=info    
+      - NODE_ENV=development  
+    restart: on-failure
+    networks:
+      - base
+    depends_on:
+      db:
+        condition: service_started  
+      kong:  
+        condition: service_started
+
   konga:
     image: pantsel/konga:latest
     container_name: konga
@@ -396,6 +417,8 @@ services:
       - DB_DATABASE=konga
       - DB_PG_SCHEMA=public
       - KONGA_LOG_LEVEL=info    
+      - NODE_ENV=development
+      - NO_AUTH=true
     ports:
       - 1337:1337   
     networks:
@@ -406,6 +429,8 @@ services:
         condition: service_started  
       kong:  
         condition: service_started
+      konga_setup:
+        condition: service_completed_successfully  
 
 
   nginx:

@@ -25,15 +25,16 @@ namespace Cadastro.Configuracoes
                         ResourceBuilder.CreateDefault()
                             .AddService(serviceName: serviceName,
                                 serviceVersion: serviceVersion))
-                   .AddGrpcCoreInstrumentation()
-                   .AddHttpClientInstrumentation()
-                   .AddAspNetCoreInstrumentation()
+                    .AddGrpcCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddAspNetCoreInstrumentation()
                     .AddSqlClientInstrumentation()
                     .AddConsoleExporter()
                     .AddJaegerExporter();
             });
 
-            services.Configure<AspNetCoreInstrumentationOptions>((options) => options.Enrich
+            services.Configure<AspNetCoreInstrumentationOptions>((options)
+                    => options.Enrich
                     = (activity, eventName, rawObject) =>
                     {
                         if (eventName.Equals("OnStartActivity"))
@@ -52,7 +53,8 @@ namespace Cadastro.Configuracoes
                         }
                     });
 
-            services.Configure<JaegerExporterOptions>(exporter => {
+            services.Configure<JaegerExporterOptions>(exporter =>
+            {
 
                 exporter.AgentHost = config.GetSection("jaeger:host").Value;
                 exporter.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);

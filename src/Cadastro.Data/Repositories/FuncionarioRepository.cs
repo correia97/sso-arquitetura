@@ -1,4 +1,5 @@
-﻿using Cadastro.Domain.Interfaces;
+﻿using Cadastro.Domain.Enums;
+using Cadastro.Domain.Interfaces;
 using Dapper;
 using Domain.Entities;
 using Domain.ValueObject;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cadastro.Data.Repositories
@@ -28,9 +30,13 @@ namespace Cadastro.Data.Repositories
                         {
                             // Add logic to be executed before each retry, such as logging
                             _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
+
+                            if (exception.Message.Contains("A transaction is already in progress"))
+                                Thread.Sleep(100);
                         });
+            Status = TransactionStatusEnum.None;
         }
-        public async Task<Funcionario> ObterPorEmail( string email)
+        public async Task<Funcionario> ObterPorEmail(string email)
         {
             var query = @"SELECT  id
                         , userid
@@ -46,16 +52,16 @@ namespace Cadastro.Data.Repositories
                         from public.funcionarios
                         where enderecoemail = @email";
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
                     (funcionario, nome, dataNascimento, emailAddr) =>
                     {
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", param: new { email }, transaction: this.Transaction));
+                    }, splitOn: "primeironome, date, enderecoemail", param: new { email }, transaction: Transaction));
             return result.FirstOrDefault();
         }
 
-        public override async Task<Funcionario> ObterPorId( Guid id)
+        public override async Task<Funcionario> ObterPorId(Guid id)
         {
             var query = @"SELECT   id
                         , userid
@@ -74,12 +80,12 @@ namespace Cadastro.Data.Repositories
             var paramId = new DynamicParameters();
             paramId.Add("@id", id.ToString(), DbType.String);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
                     (funcionario, nome, dataNascimento, emailAddr) =>
                     {
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", param: paramId, transaction: this.Transaction));
+                    }, splitOn: "primeironome, date, enderecoemail", param: paramId, transaction: Transaction));
             return result.FirstOrDefault();
         }
 
@@ -98,16 +104,16 @@ namespace Cadastro.Data.Repositories
                         , enderecoemail
                         FROM public.funcionarios";
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
                     (funcionario, nome, dataNascimento, emailAddr) =>
                     {
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", transaction: this.Transaction));
+                    }, splitOn: "primeironome, date, enderecoemail", transaction: Transaction));
             return result;
         }
 
-        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId( Guid funcionarioId)
+        public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId(Guid funcionarioId)
         {
             var query = @"Select id
                         , ddi
@@ -120,11 +126,11 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@funcionarioId", funcionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Telefone>(query, param, transaction: this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Telefone>(query, param, transaction: Transaction));
             return result.ToList();
         }
 
-        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId( Guid funcionarioId)
+        public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId(Guid funcionarioId)
         {
             var query = @"Select id
                         , rua        
@@ -142,7 +148,7 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@funcionarioId", funcionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.QueryAsync<Endereco>(query, param, transaction: this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Endereco>(query, param, transaction: Transaction));
             return result.ToList();
         }
 
@@ -172,11 +178,11 @@ namespace Cadastro.Data.Repositories
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
             param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTime);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(sql: query, param: param, transaction: Transaction));
             return result > 0;
         }
 
-        public override async Task<Guid> Inserir(Funcionario data)
+        public override async Task<bool> Inserir(Funcionario data)
         {
             var query = @"INSERT into public.funcionarios
                            (id
@@ -212,11 +218,9 @@ namespace Cadastro.Data.Repositories
             param.Add("@enderecoEmail", data.Email.EnderecoEmail);
             param.Add("@date", data.DataNascimento.Date > DateTime.MinValue ? data.DataNascimento.Date.ToUniversalTime() : null, DbType.DateTime);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(sql: query, param: param, transaction: this.Transaction));
-            if (result > 0)
-                return data.Id;
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(sql: query, param: param, transaction: Transaction));
 
-            return Guid.Empty;
+            return result > 0;
         }
 
         public async Task<bool> AtualizarEndereco(Endereco endereco)
@@ -243,7 +247,7 @@ namespace Cadastro.Data.Repositories
             param.Add("@tipoEndereco", endereco.TipoEndereco, DbType.Int32);
             param.Add("@id", endereco.Id);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
             return result > 0;
         }
 
@@ -262,7 +266,7 @@ namespace Cadastro.Data.Repositories
             param.Add("@ddd", telefone.DDD);
             param.Add("@numeroTelefone", telefone.NumeroTelefone);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
             return result > 0;
         }
 
@@ -299,7 +303,7 @@ namespace Cadastro.Data.Repositories
             param.Add("@tipoEndereco", endereco.TipoEndereco, DbType.Int32);
             param.Add("@funcionarioId", endereco.FuncionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
             return result > 0;
         }
 
@@ -321,7 +325,7 @@ namespace Cadastro.Data.Repositories
             param.Add("@telefone", telefone.NumeroTelefone);
             param.Add("@funcionarioId", telefone.FuncionarioId);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
             return result > 0;
         }
 
@@ -333,7 +337,7 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@id", id);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
             return result > 0;
         }
 
@@ -345,8 +349,10 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@id", id);
 
-            var result = await _retryPolicy.ExecuteAsync(() => connection.ExecuteAsync(query, param, this.Transaction));
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
             return result > 0;
         }
+
+
     }
 }

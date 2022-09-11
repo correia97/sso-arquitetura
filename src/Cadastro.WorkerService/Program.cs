@@ -4,7 +4,6 @@ using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
 using Cadastro.WorkerService;
 using Cadastro.WorkerServices.Migrations;
-using Elastic.Apm.NetCoreAll;
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;

@@ -19,10 +19,8 @@ using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Data;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Builder.Extensions;
-using Elastic.Apm.Api;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 

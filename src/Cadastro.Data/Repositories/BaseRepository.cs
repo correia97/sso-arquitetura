@@ -11,47 +11,46 @@ namespace Cadastro.Data.Repositories
         IWriteRepository<T, U>,
         IReadRepository<T, U> where T : EntityBase<U>
     {
-
-        protected readonly string conexao;
-        protected readonly IDbConnection connection;
-
-        public IDbTransaction Transaction { get; private set; }
-        private TransactionStatusEnum Status { get; set; } = TransactionStatusEnum.None;
+        protected IDbConnection Connection { get; set; }
+        protected IDbTransaction Transaction { get; set; }
+        protected TransactionStatusEnum Status { get; set; }
         protected BaseRepository(IDbConnection connection)
         {
-            this.connection = connection;
+            this.Connection = connection;
         }
+
+        public abstract Task<IEnumerable<T>> ObterTodos();
+
+        public abstract Task<T> ObterPorId(U id);
+
+        public abstract Task<bool> Inserir(T data);
+
+        public abstract Task<bool> Atualizar(T data);
 
         public virtual void IniciarTransacao()
         {
-            Transaction = connection.BeginTransaction();
+            Transaction = Connection.BeginTransaction();
             Status = TransactionStatusEnum.Started;
         }
 
         public virtual void CompletarTransacao()
         {
-            Transaction.Commit();
+            Transaction?.Commit();
             Status = TransactionStatusEnum.Completed;
         }
 
         public virtual void CancelarTransacao()
         {
-            Transaction.Rollback();
+            Transaction?.Rollback();
             Status = TransactionStatusEnum.Canceled;
         }
         public virtual void Dispose()
         {
             if (Status == TransactionStatusEnum.Started)
-                CancelarTransacao();
+                Transaction?.Rollback();
+            Status = TransactionStatusEnum.None;
+            Transaction?.Dispose();
         }
-
-        public abstract Task<IEnumerable<T>> ObterTodos();
-
-        public abstract Task<T> ObterPorId( U id);
-
-        public abstract Task<U> Inserir(T data);
-
-        public abstract Task<bool> Atualizar(T data);      
 
     }
 }

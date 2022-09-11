@@ -30,7 +30,7 @@ namespace Cadastro.Configuracoes
                 TextFormatter = logFormatter,
             };
 
-            Log.Logger = new LoggerConfiguration()                
+            Log.Logger = new LoggerConfiguration()
                       .MinimumLevel.Warning()
                       .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                       .Enrich.WithProperty("App Name", serviceName)

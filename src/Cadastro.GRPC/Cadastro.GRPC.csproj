@@ -7,13 +7,14 @@
     <UserSecretsId>5250b97a-7bf5-49be-9a66-ce81cd33689d</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
+    <Version>0.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <Protobuf Include="Protos\funcionariogrpc.proto" GrpcServices="Server" />
   </ItemGroup>
   <ItemGroup>
-	<Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,8 +1,6 @@
 using Cadastro.Configuracoes;
 using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Services;
-using Elastic.Apm.Api;
-using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;

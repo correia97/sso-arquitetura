@@ -11,7 +11,7 @@ namespace MVC.Controllers
     public class AccountController : BaseController
     {
         private readonly ILogger<AccountController> _logger;
-        public AccountController(ILogger<AccountController> logger )
+        public AccountController(ILogger<AccountController> logger)
         {
             _logger = logger;
         }
