@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  authBaseUrl : 'http://keycloak.paulocorreia.dev.br',
+  authBaseUrl : 'https://keycloak.localhost',
   clientAuth: 'exemplo1',
   apiBaseUrl: 'https://api.localhost',
   audience: '',

@@ -1,21 +1,14 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
-
-
+import {  NgModule } from '@angular/core';
 import { environment } from './../environments/environment';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthModule, LogLevel, OidcConfigService } from 'angular-auth-oidc-client';
+import { AuthModule, LogLevel } from 'angular-auth-oidc-client';
 import { HomeComponent } from './home/home.component';
 import { ClaimsComponent } from './claims/claims.component';
 import { HttpClientModule } from '@angular/common/http';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
-
-
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,6 +31,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
         silentRenew: true,
         silentRenewUrl: `${window.location.origin}/silent-renew.html`,
         logLevel: LogLevel.Debug,
+        useRefreshToken: true,
         postLoginRoute: 'claims',
         customParamsAuthRequest: {
           audience: environment.audience

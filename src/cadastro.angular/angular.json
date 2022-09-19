@@ -192,5 +192,8 @@
       }
     }
   },
-  "defaultProject": "angularkeycloakprotect"
+  "defaultProject": "angularkeycloakprotect",
+  "cli": {
+    "analytics": "006ddab5-4ffc-4b6e-9c1a-8d315ec0f6bc"
+  }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
+
 import  jwd_decode from 'jwt-decode';
 
 @Component({
@@ -33,10 +34,17 @@ export class ClaimsComponent implements OnInit {
  
           console.log('------------------------------payload------------------------------------------------------' );
           console.log(pay );
-          console.log(this.oidcSecurityService?.getAccessToken());
-          console.log(this.oidcSecurityService?.getIdToken());
-          this.jwt = jwd_decode(this.oidcSecurityService?.getAccessToken());
-          this.idToken = jwd_decode(this.oidcSecurityService?.getIdToken());
+          this.oidcSecurityService?.getAccessToken()
+                                   .subscribe((token) => {
+            console.log(token);
+            this.jwt = jwd_decode(token);
+          });
+          this.oidcSecurityService?.getIdToken()
+                                   .subscribe((token) => {
+            console.log(token);
+            this.idToken = jwd_decode(token);
+
+          });
           console.log('----------------------------------------jwt----------------------------------------------------');
           console.log(this.jwt );
           this.payload = pay;

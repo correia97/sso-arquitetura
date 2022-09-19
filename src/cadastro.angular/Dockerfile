@@ -1,10 +1,10 @@
-FROM nginx:1.21.0-alpine as base
+FROM nginx:1.23.1-alpine as base
 
-FROM node:16-buster as build-step
+FROM node:18.9.0-buster as build-step
 WORKDIR /app
 USER root
 COPY package.json .
-RUN npm install -g @angular/cli@12.1.1 --force && \
+RUN npm install -g @angular/cli@14.2.3 --force && \
         npm install --force
 
 COPY . .
