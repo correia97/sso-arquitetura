@@ -4,7 +4,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 ENV TZ=America/Sao_Paulo
 RUN cat /usr/share/zoneinfo/$TZ > /etc/localtime \
 		&& cat /usr/share/zoneinfo/$TZ > /etc/timezone \
-		&& update-ca-certificates
+		&& update-ca-certificates \
+        rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -31,4 +32,6 @@ RUN dotnet publish ./Cadastro.WorkerService/Cadastro.WorkerService.csproj -c Rel
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./src/nginx/certificate/ /usr/local/share/ca-certificates/
+RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "Cadastro.WorkerService.dll"]

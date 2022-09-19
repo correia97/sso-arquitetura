@@ -299,6 +299,9 @@ services:
    command:
     - start-dev --import-realm
    environment:
+     - KC_HTTP_ENABLED=true
+     - KC_LOG=console
+     - KC_HTTP_PORT=8080
      - KC_DB=postgres
      - KC_DB_USERNAME=postgres
      - KC_DB_PASSWORD=postgres

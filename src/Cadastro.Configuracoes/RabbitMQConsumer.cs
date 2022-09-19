@@ -1,27 +1,22 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace Cadastro.WorkerService
+namespace Cadastro.Configuracoes
 {
-    public abstract class RabbitMQWorkerService : BackgroundService
+    public class RabbitMQConsumer
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<RabbitMQConsumer> _logger;
         private readonly IModel _model;
         private readonly IServiceProvider _serviceProvider;
         private readonly AsyncPolicy _retryAsyncPolicy;
-
         private readonly ActivitySource _activity;
-        public RabbitMQWorkerService(ILogger<Worker> logger, ActivitySource activity, IModel model, IServiceProvider serviceProvider)
+        public RabbitMQConsumer(ILogger<RabbitMQConsumer> logger, ActivitySource activity, IModel model, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _model = model;
@@ -39,7 +34,7 @@ namespace Cadastro.WorkerService
                             _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
                         });
         }
-        protected void AddConsumer<TService, TMessage>(Func<TService, TMessage, Task> action, string queue)
+        public void AddConsumer<TService, TMessage>(Func<TService, TMessage, Task> action, string queue)
         {
             _model.BasicQos(prefetchSize: 0, prefetchCount: 20, global: false);
 
@@ -60,7 +55,7 @@ namespace Cadastro.WorkerService
 
             if (ea.BasicProperties.Headers != null &&
                 ea.BasicProperties.Headers.Any(x => x.Key == "x-death"))
-                dlqCount = (int)ea.BasicProperties.Headers.First(x => x.Key == "x-death").Value;
+                dlqCount = (int)ea.BasicProperties.Headers.First(x => x.Key == "x-death").Value;            
 
             try
             {

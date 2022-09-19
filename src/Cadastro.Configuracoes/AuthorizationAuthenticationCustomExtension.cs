@@ -1,4 +1,5 @@
 ﻿using Cadastro.Domain.Entities;
+using Domain.ValueObject;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -7,11 +8,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using PEFile;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Google.Protobuf.WellKnownTypes;
+using MongoDB.Bson;
 
 namespace Cadastro.Configuracoes
 {
@@ -55,7 +63,8 @@ namespace Cadastro.Configuracoes
                             OnTokenValidated = context =>
                             {
                                 var token = (JwtSecurityToken)context.SecurityToken;
-                                var payload = JsonSerializer.Deserialize<TokenPayload>(token.Payload.SerializeToJson());
+                                var jsonPayload = token.Payload.SerializeToJson();
+                                var payload = JsonSerializer.Deserialize<TokenPayload>(jsonPayload);
                                 context.Principal.AddIdentities(FillToken(payload));
                                 return Task.CompletedTask;
                             },
@@ -79,10 +88,10 @@ namespace Cadastro.Configuracoes
         private static List<ClaimsIdentity> FillToken(TokenPayload payload)
         {
             var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.GivenName, payload.given_name));
-            claims.Add(new Claim(ClaimTypes.Name, payload.name));
-            claims.Add(new Claim(ClaimTypes.Email, payload.email));
-            claims.Add(new Claim(ClaimTypes.Surname, payload.family_name));
+            claims.Add(new Claim(ClaimTypes.GivenName, payload?.given_name));
+            claims.Add(new Claim(ClaimTypes.Name, payload?.name));
+            claims.Add(new Claim(ClaimTypes.Email, payload?.email));
+            claims.Add(new Claim(ClaimTypes.Surname, payload?.family_name));
             claims.Add(new Claim("userId", payload.sub));
 
             AddClaimFromRoleList(claims, payload.group);
@@ -111,7 +120,10 @@ namespace Cadastro.Configuracoes
             var clientSecret = configuration.GetValue<string>("ClientSecret");
             var complement = configuration.GetValue<string>("UrlComplement");
             var baseUrl = configuration.GetValue<string>("BaseAuthUrl");
+            var metaDataUrl = configuration.GetValue<string>("MetaDataUrl");
             var authUrl = $"{baseUrl}{complement}";
+
+            IdentityModelEventSource.ShowPII = true;
 
             services.AddAuthentication(options =>
             {
@@ -130,6 +142,7 @@ namespace Cadastro.Configuracoes
                options.ClientId = clientId;
                options.ClientSecret = clientSecret;
                options.ClaimsIssuer = authUrl;
+               options.MetadataAddress = $"{metaDataUrl}{complement}/.well-known/openid-configuration";
                //options.UsePkce = true;
                // Para o fusionAuth só vai o code
                options.ResponseType = environment.EnvironmentName == "Fusionauth" ? OpenIdConnectResponseType.Code : OpenIdConnectResponseType.CodeIdTokenToken;
@@ -139,16 +152,39 @@ namespace Cadastro.Configuracoes
                options.Scope.Add("email");
                options.RequireHttpsMetadata = false;
                options.SaveTokens = true;
-               options.MetadataAddress = $"{authUrl}.well-known/openid-configuration";
 
                options.GetClaimsFromUserInfoEndpoint = true;
-               // options.CallbackPath = new PathString("/callback");
+               options.NonceCookie.SameSite = SameSiteMode.Unspecified;
+               options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
+
+              // options.CallbackPath = new PathString("/Funcionario");
+
+               //options.TokenValidationParameters.ValidIssuer = authUrl;
+               //options.TokenValidationParameters.ValidAudience = clientId;
+
+
+               var configManager = new ConfigurationManager<OpenIdConnectConfiguration>($"{metaDataUrl}{complement}/.well-known/openid-configuration",
+                   new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever() { RequireHttps = false });
+
+               var openidconfig =  configManager.GetConfigurationAsync().Result;
+
+               options.TokenValidationParameters = new TokenValidationParameters
+               {
+                   //NameClaimType = "name",
+                   //RoleClaimType = ClaimTypes.Role,
+                   ValidateIssuer = true,
+                   ValidIssuer = authUrl,
+                   ValidAudience = clientId,
+                   IssuerSigningKeys = openidconfig.SigningKeys,                   
+               };
+
+               options.Configuration = openidconfig;
+               
 
                //options.TokenValidationParameters.IssuerSigningKey = key;
-               //options.TokenValidationParameters.ValidateIssuer = false;
-               //options.TokenValidationParameters.ValidateAudience = false;
+               // options.TokenValidationParameters.ValidateAudience = false;
 
-               options.Events = SetupOpenIdConnectEvents();
+               options.Events = SetupOpenIdConnectEvents($"{baseUrl}{complement}", metaDataUrl);
 
            });
 
@@ -172,7 +208,7 @@ namespace Cadastro.Configuracoes
             return services;
         }
 
-        private static OpenIdConnectEvents SetupOpenIdConnectEvents()
+        private static OpenIdConnectEvents SetupOpenIdConnectEvents(string authUrl, string metaDataUrl)
         {
             var events = new OpenIdConnectEvents
             {
@@ -181,13 +217,29 @@ namespace Cadastro.Configuracoes
                     var tokenJwt = context.SecurityToken;
                     if (tokenJwt != null && !string.IsNullOrEmpty(tokenJwt.RawPayload))
                     {
-                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-                        Debug.WriteLine(tokenJwt.Payload.SerializeToJson());
-                        Debug.WriteLine($"---------------------------------- Token ---------------------------------------------");
-
                         var payload = JsonSerializer.Deserialize<TokenPayload>(tokenJwt.Payload.SerializeToJson());
                         context.Principal.AddIdentities(FillToken(payload));
                     }
+                    return Task.CompletedTask;
+                },
+                OnMessageReceived = context =>
+                {
+                    return Task.CompletedTask;
+                },
+                OnAuthorizationCodeReceived = context =>
+                {
+                    return Task.CompletedTask;
+                },
+                OnTicketReceived = context =>
+                {
+                    return Task.CompletedTask;
+                },
+                OnTokenResponseReceived = context =>
+                {
+                    return Task.CompletedTask;
+                },
+                OnUserInformationReceived = context =>
+                {
                     return Task.CompletedTask;
                 },
                 OnAuthenticationFailed = context =>

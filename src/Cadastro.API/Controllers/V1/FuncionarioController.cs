@@ -101,7 +101,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoComercial?.Cidade,
                                                                              funcionario.EnderecoComercial?.UF,
                                                                              Domain.Enums.TipoEnderecoEnum.Comercial,
-                                                                             Guid.Parse(funcionario.UserId))));
+                                                                             Guid.Parse(funcionario.UserId))), correlationId);
 
                 return Ok(new { received = result });
             }
@@ -153,7 +153,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              Domain.Enums.TipoEnderecoEnum.Comercial,
                                                                              Guid.Parse(funcionario.UserId)));
 
-                var result = _service.Atualizar(funcionarioModel, string.Empty);
+                var result = _service.Atualizar(funcionarioModel, correlationId);
                 return Ok(new { received = result });
             }
             catch (Exception ex)

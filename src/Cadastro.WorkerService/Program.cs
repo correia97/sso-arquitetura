@@ -1,5 +1,6 @@
 using Cadastro.Configuracoes;
 using Cadastro.Data.Repositories;
+using Cadastro.Data.Services;
 using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
 using Cadastro.WorkerService;
@@ -44,7 +45,8 @@ void CreateDataBase(IConfiguration configuration)
         string connStr = configuration.GetConnectionString("Base");
         connStr = connStr.Replace("Database=funcionarios;", "");
         using var m_conn = new NpgsqlConnection(connStr);
-        using var m_createdb_cmd = new NpgsqlCommand(@"CREATE DATABASE funcionarios", m_conn);
+        using var m_createdb_cmd = new NpgsqlCommand(@"SELECT 'CREATE DATABASE funcionarios'
+                                                        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'funcionarios')", m_conn);
         m_conn.Open();
         m_createdb_cmd.ExecuteNonQuery();
         m_conn.Close();
@@ -87,11 +89,14 @@ IHost host = Host.CreateDefaultBuilder(args)
             opt.SerializerOptions.UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement;
             opt.SerializerOptions.PropertyNameCaseInsensitive = true;
             opt.SerializerOptions.Converters.Add(new ExceptionConverter());
+            opt.SerializerOptions.Converters.Add(new ByteArrayConverter());
         });
 
         services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioReadRepository, FuncionarioRepository>();
         services.AddScoped<IFuncionarioService, FuncionarioService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<RabbitMQConsumer>();
         services.AddFluentMigratorCore();
 
         services.AddRabbitCustomConfiguration(configuration);

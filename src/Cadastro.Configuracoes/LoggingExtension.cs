@@ -31,8 +31,8 @@ namespace Cadastro.Configuracoes
             };
 
             Log.Logger = new LoggerConfiguration()
-                      .MinimumLevel.Warning()
-                      .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                      .MinimumLevel.Debug()
+                      .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
                       .Enrich.WithProperty("App Name", serviceName)
                       .Enrich.FromLogContext()
                       .Enrich.WithEnvironmentName()

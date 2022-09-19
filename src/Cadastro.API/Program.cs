@@ -2,6 +2,7 @@ using Cadastro.API.Interfaces;
 using Cadastro.API.Services;
 using Cadastro.Configuracoes;
 using Cadastro.Data.Repositories;
+using Cadastro.Data.Services;
 using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,6 +35,8 @@ builder.Services.AddControllers()
                                     opt.JsonSerializerOptions.UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement;
                                     opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                                     opt.JsonSerializerOptions.Converters.Add(new ExceptionConverter());
+                                    opt.JsonSerializerOptions.Converters.Add(new ByteArrayConverter());
+                                    
                                 });
 
 builder.Services.AddApiVersioning(x =>
@@ -119,6 +122,10 @@ builder.Services.AddScoped<IFuncionarioWriteRepository, FuncionarioRepository>()
 builder.Services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
 
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
+
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+builder.Services.AddScoped<RabbitMQConsumer>();
 
 builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 

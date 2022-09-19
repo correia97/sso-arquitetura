@@ -4,18 +4,83 @@ option csharp_namespace = "Cadastro.GRPC";
 
 package funcionariogrpc;
 
+import "google/protobuf/timestamp.proto";
+
 // The greeting service definition.
 service FuncionarioGrpc {
   // Sends a greeting
-  rpc Cadastrar (FuncionarioRequest) returns (FuncionarioResponse);
+  rpc Cadastrar (FuncionarioRequest) returns (BooleanResult);
+  
+  rpc Atualizar (FuncionarioRequest) returns (BooleanResult);
 }
 
 // The request message containing the user's name.
 message FuncionarioRequest {
-  string name = 3;
+        string UserId = 1;
+        string Matricula = 2;
+        string Cargo = 3;
+        string Nome = 4;
+        string SobreNome = 5;
+        string Email = 6;
+        google.protobuf.Timestamp DataNascimento = 7;
+        repeated  TelefoneRequest Telefones = 8;
+        EnderecoRequest EnderecoComercial = 9;
+        EnderecoRequest EnderecoResidencial = 10;
+        bool Ativo = 11;
+}
+
+message BooleanResult{
+    bool Result = 1;
+}
+
+message TelefoneRequest{
+    
+         int32 Id  = 1;
+         string DDI  = 2;
+         string Telefone  = 3;
+}
+message EnderecoRequest{
+         int32 Id  = 1;
+         string Rua  = 2;
+         int32 Numero  = 3;
+         string CEP  = 4;
+         string Complemento  = 5;
+         string Bairro  = 6;
+         string Cidade  = 7;
+         string UF  = 8;
 }
 
 // The response message containing the greetings.
 message FuncionarioResponse {
-  bool result = 1;
+  
+         string UserId= 1;
+         string Matricula= 2;
+         string Cargo= 3;
+         string Nome= 4;
+         string SobreNome= 5;
+         string Email= 6;
+         google.protobuf.Timestamp DataNascimento= 7;
+         repeated TelefoneResponse Telefones= 8;
+         EnderecoResponse EnderecoComercial= 9;
+         EnderecoResponse EnderecoResidencial= 10;
+         bool Ativo= 11;
+}
+
+message EnderecoResponse{
+    
+         int32 Id= 1;
+         string Rua= 2;
+         int32 Numero= 3;
+         string CEP= 4;
+         string Complemento= 5;
+         string Bairro= 6;
+         string Cidade= 7;
+         string UF= 8;
+}
+
+message TelefoneResponse{
+    
+         int32 Id= 1;
+         string DDI= 2;
+         string Telefone= 3;
 }

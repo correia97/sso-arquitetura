@@ -10,9 +10,8 @@ namespace Cadastro.GRPC.Services
             _logger = logger;
         }
 
-        public override Task<FuncionarioResponse> Cadastrar(FuncionarioRequest request, ServerCallContext context)
+        public override Task<BooleanResult> Cadastrar(FuncionarioRequest request, ServerCallContext context)
         {
-
             //try
             //{
             //    var result = _service.Cadastrar(funcionario);
@@ -23,7 +22,21 @@ namespace Cadastro.GRPC.Services
             //    _logger.LogError(ex, "Post");
             //    return BadRequest(ex);
             //}
-            return Task.FromResult(new FuncionarioResponse());
+            return Task.FromResult(new BooleanResult { Result = true });
+        }
+        public override Task<BooleanResult> Atualizar(FuncionarioRequest request, ServerCallContext context)
+        {
+            //try
+            //{
+            //    var result = _service.Cadastrar(funcionario);
+            //    return Ok(result);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "Post");
+            //    return BadRequest(ex);
+            //}
+            return Task.FromResult(new BooleanResult { Result = true });
         }
     }
 }

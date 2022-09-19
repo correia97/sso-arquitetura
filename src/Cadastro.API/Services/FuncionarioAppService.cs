@@ -24,7 +24,6 @@ namespace Cadastro.API.Services
             _service = service;
             _model = model;
             _logger = logger;
-
             _retryAsyncPolicy = Policy.Handle<Exception>()
                         .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                         (exception, timeSpan, retryCount, context) =>
@@ -34,79 +33,49 @@ namespace Cadastro.API.Services
                         });
         }
 
-        public bool Cadastrar(Funcionario funcionario)
+        public bool Cadastrar(Funcionario funcionario, Guid correlationId)
         {
-            try
-            {
-                IBasicProperties props = _model.CreateBasicProperties();
-                props.ContentType = "text/json";
-                props.DeliveryMode = 2;
-                var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
-                _model.BasicPublish("cadastro", "cadastrar", props, messageBodyBytes);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Cadastrar");
-                throw;
-            }
+            IBasicProperties props = _model.CreateBasicProperties();
+            props.ContentType = "text/json";
+            props.DeliveryMode = 2;
+            props.CorrelationId = correlationId.ToString();
+            var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
+            _model.BasicPublish("cadastro", "cadastrar", props, messageBodyBytes);
+            return true;
         }
 
-        public bool Atualizar(Funcionario funcionario, string currentUserId)
+        public bool Atualizar(Funcionario funcionario, Guid correlationId)
         {
-            try
-            {
-                IBasicProperties props = _model.CreateBasicProperties();
-                props.ContentType = "text/json";
-                props.DeliveryMode = 2;
-                var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
-                _model.BasicPublish("cadastro", "atualizar", props, messageBodyBytes);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Atualizar");
-                throw;
-            }
+            IBasicProperties props = _model.CreateBasicProperties();
+            props.ContentType = "text/json";
+            props.DeliveryMode = 2;
+            props.CorrelationId = correlationId.ToString();
+            var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
+            _model.BasicPublish("cadastro", "atualizar", props, messageBodyBytes);
+            return true;
         }
 
         public async Task<FuncionarioResponse> ObterPorId(Guid id)
         {
-            try
+            var funcionario = await _retryAsyncPolicy.ExecuteAsync(async () =>
             {
-                var funcionario = await _retryAsyncPolicy.ExecuteAsync(async () =>
-                {
-                    var funcionario = await _service.ObterPorId(id);
-                    if (funcionario == null)
-                        return null;
-                    return funcionario;
-                });
-                return new FuncionarioResponse(funcionario);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ObterPorId");
-                throw;
-            }
+                var funcionario = await _service.ObterPorId(id);
+                if (funcionario == null)
+                    return null;
+                return funcionario;
+            });
+            return new FuncionarioResponse(funcionario);
         }
 
         public async Task<IEnumerable<FuncionarioResponse>> ObterTodos()
         {
-            try
+            var funcionario = await _retryAsyncPolicy.ExecuteAsync(() => _service.ObterTodos());
+            var result = new List<FuncionarioResponse>();
+            foreach (var item in funcionario)
             {
-                var funcionario = await _retryAsyncPolicy.ExecuteAsync(() => _service.ObterTodos());
-                var result = new List<FuncionarioResponse>();
-                foreach (var item in funcionario)
-                {
-                    result.Add(new FuncionarioResponse(item));
-                }
-                return result;
+                result.Add(new FuncionarioResponse(item));
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ObterTodos");
-                throw;
-            }
+            return result;
         }
     }
 }

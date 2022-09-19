@@ -1,4 +1,5 @@
-﻿using Cadastro.Domain.Enums;
+﻿using Cadastro.Domain.Entities;
+using Cadastro.Domain.Enums;
 using Cadastro.Domain.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
@@ -14,13 +15,15 @@ namespace Cadastro.Domain.Services
     {
         private readonly IFuncionarioReadRepository _repositoryRead;
         private readonly IFuncionarioWriteRepository _repositoryWrite;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<FuncionarioService> _logger;
         private readonly ActivitySource _activitySource;
         public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite,
-                                 ILogger<FuncionarioService> logger, ActivitySource activitySource)
+                                 INotificationService notificationService, ILogger<FuncionarioService> logger, ActivitySource activitySource)
         {
             _repositoryRead = repositoryRead;
             _repositoryWrite = repositoryWrite;
+            _notificationService = notificationService;
             _logger = logger;
             _activitySource = activitySource;
         }
@@ -40,6 +43,7 @@ namespace Cadastro.Domain.Services
             if (!result)
             {
                 _repositoryWrite.CancelarTransacao();
+                _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", false));
                 throw new InvalidOperationException("Deu muito ruim!");
             }
 
@@ -52,6 +56,7 @@ namespace Cadastro.Domain.Services
             if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                 await TratarEndereco(funcionario.EnderecoComercial);
 
+             _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", true));
             _repositoryWrite.CompletarTransacao();
         }
 
@@ -70,6 +75,7 @@ namespace Cadastro.Domain.Services
             if (!result)
             {
                 _repositoryWrite.CancelarTransacao();
+                _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Cadastrar", false));
                 throw new InvalidOperationException("Deu muito ruim!");
             }
 
@@ -86,6 +92,7 @@ namespace Cadastro.Domain.Services
             if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                 await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial);
 
+             _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Cadastrar", true));
             _repositoryWrite.CompletarTransacao();
         }
 

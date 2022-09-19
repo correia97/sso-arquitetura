@@ -1,7 +1,9 @@
 using Cadastro.Configuracoes;
 using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Services;
+using Elastic.Apm.Api;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
@@ -16,7 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMVCCustomAuthenticationConfig(builder.Environment, builder.Configuration);
 
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+builder.Services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation();
 
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 
@@ -25,7 +28,6 @@ builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
 builder.Services.AddHealthChecks();
-
 
 string serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version?.ToString();
