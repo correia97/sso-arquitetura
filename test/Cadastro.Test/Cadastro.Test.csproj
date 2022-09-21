@@ -61,4 +61,8 @@
     <ProjectReference Include="..\..\src\Cadastro.WorkerService\Cadastro.WorkerService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Apresentacao\WokerService\" />
+  </ItemGroup>
+
 </Project>
