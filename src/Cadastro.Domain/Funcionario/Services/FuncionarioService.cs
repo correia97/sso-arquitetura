@@ -30,7 +30,7 @@ namespace Cadastro.Domain.Services
         public async Task Atualizar(Funcionario funcionario)
         {
             using var activity = _activitySource.StartActivity("Atualizar Funcionario", ActivityKind.Internal);
-
+            _logger.LogInformation($"Atualizar Funcionário iniciado {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
             baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
             baseFuncionario.AtualizarTelefones(funcionario.Telefones);
@@ -44,6 +44,7 @@ namespace Cadastro.Domain.Services
             {
                 _repositoryWrite.CancelarTransacao();
                 _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", false));
+                _logger.LogError("Erro ao atualizar Funcionário");
                 throw new InvalidOperationException("Deu muito ruim!");
             }
 
@@ -56,19 +57,21 @@ namespace Cadastro.Domain.Services
             if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                 await TratarEndereco(funcionario.EnderecoComercial);
 
-             _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", true));
+            _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", true));
             _repositoryWrite.CompletarTransacao();
+            _logger.LogInformation($"Atualizar Funcionário concluido {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
         }
 
         public async Task Cadastrar(Funcionario funcionario)
         {
             using var activity = _activitySource.StartActivity("Cadastrar Funcionario", ActivityKind.Internal);
-
+            _logger.LogInformation($"Cadastrar Funcionário iniciado {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             Funcionario data = await _repositoryRead.ObterPorEmail(funcionario.Email.EnderecoEmail);
 
-            if (data != null)
+            if (data != null){
+                _logger.LogError("Erro ao cadastrar Funcionário: Funcionario já existe");
                 throw new InvalidOperationException("Funcionario já existe");
-
+            }
             _repositoryWrite.IniciarTransacao();
             var result = await _repositoryWrite.Inserir(funcionario);
 
@@ -76,6 +79,7 @@ namespace Cadastro.Domain.Services
             {
                 _repositoryWrite.CancelarTransacao();
                 _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Cadastrar", false));
+                _logger.LogError("Erro ao cadastrar Funcionário");
                 throw new InvalidOperationException("Deu muito ruim!");
             }
 
@@ -92,13 +96,17 @@ namespace Cadastro.Domain.Services
             if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                 await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial);
 
-             _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Cadastrar", true));
+            _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Cadastrar", true));
             _repositoryWrite.CompletarTransacao();
+            
+            _logger.LogInformation($"Cadastrar Funcionário concluido {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
         }
 
         public async Task<Funcionario> ObterPorId(Guid id)
         {
             using var activity = _activitySource.StartActivity("Obter Funcionario por Id", ActivityKind.Internal);
+            
+            _logger.LogInformation($"ObterPorId Funcionário iniciado {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             Funcionario funcionario = await _repositoryRead.ObterPorId(id);
 
             var enderecos = await _repositoryRead.ObterEnderecosPorFuncionarioId(id);
@@ -115,35 +123,42 @@ namespace Cadastro.Domain.Services
                 if (enderecos.Any(x => x.TipoEndereco == TipoEnderecoEnum.Residencial))
                     funcionario.AtualizarEnderecoResidencial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEnderecoEnum.Residencial));
             }
+            _logger.LogInformation($"ObterPorId Funcionário concluido {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             return funcionario;
         }
 
         public async Task<IEnumerable<Funcionario>> ObterTodos()
         {
             using var activity = _activitySource.StartActivity("Obter Funcionarios", ActivityKind.Internal);
-            IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos();
+            _logger.LogInformation($"ObterTodos Funcionário iniciado {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
+            IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos();            
+            _logger.LogInformation($"ObterTodos Funcionário concluido {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             return data;
         }
 
         private async Task TratarEndereco(Endereco endereco)
         {
-            using var activity = _activitySource.StartActivity("Atualizar/Inserir Endereço", ActivityKind.Internal);
+            using var activity = _activitySource.StartActivity("Atualizar/Inserir Endereço", ActivityKind.Internal);            
+            _logger.LogInformation($"Tratar Endereco Iniciado {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             if (endereco.Id > 0)
                 await _repositoryWrite.AtualizarEndereco(endereco);
             else
                 await _repositoryWrite.InserirEndereco(endereco);
+            _logger.LogInformation($"Tratar Endereco concluido {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
         }
 
         private async Task TratarTelefones(IEnumerable<Telefone> telefones)
         {
             using var activity = _activitySource.StartActivity("Atualizar/Inserir Telefones", ActivityKind.Internal);
+            _logger.LogInformation($"Tratar Telefone Iniciado {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             foreach (var item in telefones)
             {
                 if (item.Id > 0)
                     await _repositoryWrite.AtualizarTelefone(item);
                 else
                     await _repositoryWrite.InserirTelefone(item);
-            }
+            }    
+            _logger.LogInformation($"Tratar Telefone concluido {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
         }
     }
 }

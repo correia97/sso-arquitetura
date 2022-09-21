@@ -1,5 +1,4 @@
 ﻿using Cadastro.Domain.Entities;
-using Domain.ValueObject;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -11,20 +10,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using PEFile;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Google.Protobuf.WellKnownTypes;
-using MongoDB.Bson;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cadastro.Configuracoes
 {
-[ExcludeFromCodeCoverage]
+    [ExcludeFromCodeCoverage]
     public static class AuthorizationAuthenticationExtension
     {
         public static IServiceCollection AddAPICustomAuthorizationConfig(this IServiceCollection services, IConfiguration configuration)
@@ -55,7 +50,6 @@ namespace Cadastro.Configuracoes
                             options.Audience = audience;
                         options.RequireHttpsMetadata = false;
                         options.SaveToken = true;
-                        //  o.TokenValidationParameters.IssuerSigningKey = key;
                         options.TokenValidationParameters.NameClaimType = ClaimTypes.NameIdentifier;
                         options.TokenValidationParameters.ValidateIssuerSigningKey = false;
                         options.TokenValidationParameters.ValidateIssuer = false;
@@ -64,8 +58,7 @@ namespace Cadastro.Configuracoes
                             OnTokenValidated = context =>
                             {
                                 var token = (JwtSecurityToken)context.SecurityToken;
-                                var jsonPayload = token.Payload.SerializeToJson();
-                                var payload = JsonSerializer.Deserialize<TokenPayload>(jsonPayload);
+                                var payload = JsonSerializer.Deserialize<TokenPayload>(token.Payload.SerializeToJson());
                                 context.Principal.AddIdentities(FillToken(payload));
                                 return Task.CompletedTask;
                             },
@@ -89,16 +82,18 @@ namespace Cadastro.Configuracoes
         private static List<ClaimsIdentity> FillToken(TokenPayload payload)
         {
             var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.GivenName, payload?.given_name));
-            claims.Add(new Claim(ClaimTypes.Name, payload?.name));
-            claims.Add(new Claim(ClaimTypes.Email, payload?.email));
-            claims.Add(new Claim(ClaimTypes.Surname, payload?.family_name));
-            claims.Add(new Claim("userId", payload.sub));
+            if (payload != null && !string.IsNullOrEmpty(payload.given_name))
+            {
+                claims.Add(new Claim(ClaimTypes.GivenName, payload.given_name));
+                claims.Add(new Claim(ClaimTypes.Name, payload.name));
+                claims.Add(new Claim(ClaimTypes.Email, payload.email));
+                claims.Add(new Claim(ClaimTypes.Surname, payload.family_name));
+                claims.Add(new Claim("userId", payload.sub));
 
-            AddClaimFromRoleList(claims, payload.group);
-            AddClaimFromRoleList(claims, payload.realm_access?.roles);
-            AddClaimFromRoleList(claims, payload.resource_access?.account?.roles);
-
+                AddClaimFromRoleList(claims, payload.group);
+                AddClaimFromRoleList(claims, payload.realm_access?.roles);
+                AddClaimFromRoleList(claims, payload.resource_access?.account?.roles);
+            }
             var identity = new ClaimsIdentity(claims);
             return new List<ClaimsIdentity> { identity };
         }
@@ -144,7 +139,7 @@ namespace Cadastro.Configuracoes
                options.ClientSecret = clientSecret;
                options.ClaimsIssuer = authUrl;
                options.MetadataAddress = $"{metaDataUrl}{complement}/.well-known/openid-configuration";
-               //options.UsePkce = true;
+
                // Para o fusionAuth só vai o code
                options.ResponseType = environment.EnvironmentName == "Fusionauth" ? OpenIdConnectResponseType.Code : OpenIdConnectResponseType.CodeIdTokenToken;
                options.Scope.Clear();
@@ -158,39 +153,27 @@ namespace Cadastro.Configuracoes
                options.NonceCookie.SameSite = SameSiteMode.Unspecified;
                options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
 
-              // options.CallbackPath = new PathString("/Funcionario");
-
-               //options.TokenValidationParameters.ValidIssuer = authUrl;
-               //options.TokenValidationParameters.ValidAudience = clientId;
-
-
                var configManager = new ConfigurationManager<OpenIdConnectConfiguration>(
                    $"{metaDataUrl}{complement}/.well-known/openid-configuration",
-                   new OpenIdConnectConfigurationRetriever(), 
-                   new HttpDocumentRetriever() { 
-                       RequireHttps = false 
+                   new OpenIdConnectConfigurationRetriever(),
+                   new HttpDocumentRetriever()
+                   {
+                       RequireHttps = false
                    });
 
-               var openidconfig =  configManager.GetConfigurationAsync().Result;
+               var openidconfig = configManager.GetConfigurationAsync().Result;
 
                options.TokenValidationParameters = new TokenValidationParameters
                {
-                   // NameClaimType = "name",
-                   // RoleClaimType = ClaimTypes.Role,
                    ValidateIssuer = true,
                    ValidIssuer = authUrl,
                    ValidAudience = clientId,
-                   IssuerSigningKeys = openidconfig.SigningKeys,                   
+                   IssuerSigningKeys = openidconfig.SigningKeys,
                };
 
                options.Configuration = openidconfig;
-               
-
-               //options.TokenValidationParameters.IssuerSigningKey = key;
-               // options.TokenValidationParameters.ValidateAudience = false;
 
                options.Events = SetupOpenIdConnectEvents($"{baseUrl}{complement}", metaDataUrl);
-
            });
 
             return services;
@@ -278,17 +261,10 @@ namespace Cadastro.Configuracoes
 
         public static bool DisallowsSameSiteNone(string userAgent)
         {
-            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
-            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
-            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
-            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
-            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
-            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
-            Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------------");
-            Debug.WriteLine($" User Ahent {userAgent}");
+
             // Check if a null or empty string has been passed in, since this
             // will cause further interrogation of the useragent to fail.
-            if (String.IsNullOrWhiteSpace(userAgent))
+            if (string.IsNullOrWhiteSpace(userAgent))
                 return false;
 
             // Cover all iOS based browsers here. This includes:

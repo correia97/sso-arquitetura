@@ -6,7 +6,7 @@ using Serilog;
 
 namespace Cadastro.Configuracoes
 {
-[ExcludeFromCodeCoverage]
+    [ExcludeFromCodeCoverage]
     public static class RabbitConfigExtension
     {
         public static IServiceCollection AddRabbitCustomConfiguration(this IServiceCollection services, IConfiguration configuration)
@@ -42,19 +42,16 @@ namespace Cadastro.Configuracoes
                 var cadastrarArgs = new Dictionary<string, object>();
                 cadastrarArgs.Add("x-dead-letter-exchange", "cadastrar_deadletter");
                 cadastrarArgs.Add("x-dead-letter-routing-key", "cadastrar_deadletter");
-                var cadastrarResult = model.QueueDeclare("cadastrar", true, false, false, cadastrarArgs);
-                var cadastrarDeadResult = model.QueueDeclare("cadastrar_deadletter", true, false, false);
+                model.QueueDeclare("cadastrar", true, false, false, cadastrarArgs);
+                model.QueueDeclare("cadastrar_deadletter", true, false, false);
 
                 var atualizarArgs = new Dictionary<string, object>();
                 atualizarArgs.Add("x-dead-letter-exchange", "atualizar_deadletter");
                 atualizarArgs.Add("x-dead-letter-routing-key", "atualizar_deadletter");
-                var atualizarDeadResult = model.QueueDeclare("atualizar_deadletter", true, false, false);
-                var atualizarResult = model.QueueDeclare("atualizar", true, false, false, atualizarArgs);
-
-                var notificarResult = model.QueueDeclare("notificar", true, false, false);
-
-                var logsResult = model.QueueDeclare("logs", true, false, false);
-
+                model.QueueDeclare("atualizar_deadletter", true, false, false);
+                model.QueueDeclare("atualizar", true, false, false, atualizarArgs);
+                model.QueueDeclare("notificar", true, false, false);
+                model.QueueDeclare("logs", true, false, false);
                 model.ExchangeDeclare("cadastrar_deadletter", ExchangeType.Fanout, true, false, null);
                 model.ExchangeDeclare("atualizar_deadletter", ExchangeType.Fanout, true, false, null);
                 model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);

@@ -137,9 +137,6 @@ string serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version
 var activity = new ActivitySource(serviceName, serviceVersion);
 builder.Services.AddScoped<ActivitySource>(x => activity);
 
-// builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
-// builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
-
 builder.Services.AddHttpClient(Options.DefaultName);
 
 Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, serviceName);
@@ -167,10 +164,6 @@ app.UseSwaggerUI(c =>
     }
     c.DocExpansion(DocExpansion.List);
 });
-
-//app.UseHttpsRedirection();
-//app.UseOpenTelemetryPrometheusScrapingEndpoint();
-//app.UseAllElasticApm(app.Configuration);
 
 app.UseHealthChecks("/health");
 

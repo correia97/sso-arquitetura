@@ -37,36 +37,31 @@ namespace Cadastro.Configuracoes
                     => options.Enrich
                     = (activity, eventName, rawObject) =>
                     {
-                        if (eventName.Equals("OnStartActivity"))
+                        switch (eventName)
                         {
-                            if (rawObject is HttpRequest httpRequest)
-                            {
-                                activity.SetTag("requestProtocol", httpRequest.Protocol);
-                            }
-                        }
-                        else if (eventName.Equals("OnStopActivity"))
-                        {
-                            if (rawObject is HttpResponse httpResponse)
-                            {
-                                activity.SetTag("responseLength", httpResponse.ContentLength);
-                            }
+                            case "OnStartActivity":
+                                if (rawObject is HttpRequest httpRequest)
+                                    activity.SetTag("requestProtocol", httpRequest.Protocol);
+
+                                break;
+                            case "OnStopActivity":
+                                if (rawObject is HttpResponse httpResponse)
+                                    activity.SetTag("responseLength", httpResponse.ContentLength);
+
+                                break;
                         }
                     });
 
             services.Configure<JaegerExporterOptions>(exporter =>
             {
-
                 exporter.AgentHost = config.GetSection("jaeger:host").Value;
                 exporter.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
-                // exporter.Endpoint = new Uri(config.GetSection("jaeger:url").Value);
-                //exporter.Protocol = OpenTelemetry.Exporter.JaegerExportProtocol.UdpCompactThrift;
             });
 
             services.Configure<SqlClientInstrumentationOptions>(options =>
             {
                 options.SetDbStatementForText = true;
                 options.RecordException = true;
-
             });
 
             return services;
@@ -87,7 +82,6 @@ namespace Cadastro.Configuracoes
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddPrometheusExporter();
-                // The rest of your setup code goes here too
             });
 
             var meterProvider = Sdk.CreateMeterProviderBuilder()

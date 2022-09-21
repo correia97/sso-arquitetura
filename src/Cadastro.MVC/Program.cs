@@ -32,9 +32,6 @@ builder.Services.AddHealthChecks()
 string serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version?.ToString();
 
-// builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
-// builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
-
 // Add services to the container.
 builder.Services.AddRazorPages();
 
@@ -48,19 +45,12 @@ app.UseCookiePolicy();
 if (app.Environment.EnvironmentName.ToUpper().Contains("PROD"))
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    //app.UseHsts();
-    //app.UseHttpsRedirection();
 }
 else
 {
     app.UseDeveloperExceptionPage();
     IdentityModelEventSource.ShowPII = true;
 }
-
-//app.UseAllElasticApm(app.Configuration);
-
-//app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.UseStaticFiles();
 

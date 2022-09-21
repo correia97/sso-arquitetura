@@ -68,9 +68,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         var activity = new ActivitySource(serviceName, serviceVersion);
         services.AddScoped<ActivitySource>(x => activity);
 
-        // services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, configuration);
-        // services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, configuration);
-
         Log.Logger = LoggingExtension.AddCustomLogging(services, configuration, serviceName);
 
         services.AddHostedService<Worker>();
@@ -106,7 +103,6 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
         });
     })
-    //.UseAllElasticApm()
     .Build();
 
 UpdateDatabase(host.Services, configuration);

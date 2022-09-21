@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-
+﻿using Microsoft.AspNetCore.Mvc;
 namespace Cadastro.API.Controllers.V1
 {
     [Route("api/[controller]")]
@@ -14,7 +11,7 @@ namespace Cadastro.API.Controllers.V1
         }
 
         [HttpGet]
-        public async Task<IActionResult> SendEvent<T>(T even)
+        public IActionResult SendEvent<T>(T even)
         {
             return Ok(even);
         }

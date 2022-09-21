@@ -9,7 +9,6 @@ namespace MVC.Controllers
     public class BaseController : Microsoft.AspNetCore.Mvc.Controller
     {
         public string AccessToken { get; private set; }
-
         public string IdToken { get; private set; }
         public Guid UserId { get; private set; }
         public BaseController()
@@ -25,7 +24,6 @@ namespace MVC.Controllers
                 var userId = User.Claims.FirstOrDefault(x => x.Type == "userId");
                 if (userId != null)
                     UserId = Guid.Parse(userId.Value);
-                // var expire = await HttpContext.GetTokenAsync("expires_at");
             }
         }
     }

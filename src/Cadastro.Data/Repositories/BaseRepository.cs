@@ -1,6 +1,7 @@
 ﻿using Cadastro.Domain.Enums;
 using Cadastro.Domain.Interfaces;
 using Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -50,6 +51,8 @@ namespace Cadastro.Data.Repositories
                 Transaction?.Rollback();
             Status = TransactionStatusEnum.None;
             Transaction?.Dispose();
+
+            GC.SuppressFinalize(this);
         }
 
     }

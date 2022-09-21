@@ -9,10 +9,6 @@ namespace Cadastro.WorkerService
 {
     public class Worker : BackgroundService
     {
-        //public Worker(ILogger<Worker> logger, ActivitySource activity, IModel model, IServiceProvider serviceProvider)
-        //    : base(logger, activity, model, serviceProvider)
-        //{
-        //}
         private readonly RabbitMQConsumer mQConsumer;
         public Worker(RabbitMQConsumer consumer)
         {
