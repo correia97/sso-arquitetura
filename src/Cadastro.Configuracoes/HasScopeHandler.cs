@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cadastro.Configuracoes
 {
@@ -6,6 +7,7 @@ namespace Cadastro.Configuracoes
     /// <summary>
     ///  https://github.com/auth0-samples/auth0-aspnetcore-webapi-samples/tree/master/Quickstart/01-Authorization
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class HasScopeHandler : AuthorizationHandler<HasScopeRequirement>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, HasScopeRequirement requirement)

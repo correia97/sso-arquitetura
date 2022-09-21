@@ -13,7 +13,7 @@ using OpenTelemetry.Trace;
 
 namespace Cadastro.Configuracoes
 {
-    public static class TracingMetricsextension
+    public static class TracingMetricsExtension
     {
         public static IServiceCollection AddCustomOpenTelemetryTracing(this IServiceCollection services, string serviceName, string serviceVersion, IConfiguration config)
         {

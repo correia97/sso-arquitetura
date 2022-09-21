@@ -1,9 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Cadastro.Configuracoes
 {
     //https://stackoverflow.com/questions/61565947/the-json-value-could-not-be-converted-to-system-byte
+    [ExcludeFromCodeCoverage]
     public class ByteArrayConverter : JsonConverter<byte[]>
     {
         public override byte[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

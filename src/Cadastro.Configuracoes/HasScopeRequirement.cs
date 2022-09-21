@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cadastro.Configuracoes
 {
+    [ExcludeFromCodeCoverage]
     public class HasScopeRequirement : IAuthorizationRequirement
     {
         public string Issuer { get; }

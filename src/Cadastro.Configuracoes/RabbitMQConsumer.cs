@@ -4,11 +4,13 @@ using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 
 namespace Cadastro.Configuracoes
 {
+    [ExcludeFromCodeCoverage]
     public class RabbitMQConsumer
     {
         private readonly ILogger<RabbitMQConsumer> _logger;

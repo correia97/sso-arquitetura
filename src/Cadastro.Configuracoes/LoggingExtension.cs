@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -10,6 +11,7 @@ using Serilog.Sinks.RabbitMQ.Sinks.RabbitMQ;
 
 namespace Cadastro.Configuracoes
 {
+    [ExcludeFromCodeCoverage]
     public static class LoggingExtension
     {
         public static Serilog.ILogger AddCustomLogging(IServiceCollection services, IConfiguration configuration, string serviceName)

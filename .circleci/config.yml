@@ -76,7 +76,7 @@ jobs:
      - run:
          name: Run Test
          command:
-           dotnet test Exemplo.SSO.sln --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/" -r /root/project/test/Cadastro.Test/output/  --logger "trx"
+           dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="/root/project/test/Cadastro.Test/results/" -r /root/project/test/Cadastro.Test/output/  --logger "trx"
      - run:
          name: fim da analise
          command:

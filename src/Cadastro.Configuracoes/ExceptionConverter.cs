@@ -1,9 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Cadastro.Configuracoes
 {
     //https://github.com/dotnet/runtime/issues/43026
+    [ExcludeFromCodeCoverage]
     public class ExceptionConverter : JsonConverter<Exception>
     {
         public override bool CanConvert(Type typeToConvert)

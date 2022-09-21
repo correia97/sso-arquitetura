@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: dotnet build Exemplo.SSO.sln --no-restore
     - name: Test
-      run: dotnet test Exemplo.SSO.sln --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat="opencover"  -r /home/runner/work/sso/sso/test/Cadastro.Test/output/  --logger "trx"
+      run: dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover"  -r /home/runner/work/sso/sso/test/Cadastro.Test/output/  --logger "trx"
     - name: Fim da analise
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -32,7 +32,7 @@ jobs:
     - name: Instalaçõ do gerador de relatório de cobertura
       run: dotnet tool install --global  dotnet-reportgenerator-globaltool
     # Execução de uma linha de comando    
-    - name: Geração do relat�rio de cobertura
+    - name: Geração do relatorio de cobertura
       run: reportgenerator "-reports:/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml" \
                             "-targetdir:/home/runner/work/sso/sso/test/Cadastro.Test/report/" \
                             "-reporttypes:Html" \

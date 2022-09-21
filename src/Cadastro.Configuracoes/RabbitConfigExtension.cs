@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using Serilog;
 
 namespace Cadastro.Configuracoes
 {
-
+[ExcludeFromCodeCoverage]
     public static class RabbitConfigExtension
     {
         public static IServiceCollection AddRabbitCustomConfiguration(this IServiceCollection services, IConfiguration configuration)

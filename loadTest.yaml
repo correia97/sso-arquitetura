@@ -23,6 +23,9 @@ config:
     - duration: 35
       arrivalRate: 35
       name: Load 4
+    - duration: 30
+      arrivalRate: 40
+      name: Load 5
   processor: "./loadTest-function.js"
   variables:
     - userId:

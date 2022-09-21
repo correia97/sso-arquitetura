@@ -20,10 +20,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Google.Protobuf.WellKnownTypes;
 using MongoDB.Bson;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cadastro.Configuracoes
 {
-
+[ExcludeFromCodeCoverage]
     public static class AuthorizationAuthenticationExtension
     {
         public static IServiceCollection AddAPICustomAuthorizationConfig(this IServiceCollection services, IConfiguration configuration)
