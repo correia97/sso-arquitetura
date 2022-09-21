@@ -15,11 +15,14 @@ export class ApiclientService {
   constructor(private http: HttpClient, public oidcSecurityService: OidcSecurityService) { }
 
   private getHeader(): any {
-
+    let currentToken;
+    this.oidcSecurityService.getAccessToken().subscribe((token) => {
+      currentToken = token;
+    })
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: 'bearer ' + this.oidcSecurityService.getAccessToken()
+        Authorization: 'bearer ' + currentToken
       })
     };
     return httpOptions;

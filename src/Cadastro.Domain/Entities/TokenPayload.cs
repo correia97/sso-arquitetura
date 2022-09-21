@@ -9,7 +9,7 @@ namespace Cadastro.Domain.Entities
         public int auth_time { get; set; }
         public string jti { get; set; }
         public string iss { get; set; }
-        public string aud { get; set; }
+        public object aud { get; set; }
         public string sub { get; set; }
         public string typ { get; set; }
         public string azp { get; set; }

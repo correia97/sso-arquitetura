@@ -1,0 +1,101 @@
+config:
+  target: "http://localhost:54705"
+  http:
+    timeout: 999
+  tls:
+    rejectUnauthorized: false  
+  phases:
+    - duration: 10
+      arrivalRate: 10
+      name: Inicio
+    - duration: 15
+      arrivalRate: 15
+      name: Load 1
+    - duration: 20
+      arrivalRate: 20
+      name: Load 2
+    - duration: 25
+      arrivalRate: 25
+      name: Load 3
+    - duration: 30
+      arrivalRate: 30
+      name: Load 4
+    - duration: 35
+      arrivalRate: 35
+      name: Load 4
+  processor: "./loadTest-function.js"
+  variables:
+    - userId:
+    - correlationId:
+    - token:
+before:
+  flow:
+    - log: "Get auth token"
+    - post:
+        url: "http://192.168.0.17:8088/realms/Sample/protocol/openid-connect/token"        
+        afterResponse: "logBody"
+        form:
+          grant_type: "password"
+          client_id: "exemplo1"
+          username: "drstranger@marvel.com"
+          password: "12345@Mudar"
+          client_secret: "hVWQNWWgaazBxwdBFiFdmJXFwsaVUHPY"
+        capture:
+          - json: $.access_token
+            as: token      
+scenarios:
+  - flow:
+    - post:
+        headers: 
+          correlationId:  "{{ correlationId }}"
+          Authorization: "bearer {{ token }}"
+          Content-Type: "application/json"
+        url: "/api/v1/Funcionario/funcionario"            
+        beforeRequest: "setVariables"
+        afterResponse: "logHeaders"
+        json:
+          userid: "{{ userId }}"
+          matricula: "Inserido"   
+          cargo: "Admin"   
+          nome: "Paulo Eduardo"   
+          sobreNome: "Correia"   
+          email: "{{ userId }}@gmail.com"   
+          dataNascimento: "1987-08-14" 
+    - patch:
+        headers: 
+          correlationId:  "{{ correlationId }}"
+          Authorization: "bearer {{ token }}"
+          Content-Type: "application/json"
+        url: "/api/v1/Funcionario/funcionario"  
+        afterResponse: "logHeaders"
+        json:
+          userid: "{{ userId }}"
+          matricula: "Atualizado"   
+          cargo: "Admin"   
+          nome: "Paulo Eduardo"   
+          sobreNome: "Correia"   
+          email: "{{ userId }}@gmail.com"   
+          dataNascimento: "1987-08-14" 
+          telefones:
+            - telefone: "11949309294"
+              ddi: "+55"
+            - telefone: "1127512101"
+              ddi: "+55"
+          enderecoComercial:
+            rua: "Jose Prado Montoro"
+            numero: 47
+            cep: "04679290"
+            complemento: ""
+            bairro: "Vila Santana"
+            cidade: "São Paulo"
+            uf: "SP"
+            tipoEndereco": 1  
+          enderecoResidencial:
+            rua: "Jose Prado Montoro"
+            numero: 47
+            cep: "04679290"
+            complemento: ""
+            bairro: "Vila Santana"
+            cidade: "São Paulo"
+            uf: "SP"
+            tipoEndereco": 1  

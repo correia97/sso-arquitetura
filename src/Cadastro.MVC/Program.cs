@@ -1,13 +1,12 @@
 using Cadastro.Configuracoes;
 using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Services;
-using Elastic.Apm.Api;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
+using Prometheus;
 using Serilog;
 using System;
 
@@ -27,7 +26,8 @@ builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+                .ForwardToPrometheus();
 
 string serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version?.ToString();
@@ -72,11 +72,15 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseHttpMetrics();
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    endpoints.MapMetrics();
 });
 
 app.MapHealthChecks("/health");

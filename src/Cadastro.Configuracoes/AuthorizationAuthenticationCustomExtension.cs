@@ -153,7 +153,7 @@ namespace Cadastro.Configuracoes
                options.RequireHttpsMetadata = false;
                options.SaveTokens = true;
 
-               options.GetClaimsFromUserInfoEndpoint = true;
+               options.GetClaimsFromUserInfoEndpoint = false;
                options.NonceCookie.SameSite = SameSiteMode.Unspecified;
                options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
 
@@ -163,15 +163,19 @@ namespace Cadastro.Configuracoes
                //options.TokenValidationParameters.ValidAudience = clientId;
 
 
-               var configManager = new ConfigurationManager<OpenIdConnectConfiguration>($"{metaDataUrl}{complement}/.well-known/openid-configuration",
-                   new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever() { RequireHttps = false });
+               var configManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+                   $"{metaDataUrl}{complement}/.well-known/openid-configuration",
+                   new OpenIdConnectConfigurationRetriever(), 
+                   new HttpDocumentRetriever() { 
+                       RequireHttps = false 
+                   });
 
                var openidconfig =  configManager.GetConfigurationAsync().Result;
 
                options.TokenValidationParameters = new TokenValidationParameters
                {
-                   //NameClaimType = "name",
-                   //RoleClaimType = ClaimTypes.Role,
+                   // NameClaimType = "name",
+                   // RoleClaimType = ClaimTypes.Role,
                    ValidateIssuer = true,
                    ValidIssuer = authUrl,
                    ValidAudience = clientId,

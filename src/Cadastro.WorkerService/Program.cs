@@ -45,8 +45,7 @@ void CreateDataBase(IConfiguration configuration)
         string connStr = configuration.GetConnectionString("Base");
         connStr = connStr.Replace("Database=funcionarios;", "");
         using var m_conn = new NpgsqlConnection(connStr);
-        using var m_createdb_cmd = new NpgsqlCommand(@"SELECT 'CREATE DATABASE funcionarios'
-                                                        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'funcionarios')", m_conn);
+        using var m_createdb_cmd = new NpgsqlCommand(@"CREATE DATABASE funcionarios", m_conn);
         m_conn.Open();
         m_createdb_cmd.ExecuteNonQuery();
         m_conn.Close();

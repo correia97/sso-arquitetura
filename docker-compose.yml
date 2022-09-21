@@ -268,36 +268,52 @@ services:
   #     prometheus:
   #       condition: service_started            
 
-  # prometheus:
-  #   image: prom/prometheus:v2.37.0
-  #   container_name: prometheus    
-  #   volumes: 
-  #     - ./prometheus.yaml:/etc/prometheus/prometheus.yml
-  #   ports:
-  #     - 9091:9090
-  #   networks:
-  #     - externo
-  #     - base
+  prometheus:
+    image: prom/prometheus:v2.37.0
+    container_name: prometheus    
+    volumes: 
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9091:9090
+    networks:
+      - externo
+      - base
+    depends_on:
+      nginx:
+        condition: service_started  
+      cadvisor:
+        condition: service_started  
 
-  # grafana:
-  #   image: grafana/grafana-oss:9.0.6
-  #   container_name: grafana     
-  #   environment:
-  #       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
-  #   ports:
-  #     - 3000:3000
-  #   volumes:
-  #     - grafana_data:/var/lib/grafana
-  #   depends_on:
-  #     - prometheus
-  #   networks:
-  #     - externo
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - externo
+
+  grafana:
+    image: grafana/grafana-oss:9.0.6
+    container_name: grafana     
+    environment:
+        - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - externo
 
   Keycloak:
    image: quay.io/keycloak/keycloak:19.0.1
    container_name: Keycloak
    command:
-    - start-dev --import-realm
+     - start-dev --import-realm
    environment:
      - KC_HTTP_ENABLED=true
      - KC_LOG=console
@@ -337,7 +353,7 @@ services:
       - KONG_PG_PASSWORD=postgres
       - KONG_PG_USER=postgres
       - KONG_PORTAL=on
-    restart:   on-failure
+    restart: on-failure
     networks:
       - externo
       - base
@@ -362,7 +378,6 @@ services:
       - KONG_ADMIN_ACCESS_LOG=/dev/stdout
       - KONG_PROXY_ERROR_LOG=/dev/stderr
       - KONG_ADMIN_ERROR_LOG=/dev/stderr
-    restart: on-failure
     healthcheck:
        test:
         - CMD kong health
@@ -434,6 +449,16 @@ services:
       konga_setup:
         condition: service_completed_successfully  
 
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:0.10.0
+    container_name: exporter
+    command: 
+      -  "-nginx.scrape-uri=http://nginx/stub_status"
+    networks:
+      - externo
+    depends_on:
+      nginx:
+        condition: service_started  
 
   nginx:
     image: nginx:1.23.1-alpine
@@ -471,7 +496,8 @@ networks:
 volumes:
   dbData:
   mq_data:
+  fluentd_data:
+  grafana_data:
   # elk_data:
   # kibana_data:
-  # grafana_data:
 

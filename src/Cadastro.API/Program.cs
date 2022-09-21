@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Prometheus;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
@@ -105,7 +106,8 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+                .ForwardToPrometheus(); 
 
 builder.Services.AddScoped<IDbConnection>(sp =>
 {
@@ -176,13 +178,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseHttpMetrics();
+
 app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.MapHealthChecks("/health");
+app.UseMetricServer();
 
 app.MapControllers();
 

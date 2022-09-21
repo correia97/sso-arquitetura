@@ -1,0 +1,539 @@
+{
+	"info": {
+		"_postman_id": "2c318b30-a4b4-43c6-9780-09e955d12c2b",
+		"name": "SetupUserKeycloak",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "584342"
+	},
+	"item": [
+		{
+			"name": "[SAT] Obtain accsess token from a service account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.globals.set(\"token\", jsonData.access_token);",
+							"pm.globals.set(\"refresh_token\", jsonData.refresh_token);",
+							"pm.globals.set(\"id_token\", jsonData.id_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{clientId}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{clientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://keycloak.localhost/realms/Sample/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"17"
+					],
+					"port": "8088",
+					"path": [
+						"realms",
+						"Sample",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "[SAT] Obtain accsess token from a service account",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "service-account",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "e405ebed-432a-4625-bff7-bd4f688d4340",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://keycloak.localhost/realms/Sample/protocol/openid-connect/token",
+							"host": [
+								"https://keycloak.localhost"
+							],
+							"path": [
+								"realms",
+								"Sample",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Cache-Control",
+							"value": "no-store"
+						},
+						{
+							"key": "Set-Cookie",
+							"value": "KC_RESTART=; Version=1; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Max-Age=0; Path=/auth/realms/heroes/; HttpOnly"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "1; mode=block"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "SAMEORIGIN"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 May 2020 19:04:32 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Strict-Transport-Security",
+							"value": "max-age=31536000; includeSubDomains"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "2625"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJZTE1yUlJ5OEJ1WmFSZ2otcFIydGZTWmZ4TWVZM3dNM01rYUQyUndiN3pFIn0.eyJleHAiOjE1ODkxMzc3NzIsImlhdCI6MTU4OTEzNzQ3MiwianRpIjoiOTY2ODY4NzAtOWU2My00YjE5LWFiNWYtYzI0Nzg3OGY2NTYxIiwiaXNzIjoiaHR0cDovLzEyNy4wLjAuMTo4MDgwL2F1dGgvcmVhbG1zL2hlcm9lcyIsImF1ZCI6WyJyZWFsbS1tYW5hZ2VtZW50IiwiYWNjb3VudCJdLCJzdWIiOiIzY2QwMmZjYS0wZjkyLTRkMjYtODViMC04NzJlODIwNGRiOTEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZXJ2aWNlLWFjY291bnQiLCJzZXNzaW9uX3N0YXRlIjoiYmE5YTA5ZmYtMTIyYi00YmRkLWI1ODUtODg2ZTQwN2ExMjk5IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsInJlYWxtLWFkbWluIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJjbGllbnRIb3N0IjoiMTcyLjE3LjAuMSIsImNsaWVudElkIjoic2VydmljZS1hY2NvdW50IiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzZXJ2aWNlLWFjY291bnQtc2VydmljZS1hY2NvdW50IiwiY2xpZW50QWRkcmVzcyI6IjE3Mi4xNy4wLjEifQ.QjsnpAubiCn6ymCkFL4yNe-D4sYMfFEiNxN1TXXbYy1MlVYWAYemEWE8RI3aYnnzdvwiwMnXTnlChN-PjI6W8hMjRsAKpWAduA-xkULCU9GHv-p57KvB6ad0nNV01B4SSnJNjfOx-qw5zQM3-yBKIDNZLUOgwdqC-hRQkpDqSUMvE1e3POSbEi4LjGA0fk4vdB5pphe7F5iXOPwG6bt-VErN8CVXFemS8JfKkCU-YcZlaVOTXXoCJdaqwbcOR8gBiJhwWfhe7XR2w3eQJuZZa3cMp9S7RqUmTHE8b9N2VHmUNun_UO2adOCobZRQ2oRsw3tV-N6Y54NU_W-ZQEnqcw\",\n    \"expires_in\": 300,\n    \"refresh_expires_in\": 1800,\n    \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxYmVmYmM2NS0zN2EyLTQxZTctYjM2NC1lMjc0NWQ4NDRmNzcifQ.eyJleHAiOjE1ODkxMzkyNzIsImlhdCI6MTU4OTEzNzQ3MiwianRpIjoiMDI5ODAxYzEtODliZi00MTIxLTlhZDMtNzFkYTVlYzQ5NzNlIiwiaXNzIjoiaHR0cDovLzEyNy4wLjAuMTo4MDgwL2F1dGgvcmVhbG1zL2hlcm9lcyIsImF1ZCI6Imh0dHA6Ly8xMjcuMC4wLjE6ODA4MC9hdXRoL3JlYWxtcy9oZXJvZXMiLCJzdWIiOiIzY2QwMmZjYS0wZjkyLTRkMjYtODViMC04NzJlODIwNGRiOTEiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoic2VydmljZS1hY2NvdW50Iiwic2Vzc2lvbl9zdGF0ZSI6ImJhOWEwOWZmLTEyMmItNGJkZC1iNTg1LTg4NmU0MDdhMTI5OSIsInNjb3BlIjoicHJvZmlsZSBlbWFpbCJ9.AoD5T4OTm4ueUp4Hi1YTL4Wk2XuqqCJE-7pqUjco5sM\",\n    \"token_type\": \"bearer\",\n    \"not-before-policy\": 1589105644,\n    \"session_state\": \"ba9a09ff-122b-4bdd-b585-886e407a1299\",\n    \"scope\": \"profile email\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Create user [SAT]",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"createdTimestamp\": 1588880747548,\n        \"username\": \"Strange\",\n        \"enabled\": true,\n        \"totp\": false,\n        \"emailVerified\": true,\n        \"firstName\": \"Stephen\",\n        \"lastName\": \"Strange\",\n        \"email\": \"drstranger@marvel.com\",\n        \"disableableCredentialTypes\": [],\n        \"requiredActions\": [],\n        \"notBefore\": 0,\n        \"access\": {\n            \"manageGroupMembership\": true,\n            \"view\": true,\n            \"mapRoles\": true,\n            \"impersonate\": true,\n            \"manage\": true\n        },\n        \"realmRoles\": [\t\"mb-user\" ]\n    }"
+				},
+				"url": {
+					"raw": "https://keycloak.localhost/admin/realms/Sample/users",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"17"
+					],
+					"port": "8088",
+					"path": [
+						"admin",
+						"realms",
+						"Sample",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get users  [SAT]",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.globals.set(\"userId\", jsonData[0].id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://keycloak.localhost/admin/realms/Sample/users",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"17"
+					],
+					"port": "8088",
+					"path": [
+						"admin",
+						"realms",
+						"Sample",
+						"users"
+					],
+					"query": [
+						{
+							"key": "briefRepresentation",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "email",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "first",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "firstName",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "lastName",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "max",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "search",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "username",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get users  [SAT]",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "https://keycloak.localhost/admin/realms/Sample/users",
+							"host": [
+								"https://keycloak.localhost"
+							],
+							"path": [
+								"admin",
+								"realms",
+								"Sample",
+								"users"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Cache-Control",
+							"value": "no-cache"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "1; mode=block"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "SAMEORIGIN"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 May 2020 19:05:12 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Strict-Transport-Security",
+							"value": "max-age=31536000; includeSubDomains"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "1527"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"id\": \"5d2e6c0b-924e-4496-b619-d8b8947e38a4\",\n        \"createdTimestamp\": 1588880797165,\n        \"username\": \"batman\",\n        \"enabled\": true,\n        \"totp\": false,\n        \"emailVerified\": true,\n        \"firstName\": \"Bruce\",\n        \"lastName\": \"Wayne\",\n        \"email\": \"batman@bat.com\",\n        \"disableableCredentialTypes\": [],\n        \"requiredActions\": [],\n        \"notBefore\": 0,\n        \"access\": {\n            \"manageGroupMembership\": true,\n            \"view\": true,\n            \"mapRoles\": true,\n            \"impersonate\": true,\n            \"manage\": true\n        }\n    },\n    {\n        \"id\": \"51ec35b0-909d-421e-a5a4-6ad230d341c3\",\n        \"createdTimestamp\": 1588881104954,\n        \"username\": \"spiderman\",\n        \"enabled\": true,\n        \"totp\": false,\n        \"emailVerified\": true,\n        \"firstName\": \"Peter\",\n        \"lastName\": \"Parker\",\n        \"email\": \"spidy@sense.com\",\n        \"disableableCredentialTypes\": [],\n        \"requiredActions\": [],\n        \"notBefore\": 0,\n        \"access\": {\n            \"manageGroupMembership\": true,\n            \"view\": true,\n            \"mapRoles\": true,\n            \"impersonate\": true,\n            \"manage\": true\n        }\n    },\n    {\n        \"id\": \"56f6c53f-5150-4b42-9757-4c3dd4e7d947\",\n        \"createdTimestamp\": 1588881160516,\n        \"username\": \"superman\",\n        \"enabled\": true,\n        \"totp\": false,\n        \"emailVerified\": true,\n        \"firstName\": \"Clark\",\n        \"lastName\": \"Kent\",\n        \"email\": \"superman@kael.com\",\n        \"disableableCredentialTypes\": [],\n        \"requiredActions\": [],\n        \"notBefore\": 0,\n        \"access\": {\n            \"manageGroupMembership\": true,\n            \"view\": true,\n            \"mapRoles\": true,\n            \"impersonate\": true,\n            \"manage\": true\n        }\n    },\n    {\n        \"id\": \"1c4f1960-8817-4108-8672-7b36ebd3372d\",\n        \"createdTimestamp\": 1588880747548,\n        \"username\": \"thor\",\n        \"enabled\": true,\n        \"totp\": false,\n        \"emailVerified\": true,\n        \"firstName\": \"Thor\",\n        \"lastName\": \"Thunder\",\n        \"email\": \"thor@god.com\",\n        \"disableableCredentialTypes\": [],\n        \"requiredActions\": [],\n        \"notBefore\": 0,\n        \"access\": {\n            \"manageGroupMembership\": true,\n            \"view\": true,\n            \"mapRoles\": true,\n            \"impersonate\": true,\n            \"manage\": true\n        }\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Get groups [SAT] ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.globals.set(\"groupId\", jsonData[0].id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://keycloak.localhost/admin/realms/Sample/groups",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"17"
+					],
+					"port": "8088",
+					"path": [
+						"admin",
+						"realms",
+						"Sample",
+						"groups"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add group [SAT] ",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://keycloak.localhost/admin/realms/Sample/users/{{userId}}/groups/{{groupId}}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"17"
+					],
+					"port": "8088",
+					"path": [
+						"admin",
+						"realms",
+						"Sample",
+						"users",
+						"{{userId}}",
+						"groups",
+						"{{groupId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set up a new password for the user [SAT]",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"password\",\r\n    \"value\": \"12345@Mudar\",\r\n    \"temporary\": false\r\n}"
+				},
+				"url": {
+					"raw": "https://keycloak.localhost/admin/realms/Sample/users/{{userId}}/reset-password",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"17"
+					],
+					"port": "8088",
+					"path": [
+						"admin",
+						"realms",
+						"Sample",
+						"users",
+						"{{userId}}",
+						"reset-password"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
