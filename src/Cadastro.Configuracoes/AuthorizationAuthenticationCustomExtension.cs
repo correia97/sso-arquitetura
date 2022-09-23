@@ -173,7 +173,7 @@ namespace Cadastro.Configuracoes
 
                options.Configuration = openidconfig;
 
-               options.Events = SetupOpenIdConnectEvents($"{baseUrl}{complement}", metaDataUrl);
+               options.Events = SetupOpenIdConnectEvents();
            });
 
             return services;
@@ -196,7 +196,7 @@ namespace Cadastro.Configuracoes
             return services;
         }
 
-        private static OpenIdConnectEvents SetupOpenIdConnectEvents(string authUrl, string metaDataUrl)
+        private static OpenIdConnectEvents SetupOpenIdConnectEvents()
         {
             var events = new OpenIdConnectEvents
             {

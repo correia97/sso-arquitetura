@@ -13,7 +13,7 @@ namespace MVC.Services
     public class WeatherForecastService : IWeatherForecastService
     {
         private readonly string ServiceUrl;
-        private ILogger<WeatherForecastService> _logger;
+        private readonly ILogger<WeatherForecastService> _logger;
         public WeatherForecastService(IConfiguration configuration, ILogger<WeatherForecastService> logger)
         {
             ServiceUrl = configuration.GetValue<string>("ServiceUrl");

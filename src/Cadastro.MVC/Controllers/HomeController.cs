@@ -29,8 +29,6 @@ namespace MVC.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var accessToken = await HttpContext.GetTokenAsync("access_token");
-                var IdToken = await HttpContext.GetTokenAsync("id_token");
-                var expire = await HttpContext.GetTokenAsync("expires_at");
                 var forecast = await _apiService.GetWeatherForecast(accessToken);
                 ViewBag.forecast = forecast;
             }
