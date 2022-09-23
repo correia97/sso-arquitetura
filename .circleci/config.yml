@@ -1,5 +1,9 @@
 # versão do arquivo de configuração de build
 version: 2.1
+#apliação extra
+orbs:
+  codecov: codecov/codecov@3.2.2
+
 # Conjunto de Execuções que serão realizadas
 jobs:
  buildSemDockerFile:
@@ -104,6 +108,7 @@ jobs:
      - store_test_results:
           path: /root/project/test/Cadastro.Test/output/
           
+     - codecov/upload     
 # Definição dos trabalhos que serção executados
 workflows:
   # Nome do trabalho que seá executado
