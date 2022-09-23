@@ -104,15 +104,6 @@ jobs:
 
      - store_test_results:
           path: /root/project/test/Cadastro.Test/output/
-     
-     - run:
-          name: install Tool CodeCov
-          command:
-            dotnet tool install --tool-path ./ Codecov.Tool    
-     - run:
-          name: Publish CodeCov
-          command:
-            ./codecov -f "/root/project/test/Cadastro.Test/results/coverage.opencover.xml" -t $CODECOV_TOKEN
 
 
 # Definição dos trabalhos que serção executados
