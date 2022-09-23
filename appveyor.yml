@@ -12,7 +12,7 @@ build:
 
 test_script:
 - dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="./results/" -r ./test/Cadastro.Test/output/  --logger "trx"
-- codecov -f "./test/Cadastro.Test/result/coverage.opencover.xml"
+- codecov -f "./test/Cadastro.Test/result/coverage.opencover.xml" -t $CODECOV_TOKEN
 - reportgenerator "-reports:./test/Cadastro.Test/result/coverage.opencover.xml" \
                             "-targetdir:./test/Cadastro.Test/report/" \
                             "-reporttypes:Html" \
