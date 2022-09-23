@@ -107,8 +107,11 @@ jobs:
 
      - store_test_results:
           path: /root/project/test/Cadastro.Test/output/
+
+     - codecov/upload:    
+          file: /root/project/test/Cadastro.Test/results/coverage.opencover.xml
           
-     - codecov/upload     
+
 # Definição dos trabalhos que serção executados
 workflows:
   # Nome do trabalho que seá executado

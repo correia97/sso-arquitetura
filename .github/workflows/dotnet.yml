@@ -53,4 +53,14 @@ jobs:
         name: code-coverage-report
         path: /home/runner/work/sso/sso/test/Cadastro.Test/report/    
     - name: Upload coverage reports to Codecov with GitHub Action
-      uses: codecov/codecov-action@v3    
+      uses: codecov/codecov-action@v3  
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: /home/runner/work/sso/sso/test/Cadastro.Test/
+        env_vars: OS,PYTHON
+        fail_ci_if_error: true
+        files: ./coverage.opencover.xml
+        flags: unittests
+        name: CODECOV
+        path_to_write_report: ./coverage/codecov_report.txt
+        verbose: true  
