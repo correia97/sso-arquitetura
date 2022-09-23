@@ -59,7 +59,7 @@ jobs:
         directory: /home/runner/work/sso/sso/test/Cadastro.Test/
         env_vars: OS,PYTHON
         fail_ci_if_error: true
-        files: ./coverage.opencover.xml
+        files: /home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml
         flags: unittests
         name: CODECOV
         verbose: true  
