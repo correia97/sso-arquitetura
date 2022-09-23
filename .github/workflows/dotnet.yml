@@ -62,5 +62,4 @@ jobs:
         files: ./coverage.opencover.xml
         flags: unittests
         name: CODECOV
-        path_to_write_report: ./coverage/codecov_report.txt
         verbose: true  
