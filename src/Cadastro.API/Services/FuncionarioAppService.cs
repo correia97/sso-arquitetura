@@ -29,7 +29,7 @@ namespace Cadastro.API.Services
                         (exception, timeSpan, retryCount, context) =>
                         {
                             // Add logic to be executed before each retry, such as logging
-                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
+                            _logger.LogError(exception, $"Retry {retryCount} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
                         });
         }
 

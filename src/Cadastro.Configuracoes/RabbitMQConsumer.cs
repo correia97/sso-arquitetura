@@ -33,7 +33,7 @@ namespace Cadastro.Configuracoes
                             _logger.LogInformation("-------------------------------------------------------");
                             _logger.LogInformation("-------------------------------------------------------");
                             _logger.LogInformation("-------------------------------------------------------");
-                            _logger.LogError(exception, "Retry {0} at: {1:dd/MM/yyyy HH:mm:ss}", retryCount, DateTime.Now);
+                            _logger.LogError(exception, $"Retry {retryCount} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
                         });
         }
         public void AddConsumer<TService, TMessage>(Func<TService, TMessage, Task> action, string queue)
@@ -49,7 +49,7 @@ namespace Cadastro.Configuracoes
 
         protected async Task ReceiveidMessage<TService, TMessage>(BasicDeliverEventArgs ea, Func<TService, TMessage, Task> action, string queue)
         {
-            _logger.LogInformation("Message received from {0} at: {1:dd/MM/yyyy HH:mm:ss}", queue, DateTime.Now);
+            _logger.LogInformation($"Message received from {queue} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
             using var act = _activity.StartActivity("ReceiveidMessage");
             TMessage messageObject = default;
             bool canDispatch = false;
@@ -66,7 +66,7 @@ namespace Cadastro.Configuracoes
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Consume {0} failed at: {1:dd/MM/yyyy HH:mm:ss}", queue, DateTime.Now);
+                _logger.LogError(ex, $"Consume {queue} failed at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
                 _model.BasicReject(ea.DeliveryTag, false);
             }
 
@@ -75,25 +75,25 @@ namespace Cadastro.Configuracoes
 
             try
             {
-                _logger.LogInformation("Consume started at: {0:dd/MM/yyyy HH:mm:ss}", DateTime.Now);
+                _logger.LogInformation($"Consume started at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
                 await Dispatch(action, ea, messageObject);
                 _model.BasicAck(ea.DeliveryTag, false);
-                _logger.LogInformation("Consume {0} success at: {1:dd/MM/yyyy HH:mm:ss}", queue, DateTime.Now);
+                _logger.LogInformation($"Consume {queue} success at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
             }
             catch (NullReferenceException ex)
             {
-                _logger.LogError(ex, "Consume {0} failed at: {1:dd/MM/yyyy HH:mm:ss}", queue, DateTime.Now);
+                _logger.LogError(ex, $"Consume {queue} failed at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
                 _model.BasicNack(ea.DeliveryTag, false, dlqCount < 4);
             }
             catch (InvalidOperationException ex)
             {
                 _model.BasicReject(ea.DeliveryTag, false);
-                _logger.LogError(ex, "Consume {0} failed at: {1:dd/MM/yyyy HH:mm:ss}", queue, DateTime.Now);
+                _logger.LogError(ex, $"Consume {queue} failed at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
             }
             catch (Exception ex)
             {
                 _model.BasicNack(ea.DeliveryTag, false, dlqCount < 4);
-                _logger.LogError(ex, "Consume {0} failed at: {1:dd/MM/yyyy HH:mm:ss}", queue, DateTime.Now);
+                _logger.LogError(ex, $"Consume {queue} failed at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
             }
         }
 
