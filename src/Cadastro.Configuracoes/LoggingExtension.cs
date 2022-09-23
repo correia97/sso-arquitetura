@@ -32,7 +32,7 @@ namespace Cadastro.Configuracoes
                 TextFormatter = logFormatter,
             };
 
-            Log.Logger = new LoggerConfiguration()
+            Log.Logger = new Serilog.LoggerConfiguration()
                       .MinimumLevel.Information()
                       .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                       .Enrich.WithProperty("App Name", serviceName)
@@ -44,9 +44,10 @@ namespace Cadastro.Configuracoes
                       )
                       .CreateLogger();
 
-            var loggerFactory = new LoggerFactory();
-            loggerFactory.AddSerilog();
-            services.AddSingleton<ILoggerFactory>(loggerFactory);
+            
+            services.Configure<ILoggerFactory>(loggerFactory=>{
+                loggerFactory.AddSerilog();
+            });
 
             return Log.Logger;
         }

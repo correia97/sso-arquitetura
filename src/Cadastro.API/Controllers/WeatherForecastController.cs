@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Cadastro.API.Controllers
 {
@@ -30,12 +31,12 @@ namespace Cadastro.API.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             _logger.LogInformation($"GET weatherForecast User {this.User?.Identity?.Name}");
-            var rng = new Random();
+            
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                TemperatureC = RandomNumberGenerator.GetInt32(-20, 55),
+                Summary = Summaries[RandomNumberGenerator.GetInt32(Summaries.Length)]
             })
             .ToArray();
         }
@@ -45,12 +46,12 @@ namespace Cadastro.API.Controllers
         public IEnumerable<WeatherForecast> Post()
         {
             _logger.LogInformation($"POST weatherForecast User {this.User?.Identity?.Name}");
-            var rng = new Random();
+            
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                TemperatureC = RandomNumberGenerator.GetInt32(-20, 55),
+                Summary = Summaries[RandomNumberGenerator.GetInt32(Summaries.Length)]
             })
             .ToArray();
         }
@@ -61,12 +62,12 @@ namespace Cadastro.API.Controllers
         public IEnumerable<WeatherForecast> GetWithAutorization()
         {
             _logger.LogInformation($"GET authorization User {this.User?.Identity?.Name}");
-            var rng = new Random();
+            
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                TemperatureC = RandomNumberGenerator.GetInt32(-20, 55),
+                Summary = Summaries[RandomNumberGenerator.GetInt32(Summaries.Length)]
             })
             .ToArray();
         }
