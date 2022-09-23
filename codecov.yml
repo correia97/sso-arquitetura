@@ -1,0 +1,23 @@
+coverage:
+  status:
+    project:
+      default: false
+    patch:
+      default: false
+
+comment:
+  layout: "diff"
+
+flags:
+  production:
+    paths:
+      - src/Cadastro.API/
+      - src/Cadastro.Configuracoes/
+      - src/Cadastro.Data/
+      - src/Cadastro.Domain/
+      - src/Cadastro.GRPC/
+      - src/Cadastro.MVC/
+      - src/Cadastro.WorkerService/
+  test:
+    paths:
+      - test/Cadastro.Test/

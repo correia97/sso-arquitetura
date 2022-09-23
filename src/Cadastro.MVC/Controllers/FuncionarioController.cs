@@ -46,7 +46,7 @@ namespace Cadastro.MVC.Controllers
 
 
         // GET: FuncionarioController/Create
-        public async Task<ActionResult> Create()
+        public ActionResult Create()
         {
             return View();
         }
@@ -54,7 +54,7 @@ namespace Cadastro.MVC.Controllers
         // POST: FuncionarioController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([FromForm] FuncionarioRequest request)
+        public ActionResult Create([FromForm] FuncionarioRequest request)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace Cadastro.MVC.Controllers
         }
 
         // GET: FuncionarioController/Delete/5
-        public async Task<ActionResult> Delete(int id)
+        public ActionResult Delete(int id)
         {
             return View();
         }
@@ -131,7 +131,7 @@ namespace Cadastro.MVC.Controllers
         // POST: FuncionarioController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ConfirmDelete(int id)
+        public ActionResult ConfirmDelete(int id)
         {
             try
             {

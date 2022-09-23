@@ -1,0 +1,23 @@
+image: 
+  - Ubuntu
+
+before_build:
+- nuget restore
+- dotnet tool install --global  dotnet-reportgenerator-globaltool
+- choco install codecov
+
+build:
+  project: Exemplo.SSO.sln
+  verbosity: minimal
+
+test_script:
+- dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="./results/" -r ./test/Cadastro.Test/output/  --logger "trx"
+- codecov -f "./test/Cadastro.Test/result/coverage.opencover.xml"
+- reportgenerator "-reports:./test/Cadastro.Test/result/coverage.opencover.xml" \
+                            "-targetdir:./test/Cadastro.Test/report/" \
+                            "-reporttypes:Html" \
+                            "-sourcedirs:./test/Cadastro.Test/"
+
+artifacts:
+ - path: ./test/Cadastro.Test/output/
+ - path: ./test/Cadastro.Test/report/

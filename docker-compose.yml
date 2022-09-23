@@ -343,111 +343,111 @@ services:
      - 8088:8080
      - 9099:9090
 
-  kong_setup:
-    image: kong/kong-gateway:3.0.0.0-alpine
-    command: 
-        kong migrations bootstrap
-    environment:
-      - KONG_DATABASE=postgres   
-      - KONG_PG_HOST=db
-      - KONG_PG_PASSWORD=postgres
-      - KONG_PG_USER=postgres
-      - KONG_PORTAL=on
-    restart: on-failure
-    networks:
-      - externo
-      - base
-    depends_on:
-      db:
-        condition: service_started  
-  kong:
-    image: kong/kong-gateway:3.0.0.0-alpine
-    container_name: kong    
-    volumes:
-      - ./src/kong/kong.yml:/kong/declarative/kong.yml
-    environment:
-      - KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml
-      - KONG_DATABASE=postgres   
-      - KONG_PG_HOST=db
-      - KONG_PG_PASSWORD=postgres
-      - KONG_PG_USER=postgres
-      - KONG_ADMIN_GUI_URL=http://localhost:8002
-      - KONG_ADMIN_LISTEN=0.0.0.0:8001
-      - KONG_PORTAL=on
-      - KONG_PROXY_ACCESS_LOG=/dev/stdout
-      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
-      - KONG_PROXY_ERROR_LOG=/dev/stderr
-      - KONG_ADMIN_ERROR_LOG=/dev/stderr
-    healthcheck:
-       test:
-        - CMD kong health
-       interval: 3s
-       timeout: 10s
-       retries: 5
-    ports:
-      - 8000:8000  
-      - 8001:8001
-      - 8002:8002 
-      - 8003:8003 
-      - 8004:8004 
-      - 8443:8443 
-      - 8444:8444 
-      - 8445:8445 
-    networks:
-      - externo
-      - base
-    depends_on:
-      db:
-        condition: service_started  
-      kong_setup:  
-        condition: service_completed_successfully
+  # kong_setup:
+  #   image: kong/kong-gateway:3.0.0.0-alpine
+  #   command: 
+  #       kong migrations bootstrap
+  #   environment:
+  #     - KONG_DATABASE=postgres   
+  #     - KONG_PG_HOST=db
+  #     - KONG_PG_PASSWORD=postgres
+  #     - KONG_PG_USER=postgres
+  #     - KONG_PORTAL=on
+  #   restart: on-failure
+  #   networks:
+  #     - externo
+  #     - base
+  #   depends_on:
+  #     db:
+  #       condition: service_started  
+  # kong:
+  #   image: kong/kong-gateway:3.0.0.0-alpine
+  #   container_name: kong    
+  #   volumes:
+  #     - ./src/kong/kong.yml:/kong/declarative/kong.yml
+  #   environment:
+  #     - KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml
+  #     - KONG_DATABASE=postgres   
+  #     - KONG_PG_HOST=db
+  #     - KONG_PG_PASSWORD=postgres
+  #     - KONG_PG_USER=postgres
+  #     - KONG_ADMIN_GUI_URL=http://localhost:8002
+  #     - KONG_ADMIN_LISTEN=0.0.0.0:8001
+  #     - KONG_PORTAL=on
+  #     - KONG_PROXY_ACCESS_LOG=/dev/stdout
+  #     - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+  #     - KONG_PROXY_ERROR_LOG=/dev/stderr
+  #     - KONG_ADMIN_ERROR_LOG=/dev/stderr
+  #   healthcheck:
+  #      test:
+  #       - CMD kong health
+  #      interval: 3s
+  #      timeout: 10s
+  #      retries: 5
+  #   ports:
+  #     - 8000:8000  
+  #     - 8001:8001
+  #     - 8002:8002 
+  #     - 8003:8003 
+  #     - 8004:8004 
+  #     - 8443:8443 
+  #     - 8444:8444 
+  #     - 8445:8445 
+  #   networks:
+  #     - externo
+  #     - base
+  #   depends_on:
+  #     db:
+  #       condition: service_started  
+  #     kong_setup:  
+  #       condition: service_completed_successfully
 
 
-  konga_setup:
-    image: pantsel/konga:latest
-    command:
-      -c prepare -a postgres -u postgresql://postgres:postgres@db:5432/konga
-    environment:      
-      - DB_PG_SCHEMA=public
-      - KONGA_LOG_LEVEL=info    
-      - NODE_ENV=development  
-    restart: on-failure
-    networks:
-      - base
-    depends_on:
-      db:
-        condition: service_started  
-      kong:  
-        condition: service_started
+  # konga_setup:
+  #   image: pantsel/konga:latest
+  #   command:
+  #     -c prepare -a postgres -u postgresql://postgres:postgres@db:5432/konga
+  #   environment:      
+  #     - DB_PG_SCHEMA=public
+  #     - KONGA_LOG_LEVEL=info    
+  #     - NODE_ENV=development  
+  #   restart: on-failure
+  #   networks:
+  #     - base
+  #   depends_on:
+  #     db:
+  #       condition: service_started  
+  #     kong:  
+  #       condition: service_started
 
-  konga:
-    image: pantsel/konga:latest
-    container_name: konga
-    environment:
-      - BASE_URL=http://localhost:1337/
-      - PORT=1337
-      - DB_ADAPTER=postgres
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_DATABASE=konga
-      - DB_PG_SCHEMA=public
-      - KONGA_LOG_LEVEL=info    
-      - NODE_ENV=development
-      - NO_AUTH=true
-    ports:
-      - 1337:1337   
-    networks:
-      - externo
-      - base
-    depends_on:
-      db:
-        condition: service_started  
-      kong:  
-        condition: service_started
-      konga_setup:
-        condition: service_completed_successfully  
+  # konga:
+  #   image: pantsel/konga:latest
+  #   container_name: konga
+  #   environment:
+  #     - BASE_URL=http://localhost:1337/
+  #     - PORT=1337
+  #     - DB_ADAPTER=postgres
+  #     - DB_HOST=db
+  #     - DB_PORT=5432
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #     - DB_DATABASE=konga
+  #     - DB_PG_SCHEMA=public
+  #     - KONGA_LOG_LEVEL=info    
+  #     - NODE_ENV=development
+  #     - NO_AUTH=true
+  #   ports:
+  #     - 1337:1337   
+  #   networks:
+  #     - externo
+  #     - base
+  #   depends_on:
+  #     db:
+  #       condition: service_started  
+  #     kong:  
+  #       condition: service_started
+  #     konga_setup:
+  #       condition: service_completed_successfully  
 
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:0.10.0
@@ -496,7 +496,6 @@ networks:
 volumes:
   dbData:
   mq_data:
-  fluentd_data:
   grafana_data:
   # elk_data:
   # kibana_data:
