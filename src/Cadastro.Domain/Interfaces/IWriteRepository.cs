@@ -11,5 +11,6 @@ namespace Cadastro.Domain.Interfaces
         void CancelarTransacao();
         Task<bool> Inserir(T data);
         Task<bool> Atualizar(T data);
+        Task<bool> Remover(U id);
     }
 }

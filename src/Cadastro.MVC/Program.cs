@@ -9,6 +9,7 @@ using MVC.Services;
 using Prometheus;
 using Serilog;
 using System;
+using System.Diagnostics;
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                         (sender, certificate, chain, sslPolicyErrors) => true;
@@ -31,6 +32,9 @@ builder.Services.AddHealthChecks()
 
 string serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version?.ToString();
+
+var activity = new ActivitySource(serviceName, serviceVersion);
+builder.Services.AddScoped<ActivitySource>(x => activity);
 
 // Add services to the container.
 builder.Services.AddRazorPages();

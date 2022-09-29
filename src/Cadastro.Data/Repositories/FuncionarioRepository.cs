@@ -353,6 +353,31 @@ namespace Cadastro.Data.Repositories
             return result > 0;
         }
 
+        public async Task<bool> Desativar(Guid id)
+        {
+            var query = @"UPDATE public.funcionarios SET                       
+                          ativo           =@ativo                        
+                        , dataatualizacao =@dataAtualizacao                        
+                        WHERE userId      =@userId";
 
+            var param = new DynamicParameters();
+            param.Add("@userId", id);
+            param.Add("@dataAtualizacao", DateTime.Now.ToUniversalTime(), DbType.DateTime);
+
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(sql: query, param: param, transaction: Transaction));
+            return result > 0;
+        }
+
+        public override async Task<bool> Remover(Guid id)
+        {
+            var query = @"delete from public.funcionarios
+                           WHERE userId = @userId";
+
+            var param = new DynamicParameters();
+            param.Add("@userId", id);
+
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
+            return result > 0;
+        }
     }
 }

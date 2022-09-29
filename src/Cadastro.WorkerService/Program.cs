@@ -62,7 +62,6 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         configuration = context.Configuration;
-
         string serviceName = typeof(Worker).Assembly.GetName().Name;
         string serviceVersion = typeof(Worker).Assembly.GetName().Version?.ToString();
         var activity = new ActivitySource(serviceName, serviceVersion);

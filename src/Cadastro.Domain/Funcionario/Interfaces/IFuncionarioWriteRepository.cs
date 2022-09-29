@@ -12,5 +12,6 @@ namespace Cadastro.Domain.Interfaces
         Task<bool> InserirTelefone(Telefone telefone);
         Task<bool> AtualizarTelefone(Telefone telefone);
         Task<bool> RemoverTelefone(int id);
+        Task<bool> Desativar(Guid id);
     }
 }

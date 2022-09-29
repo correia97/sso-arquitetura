@@ -1,4 +1,5 @@
-﻿using Cadastro.Domain.Enums;
+﻿using Cadastro.Domain.Entities;
+using Cadastro.Domain.Enums;
 using Cadastro.Domain.Interfaces;
 using Cadastro.Domain.Services;
 using Domain.Entities;
@@ -427,6 +428,211 @@ namespace Cadastro.Test.Domain
             _mockFuncionarioRepositorioEscrita.Verify(x => x.InserirEndereco(It.IsAny<Endereco>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.AtualizarTelefone(It.IsAny<Telefone>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.InserirTelefone(It.IsAny<Telefone>()), Times.Once);
+
+        }
+        #endregion
+
+        #region Desativar
+
+        [Fact]
+        public async Task Desativar_Nao_OK_Quando_Registro_Nao_Alterado()
+        {
+            var activity = new ActivitySource("Desativar_Nao_OK_Quando_Registro_Nao_Alterado");
+           
+            var id = Guid.NewGuid();
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.CancelarTransacao());
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Desativar(It.IsAny<Guid>()))
+                .ReturnsAsync(false)
+                .Callback<Guid>((currentId) =>
+                {
+                    Output.WriteLine($"Callback Desativar: {currentId}");
+                    Assert.Equal(id, currentId);
+                });
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.Desativar(id));
+
+            Output.WriteLine($"Result: ok");
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Desativar(It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.CancelarTransacao(), Times.Once);
+        }
+
+        [Fact]
+        public async Task Desativar_OK_Quando_Registro_Existe()
+        {
+            var activity = new ActivitySource("Desativar_OK_Quando_Registro_Existe");
+
+            var id = Guid.NewGuid();
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.CompletarTransacao());
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Desativar(It.IsAny<Guid>()))
+                .ReturnsAsync(true)
+                .Callback<Guid>((currentId) =>
+                {
+                    Output.WriteLine($"Callback Desativar: {currentId}");
+                    Assert.Equal(id, currentId);
+                });
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+
+            await  service.Desativar(id);
+
+            Output.WriteLine($"Result: ok");
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Desativar(It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.CompletarTransacao(), Times.Once);
+        }
+
+        #endregion
+
+        #region Remover
+
+        [Fact]
+        public async Task Remover_Nao_OK_Quando_Registro_Nao_Existe()
+        {
+            var activity = new ActivitySource("Remover_Nao_OK_Quando_Registro_Nao_Existe");
+            var id = Guid.NewGuid();
+
+
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<Guid>()))
+                .ReturnsAsync((Funcionario)null)
+                .Callback<Guid>((currentId) =>
+                {
+                    Output.WriteLine($"Callback Email: {currentId}");
+                    Assert.Equal(id, currentId);
+                });
+
+            _mockNotificationService.Setup(x => x.SendEvent(It.IsAny<NotificationMessage>()));
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
+
+            await Assert.ThrowsAsync<NullReferenceException>(async () => await service.Remover(id));
+
+            Output.WriteLine($"Result: ok");
+
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
+            _mockNotificationService.Verify(x => x.SendEvent(It.IsAny<NotificationMessage>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Never);
+        }
+
+        [Fact]
+        public async Task Remover_Nao_OK_Quando_Registro_Nao_Removido()
+        {
+            var activity = new ActivitySource("Remover_Nao_OK_Quando_Registro_Nao_Removido");
+            var person = _faker.Person;
+            var id = Guid.NewGuid();
+
+            var telsNovo = new List<Telefone> {
+                new Telefone("+55","11","90000-0000",id),
+                new Telefone("+55","11","80000-0000", id)
+            };
+
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
+                new Nome(person.FirstName, "Silva Sauro"),
+                new DataNascimento(new DateTime(1985, 08, 14)),
+                new Email(person.Email), telsNovo, enderecoNovo, enderecoNovo);
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.CancelarTransacao());
+
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<Guid>()))
+                .ReturnsAsync(funcionarioAtualizado)
+                .Callback<Guid>((currentId) =>
+                {
+                    Output.WriteLine($"Callback Email: {currentId}");
+                    Assert.Equal(funcionarioAtualizado.Id, currentId);
+                });
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.RemoverEndereco(It.IsAny<int>())).ReturnsAsync(true);
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.RemoverTelefone(It.IsAny<int>())).ReturnsAsync(true);
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Remover(It.IsAny<Guid>()))
+                .ReturnsAsync(false)
+                .Callback<Guid>((currentId) =>
+                {
+                    Output.WriteLine($"Callback Remover: {currentId}");
+                    Assert.Equal(id, currentId);
+                });
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.Remover(id));
+
+            Output.WriteLine($"Result: ok");
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.RemoverTelefone(It.IsAny<int>()), Times.Exactly(2));
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.RemoverEndereco(It.IsAny<int>()), Times.Exactly(2));
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Remover(It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.CancelarTransacao(), Times.Once);
+        }
+
+        [Fact]
+        public async Task Remover_OK_Quando_Registro_Existe()
+        {
+            var activity = new ActivitySource("Remover_OK_Quando_Registro_Existe");
+            var person = _faker.Person;
+            var id = Guid.NewGuid();
+
+            var telsNovo = new List<Telefone> {
+                new Telefone("+55","11","90000-0000",id),
+                new Telefone("+55","11","80000-0000", id)
+            };
+
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
+                new Nome(person.FirstName, "Silva Sauro"),
+                new DataNascimento(new DateTime(1985, 08, 14)),
+                new Email(person.Email), telsNovo, enderecoNovo, enderecoNovo);
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.CompletarTransacao());
+
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterPorId(It.IsAny<Guid>()))
+                .ReturnsAsync(funcionarioAtualizado)
+                .Callback<Guid>((currentId) =>
+                {
+                    Output.WriteLine($"Callback Email: {currentId}");
+                    Assert.Equal(funcionarioAtualizado.Id, currentId);
+                });
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.RemoverEndereco(It.IsAny<int>())).ReturnsAsync(true);
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.RemoverTelefone(It.IsAny<int>())).ReturnsAsync(true);
+
+            _mockFuncionarioRepositorioEscrita.Setup(x => x.Remover(It.IsAny<Guid>()))
+                .ReturnsAsync(true)
+                .Callback<Guid>((currentId) =>
+                {
+                    Output.WriteLine($"Callback Remover: {currentId}");
+                    Assert.Equal(id, currentId);
+                });
+
+            var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
+                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+
+            await  service.Remover(id);
+
+            Output.WriteLine($"Result: ok");
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.RemoverTelefone(It.IsAny<int>()), Times.Exactly(2));
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.RemoverEndereco(It.IsAny<int>()), Times.Exactly(2));
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.Remover(It.IsAny<Guid>()), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Once);
+            _mockFuncionarioRepositorioEscrita.Verify(x => x.CompletarTransacao(), Times.Once);
 
         }
         #endregion

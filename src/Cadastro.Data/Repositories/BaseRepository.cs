@@ -28,6 +28,8 @@ namespace Cadastro.Data.Repositories
 
         public abstract Task<bool> Atualizar(T data);
 
+        public abstract Task<bool> Remover(U id);
+
         public virtual void IniciarTransacao()
         {
             Transaction = Connection.BeginTransaction();
@@ -54,6 +56,5 @@ namespace Cadastro.Data.Repositories
 
             GC.SuppressFinalize(this);
         }
-
     }
 }
