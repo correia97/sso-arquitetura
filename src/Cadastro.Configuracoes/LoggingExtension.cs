@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -8,6 +7,7 @@ using Serilog.Filters;
 using Serilog.Formatting.Elasticsearch;
 using Serilog.Sinks.RabbitMQ;
 using Serilog.Sinks.RabbitMQ.Sinks.RabbitMQ;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cadastro.Configuracoes
 {
@@ -44,8 +44,9 @@ namespace Cadastro.Configuracoes
                       )
                       .CreateLogger();
 
-            
-            services.Configure<ILoggerFactory>(loggerFactory=>{
+
+            services.Configure<ILoggerFactory>(loggerFactory =>
+            {
                 loggerFactory.AddSerilog();
             });
 

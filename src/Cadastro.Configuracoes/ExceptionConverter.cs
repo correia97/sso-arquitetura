@@ -33,7 +33,7 @@ namespace Cadastro.Configuracoes
             var propList = serializableProperties.ToList();
 
             if (propList.Count == 0)
-                return;            
+                return;
 
             writer.WriteStartObject();
 

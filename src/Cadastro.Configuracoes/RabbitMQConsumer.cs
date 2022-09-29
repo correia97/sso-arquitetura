@@ -57,7 +57,7 @@ namespace Cadastro.Configuracoes
 
             if (ea.BasicProperties.Headers != null &&
                 ea.BasicProperties.Headers.Any(x => x.Key == "x-death"))
-                dlqCount = (int)ea.BasicProperties.Headers.First(x => x.Key == "x-death").Value;            
+                dlqCount = (int)ea.BasicProperties.Headers.First(x => x.Key == "x-death").Value;
 
             try
             {

@@ -1,5 +1,4 @@
 ﻿using Cadastro.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace Cadastro.Domain.Interfaces
 {

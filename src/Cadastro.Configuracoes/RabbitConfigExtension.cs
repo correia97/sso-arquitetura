@@ -1,8 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cadastro.Configuracoes
 {

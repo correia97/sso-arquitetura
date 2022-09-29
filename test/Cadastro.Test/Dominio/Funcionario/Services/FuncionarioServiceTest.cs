@@ -61,7 +61,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                  _mockNotificationService.Object,   _mockLogger.Object, activity);
+                                                  _mockNotificationService.Object, _mockLogger.Object, activity);
 
             await service.Cadastrar(funcionario);
 
@@ -438,7 +438,7 @@ namespace Cadastro.Test.Domain
         public async Task Desativar_Nao_OK_Quando_Registro_Nao_Alterado()
         {
             var activity = new ActivitySource("Desativar_Nao_OK_Quando_Registro_Nao_Alterado");
-           
+
             var id = Guid.NewGuid();
 
             _mockFuncionarioRepositorioEscrita.Setup(x => x.IniciarTransacao());
@@ -486,7 +486,7 @@ namespace Cadastro.Test.Domain
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            await  service.Desativar(id);
+            await service.Desativar(id);
 
             Output.WriteLine($"Result: ok");
             _mockFuncionarioRepositorioEscrita.Verify(x => x.Desativar(It.IsAny<Guid>()), Times.Once);
@@ -624,7 +624,7 @@ namespace Cadastro.Test.Domain
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            await  service.Remover(id);
+            await service.Remover(id);
 
             Output.WriteLine($"Result: ok");
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);

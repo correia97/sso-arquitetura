@@ -31,7 +31,7 @@ namespace Cadastro.API.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             _logger.LogInformation($"GET weatherForecast User {this.User?.Identity?.Name}");
-            
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
@@ -46,7 +46,7 @@ namespace Cadastro.API.Controllers
         public IEnumerable<WeatherForecast> Post()
         {
             _logger.LogInformation($"POST weatherForecast User {this.User?.Identity?.Name}");
-            
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
@@ -62,7 +62,7 @@ namespace Cadastro.API.Controllers
         public IEnumerable<WeatherForecast> GetWithAutorization()
         {
             _logger.LogInformation($"GET authorization User {this.User?.Identity?.Name}");
-            
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

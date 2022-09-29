@@ -37,7 +37,7 @@ builder.Services.AddControllers()
                                     opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                                     opt.JsonSerializerOptions.Converters.Add(new ExceptionConverter());
                                     opt.JsonSerializerOptions.Converters.Add(new ByteArrayConverter());
-                                    
+
                                 });
 
 builder.Services.AddApiVersioning(x =>
@@ -107,7 +107,7 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddHealthChecks()
-                .ForwardToPrometheus(); 
+                .ForwardToPrometheus();
 
 builder.Services.AddScoped<IDbConnection>(sp =>
 {

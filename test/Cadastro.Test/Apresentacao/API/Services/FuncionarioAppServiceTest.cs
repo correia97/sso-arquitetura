@@ -11,7 +11,7 @@ namespace Cadastro.Test.Apresentacao.API.Services
 {
     public class FuncionarioAppServiceTest
     {
-        private Mock< IFuncionarioService> _mockService;
+        private Mock<IFuncionarioService> _mockService;
         private Mock<ILogger<FuncionarioAppService>> _mockLogger;
         private Mock<IModel> _mockModel;
         private Mock<IBasicProperties> _mockBasicProperties;
@@ -34,7 +34,7 @@ namespace Cadastro.Test.Apresentacao.API.Services
         {
             _mockModel.Setup(x => x.CreateBasicProperties())
                 .Returns(_mockBasicProperties.Object);
-            var appService = new FuncionarioAppService(_mockModel.Object,_mockService.Object, _mockLogger.Object);
+            var appService = new FuncionarioAppService(_mockModel.Object, _mockService.Object, _mockLogger.Object);
             var person = _faker.Person;
             var funcionario = new Funcionario(Guid.NewGuid().ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
@@ -66,7 +66,7 @@ namespace Cadastro.Test.Apresentacao.API.Services
         {
             _mockModel.Setup(x => x.CreateBasicProperties())
                 .Returns(_mockBasicProperties.Object);
-            var appService = new FuncionarioAppService(_mockModel.Object, _mockService.Object, _mockLogger.Object);           
+            var appService = new FuncionarioAppService(_mockModel.Object, _mockService.Object, _mockLogger.Object);
 
             appService.Desativar(Guid.NewGuid(), Guid.NewGuid());
 
@@ -108,7 +108,7 @@ namespace Cadastro.Test.Apresentacao.API.Services
             result.SobreNome.Should().Be(funcionario.Nome.SobreNome);
             result.Email.Should().Be(funcionario.Email.EnderecoEmail);
             result.DataNascimento.Should().Be(funcionario.DataNascimento.Date);
-           
+
         }
 
         [Fact]
