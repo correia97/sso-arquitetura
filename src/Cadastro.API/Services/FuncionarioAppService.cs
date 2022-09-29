@@ -33,26 +33,36 @@ namespace Cadastro.API.Services
                         });
         }
 
-        public bool Cadastrar(Funcionario funcionario, Guid correlationId)
+        private bool PublicaMensagem<T>(T mensagem, string exchange, string routeKey, Guid correlationId)
         {
             IBasicProperties props = _model.CreateBasicProperties();
             props.ContentType = "text/json";
             props.DeliveryMode = 2;
             props.CorrelationId = correlationId.ToString();
-            var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
-            _model.BasicPublish("cadastro", "cadastrar", props, messageBodyBytes);
+            var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(mensagem));
+            _model.BasicPublish(exchange, routeKey, props, messageBodyBytes);
             return true;
+        }
+
+
+        public bool Cadastrar(Funcionario funcionario, Guid correlationId)
+        {
+            return PublicaMensagem(funcionario, "cadastro", "cadastrar", correlationId);
         }
 
         public bool Atualizar(Funcionario funcionario, Guid correlationId)
         {
-            IBasicProperties props = _model.CreateBasicProperties();
-            props.ContentType = "text/json";
-            props.DeliveryMode = 2;
-            props.CorrelationId = correlationId.ToString();
-            var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(funcionario));
-            _model.BasicPublish("cadastro", "atualizar", props, messageBodyBytes);
-            return true;
+            return PublicaMensagem(funcionario, "cadastro", "atualizar", correlationId);
+        }
+
+        public bool Desativar(Guid id, Guid correlationId)
+        {
+            return PublicaMensagem(id, "cadastro", "desativar", correlationId);
+        }
+
+        public bool Remover(Guid id, Guid correlationId)
+        {
+            return PublicaMensagem(id, "cadastro", "remover", correlationId);
         }
 
         public async Task<FuncionarioResponse> ObterPorId(Guid id)
@@ -60,10 +70,11 @@ namespace Cadastro.API.Services
             var funcionario = await _retryAsyncPolicy.ExecuteAsync(async () =>
             {
                 var funcionario = await _service.ObterPorId(id);
-                if (funcionario == null)
-                    return null;
                 return funcionario;
             });
+
+            if (funcionario == null)
+                return null;
             return new FuncionarioResponse(funcionario);
         }
 

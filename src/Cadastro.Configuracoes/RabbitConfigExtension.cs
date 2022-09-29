@@ -50,18 +50,37 @@ namespace Cadastro.Configuracoes
                 atualizarArgs.Add("x-dead-letter-routing-key", "atualizar_deadletter");
                 model.QueueDeclare("atualizar_deadletter", true, false, false);
                 model.QueueDeclare("atualizar", true, false, false, atualizarArgs);
+
+                var removerArgs = new Dictionary<string, object>();
+                atualizarArgs.Add("x-dead-letter-exchange", "remover_deadletter");
+                atualizarArgs.Add("x-dead-letter-routing-key", "remover_deadletter");
+                model.QueueDeclare("remover_deadletter", true, false, false);
+                model.QueueDeclare("remover", true, false, false, removerArgs);
+
+                var desativarArgs = new Dictionary<string, object>();
+                atualizarArgs.Add("x-dead-letter-exchange", "desativar_deadletter");
+                atualizarArgs.Add("x-dead-letter-routing-key", "desativar_deadletter");
+                model.QueueDeclare("desativar_deadletter", true, false, false);
+                model.QueueDeclare("desativar", true, false, false, desativarArgs);
+
                 model.QueueDeclare("notificar", true, false, false);
                 model.QueueDeclare("logs", true, false, false);
                 model.ExchangeDeclare("cadastrar_deadletter", ExchangeType.Fanout, true, false, null);
                 model.ExchangeDeclare("atualizar_deadletter", ExchangeType.Fanout, true, false, null);
+                model.ExchangeDeclare("remover_deadletter", ExchangeType.Fanout, true, false, null);
+                model.ExchangeDeclare("desativar_deadletter", ExchangeType.Fanout, true, false, null);
                 model.ExchangeDeclare("cadastro", ExchangeType.Topic, true);
                 model.ExchangeDeclare("evento", ExchangeType.Fanout, true);
                 model.ExchangeDeclare("logs", ExchangeType.Fanout, true);
 
                 model.QueueBind("cadastrar", "cadastro", "cadastrar");
                 model.QueueBind("atualizar", "cadastro", "atualizar");
+                model.QueueBind("remover", "cadastro", "remover");
+                model.QueueBind("desativar", "cadastro", "desativar");
                 model.QueueBind("cadastrar_deadletter", "cadastrar_deadletter", "");
                 model.QueueBind("atualizar_deadletter", "atualizar_deadletter", "");
+                model.QueueBind("remover_deadletter", "remover_deadletter", "");
+                model.QueueBind("desativar_deadletter", "desativar_deadletter", "");
                 model.QueueBind("notificar", "evento", "");
                 model.QueueBind("logs", "logs", "");
             }

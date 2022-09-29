@@ -10,6 +10,8 @@ namespace Cadastro.API.Interfaces
     {
         bool Cadastrar(Funcionario funcionario, Guid correlationId);
         bool Atualizar(Funcionario funcionario, Guid correlationId);
+        bool Desativar(Guid id, Guid correlationId);
+        bool Remover(Guid id, Guid correlationId);
         Task<FuncionarioResponse> ObterPorId(Guid id);
         Task<IEnumerable<FuncionarioResponse>> ObterTodos();
     }

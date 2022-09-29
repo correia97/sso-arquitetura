@@ -732,12 +732,12 @@ namespace Cadastro.Test.Domain
         }
         #endregion
 
-        #region ObterPorTodos
+        #region ObterTodos
 
         [Fact]
-        public async Task ObterPorTodos_OK_Quando_Registro_Existe()
+        public async Task ObterTodos_OK_Quando_Registro_Existe()
         {
-            var activity = new ActivitySource("ObterPorTodos_OK_Quando_Registro_Existe");
+            var activity = new ActivitySource("ObterTodos_OK_Quando_Registro_Existe");
             var person = _faker.Person;
             var id = Guid.NewGuid();
             var tels = new List<Telefone> {
@@ -765,9 +765,9 @@ namespace Cadastro.Test.Domain
         }
 
         [Fact]
-        public async Task ObterPorTodos_OK_Quando_Registros_Nao_Existem()
+        public async Task ObterTodos_OK_Quando_Registros_Nao_Existem()
         {
-            var activity = new ActivitySource("ObterPorTodos_OK_Quando_Registros_Nao_Existem");
+            var activity = new ActivitySource("ObterTodos_OK_Quando_Registros_Nao_Existem");
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
                 .ReturnsAsync(new List<Funcionario>());
 
@@ -784,9 +784,9 @@ namespace Cadastro.Test.Domain
         }
 
         [Fact]
-        public async Task ObterPorTodos_Nao_OK_Quando_Base_Nao_Disponivel()
+        public async Task ObterTodos_Nao_OK_Quando_Base_Nao_Disponivel()
         {
-            var activity = new ActivitySource("ObterPorTodos_Nao_OK_Quando_Base_Nao_Disponivel");
+            var activity = new ActivitySource("ObterTodos_Nao_OK_Quando_Base_Nao_Disponivel");
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
                 .Throws(new Exception("Teste"));
 
