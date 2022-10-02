@@ -52,14 +52,14 @@ namespace Cadastro.Configuracoes
                 model.QueueDeclare("atualizar", true, false, false, atualizarArgs);
 
                 var removerArgs = new Dictionary<string, object>();
-                atualizarArgs.Add("x-dead-letter-exchange", "remover_deadletter");
-                atualizarArgs.Add("x-dead-letter-routing-key", "remover_deadletter");
+                removerArgs.Add("x-dead-letter-exchange", "remover_deadletter");
+                removerArgs.Add("x-dead-letter-routing-key", "remover_deadletter");
                 model.QueueDeclare("remover_deadletter", true, false, false);
                 model.QueueDeclare("remover", true, false, false, removerArgs);
 
                 var desativarArgs = new Dictionary<string, object>();
-                atualizarArgs.Add("x-dead-letter-exchange", "desativar_deadletter");
-                atualizarArgs.Add("x-dead-letter-routing-key", "desativar_deadletter");
+                desativarArgs.Add("x-dead-letter-exchange", "desativar_deadletter");
+                desativarArgs.Add("x-dead-letter-routing-key", "desativar_deadletter");
                 model.QueueDeclare("desativar_deadletter", true, false, false);
                 model.QueueDeclare("desativar", true, false, false, desativarArgs);
 

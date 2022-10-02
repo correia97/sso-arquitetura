@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
+using Cadastro.Domain.Enums;
 
 namespace Cadastro.Test.Apresentacao.Controllers
 {
@@ -60,7 +61,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -89,7 +90,6 @@ namespace Cadastro.Test.Apresentacao.Controllers
             _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
         }
 
-
         [Fact]
         public void Post_Success_Test()
         {
@@ -98,7 +98,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -159,7 +159,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -220,7 +220,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -282,7 +282,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", Cadastro.Domain.Enums.TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -333,6 +333,56 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var result = controller.Patch(correlationId: Guid.NewGuid(), funcionarioReq) as BadRequestObjectResult;
 
             _service.Verify(x => x.Atualizar(It.IsAny<Funcionario>(), It.IsAny<Guid>()), Times.Once);
+            result.StatusCode.Should().Be(400);
+            _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
+        }
+
+        [Fact]
+        public void Delete_Success_Test()
+        {
+            var id = Guid.NewGuid();
+            _service.Setup(x => x.Remover(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            var controller = new FuncionarioController(_logger.Object, _service.Object);
+            var result = controller.Delete(correlationId: Guid.NewGuid(), Guid.NewGuid()) as OkObjectResult;
+            _service.Verify(x => x.Remover(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Once);
+            result.StatusCode.Should().Be(200);
+            _outputHelper.WriteLine($"Expected: {200} Received: {result.StatusCode}");
+        }
+
+        [Fact]
+        public void Delete_Fail_Test()
+        {
+            var id = Guid.NewGuid();
+            _service.Setup(x => x.Remover(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Throws(new Exception());
+            var controller = new FuncionarioController(_logger.Object, _service.Object);
+            var result = controller.Delete(correlationId: Guid.NewGuid(), Guid.NewGuid()) as BadRequestObjectResult;
+            _service.Verify(x => x.Remover(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Once);
+            result.StatusCode.Should().Be(400);
+            _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
+        }
+
+        [Fact]
+        public void Desativar_Success_Test()
+        {
+            var id = Guid.NewGuid();
+            _service.Setup(x => x.Desativar(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            var controller = new FuncionarioController(_logger.Object, _service.Object);
+            var result = controller.Desativar(correlationId: Guid.NewGuid(), Guid.NewGuid()) as OkObjectResult;
+            _service.Verify(x => x.Desativar(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Once);
+            result.StatusCode.Should().Be(200);
+            _outputHelper.WriteLine($"Expected: {200} Received: {result.StatusCode}");
+        }
+
+        [Fact]
+        public void Desativar_Fail_Test()
+        {
+            var id = Guid.NewGuid();
+            _service.Setup(x => x.Desativar(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Throws(new Exception());
+            var controller = new FuncionarioController(_logger.Object, _service.Object);
+            var result = controller.Desativar(correlationId: Guid.NewGuid(), Guid.NewGuid()) as BadRequestObjectResult;
+            _service.Verify(x => x.Desativar(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Once);
             result.StatusCode.Should().Be(400);
             _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
         }

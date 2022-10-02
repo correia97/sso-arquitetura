@@ -1,5 +1,5 @@
 config:
-  target: "http://localhost:58075"
+  target: "http://localhost:53726"
   http:
     timeout: 999
   tls:

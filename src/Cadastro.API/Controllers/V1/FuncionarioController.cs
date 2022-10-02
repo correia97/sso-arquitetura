@@ -162,5 +162,44 @@ namespace Cadastro.API.Controllers.V1
                 return BadRequest(ex);
             }
         }
+
+
+
+
+        [HttpDelete]
+        [Route("funcionario/{id:guid}")]
+        [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
+        [SwaggerResponse(400, "Funcionario não recebido")]
+        public IActionResult Delete([FromHeader] Guid correlationId, [FromQuery] Guid id)
+        {
+            try
+            {
+                var result = _service.Remover(id, correlationId);
+                return Ok(new { received = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Patch");
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpPatch]
+        [Route("funcionario/{id:guid}/desativar")]
+        [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
+        [SwaggerResponse(400, "Funcionario não recebido")]
+        public IActionResult Desativar([FromHeader] Guid correlationId, [FromQuery] Guid id)
+        {
+            try
+            {
+                var result = _service.Desativar(id, correlationId);
+                return Ok(new { received = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Patch");
+                return BadRequest(ex);
+            }
+        }
     }
 }
