@@ -6,7 +6,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Keycloak
       - ASPNETCORE_URLS=http://+:80
     ports:
-      - "80"
+      - 56701:80
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
   cadastro.mvc:
@@ -14,7 +14,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Keycloak
       - ASPNETCORE_URLS=http://+:80
     ports:
-      - "80"
+      - 56702:80
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
 

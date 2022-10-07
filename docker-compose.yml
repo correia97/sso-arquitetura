@@ -283,7 +283,7 @@ services:
         condition: service_started  
       cadvisor:
         condition: service_started  
-
+        
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor

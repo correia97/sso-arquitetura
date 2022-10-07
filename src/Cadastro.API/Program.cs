@@ -159,7 +159,7 @@ app.UseSwaggerUI(c =>
 {
     foreach (var description in provider.ApiVersionDescriptions)
     {
-        c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+        c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.yaml",
                           $"Cadastro API - {app.Environment.EnvironmentName} {description.GroupName.ToUpperInvariant()}");
     }
     c.DocExpansion(DocExpansion.List);
