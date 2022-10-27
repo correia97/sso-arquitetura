@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "angularkeycloakprotect": {
+    "cadastro.angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:application": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/angularkeycloakprotect",
+            "outputPath": "dist/cadastro.angular",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -51,8 +51,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "10mb",
+                  "maximumError": "15mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -78,8 +78,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "900kb",
-                  "maximumError": "2mb"
+                  "maximumWarning": "10mb",
+                  "maximumError": "15mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -105,8 +105,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "900kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "10mb",
+                  "maximumError": "15mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -120,24 +120,24 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "angularkeycloakprotect:build"
+            "browserTarget": "cadastro.angular:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "angularkeycloakprotect:build:production"
+              "browserTarget": "cadastro.angular:build:production"
             },
             "keycloak": {
-              "browserTarget": "angularkeycloakprotect:build:keycloak"
+              "browserTarget": "cadastro.angular:build:keycloak"
             },
             "auth0": {
-              "browserTarget": "angularkeycloakprotect:build:auth0"
+              "browserTarget": "cadastro.angular:build:auth0"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "angularkeycloakprotect:build"
+            "browserTarget": "cadastro.angular:build"
           }
         },
         "test": {
@@ -174,25 +174,25 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "angularkeycloakprotect:serve"
+            "devServerTarget": "cadastro.angular:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "angularkeycloakprotect:serve:production"
+              "devServerTarget": "cadastro.angular:serve:production"
             },
             
             "keycloak": {
-              "devServerTarget": "angularkeycloakprotect:serve:keycloak"
+              "devServerTarget": "cadastro.angular:serve:keycloak"
             },
             "auth0": {
-              "devServerTarget": "angularkeycloakprotect:serve:auth0"
+              "devServerTarget": "cadastro.angular:serve:auth0"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "angularkeycloakprotect",
+  "defaultProject": "cadastro.angular",
   "cli": {
     "analytics": "006ddab5-4ffc-4b6e-9c1a-8d315ec0f6bc"
   }

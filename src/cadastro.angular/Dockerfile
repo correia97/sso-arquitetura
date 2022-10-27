@@ -12,4 +12,4 @@ RUN ng b -c production
 
 FROM base as final
 COPY --from=build-step /app/default.conf /etc/nginx/conf.d/default.conf 
-COPY --from=build-step /app/dist/angularkeycloakprotect/ /usr/share/nginx/html
+COPY --from=build-step /app/dist/cadastro.angular/ /usr/share/nginx/html
