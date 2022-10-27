@@ -14,8 +14,6 @@ services:
          condition: service_started
        rabbitmq:
          condition: service_healthy
-      #  jaeger:
-      #    condition: service_started
 
   cadastro.mvc:
     image: ${DOCKER_REGISTRY-}cadastromvc
@@ -41,8 +39,8 @@ services:
          condition: service_started
        rabbitmq:
          condition: service_healthy
-      #  jaeger:
-      #    condition: service_started
+       jaeger:
+        condition: service_started
 
   cadastro.angular:
     image: angular
@@ -98,138 +96,6 @@ services:
       - base
       - externo
 
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
-  #   container_name: elasticsearch
-  #   environment:
-  #     - xpack.security.enabled=false
-  #     - xpack.security.http.ssl.enabled=false
-  #     - xpack.security.transport.ssl.enabled=false
-  #     - discovery.type=single-node
-  #     - http.host=0.0.0.0
-  #     - transport.host=127.0.0.1
-  #     - network.host=0.0.0.0
-  #     - cluster.name="elastic_stack_logging"
-  #     - node.name="elastic_stack_logging_data"
-  #     - http.cors.enabled=true
-  #     - http.cors.allow-origin="*"
-  #     - ELASTIC_PASSWORD="elastic123"
-  #   mem_limit: 1073741824  
-  #   healthcheck:
-  #     interval: 15s
-  #     retries: 10
-  #     test: 
-  #       [
-  #         "CMD-SHELL",
-  #         "curl -I -s -L http://localhost:9200 || exit 1"
-  #       ]
-  #   volumes:
-  #     - elk_data:/usr/share/elasticsearch/data
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
-  #   ports:
-  #     - 9200:9200
-  #     - 9300:9300
-  #   networks:    
-  #     - externo
-  #     - base   
-  
-  # kibana:
-  #   image: docker.elastic.co/kibana/kibana:7.10.2
-  #   container_name: kibana
-  #   volumes:
-  #     - kibana_data:/usr/share/kibana/data
-  #   environment:
-  #     - SERVERNAME=kibana
-  #     - SERVERHOST="0"
-  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-  #     - ELASTICSEARCH_USERNAME=kibana_system
-  #     - ELASTICSEARCH_PASSWORD="elastic123"
-  #     - xpack.reporting.roles.enabled=false
-  #     - xpack.security.enabled=false
-  #     - xpack.security.http.ssl.enabled=false
-  #     - xpack.security.transport.ssl.enabled=false
-  #   healthcheck:
-  #     test:
-  #       [
-  #         "CMD-SHELL",
-  #         "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
-  #       ]
-  #     interval: 10s
-  #     timeout: 10s
-  #     retries: 50
-  #   ports: 
-  #     - 5601:5601
-  #   networks:
-  #     - externo
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-
-  # apmserver:
-  #   image: ${DOCKER_REGISTRY-}apm-server:7.17.6
-  #   container_name: apmserver
-  #   build: 
-  #     context: ./src/elastic/apmserver/
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - xpack.security.enabled=false
-  #     - xpack.security.http.ssl.enabled=false
-  #     - xpack.security.transport.ssl.enabled=false  
-  #   ports:
-  #     - 8200:8200
-  #     - 5066:5066
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  #     kibana:
-  #       condition: service_healthy 
-  #   networks:    
-  #     - externo
-  #     - base   
-
-  # metricbeat:   
-  #   image: ${DOCKER_REGISTRY-}metricbeat:7.10.2
-  #   container_name: metricbeat
-  #   build: 
-  #     context: ./src/elastic/metricbeats/
-  #     dockerfile: Dockerfile
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  #     kibana:
-  #       condition: service_healthy
-  #   volumes:
-  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
-  #     - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
-  #     - "/proc:/hostfs/proc:ro"
-  #     - "/:/hostfs:ro"
-  #   networks:    
-  #     - externo
-  #     - base 
-
-  # heartbeat:   
-  #   image: ${DOCKER_REGISTRY-}heartbeat:7.10.2
-  #   container_name: heartbeat
-  #   build: 
-  #     context: ./src/elastic/heartbeat/
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - setup.kibana.host=kibana:5601 
-  #   ports:
-  #     - 5067:5067  
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  #     kibana:
-  #       condition: service_healthy
-  #   networks:    
-  #     - externo
-  #     - base 
-
-
   # logstash:
   #   image: ${DOCKER_REGISTRY-}logstash:7.17.6
   #   container_name: logstash  
@@ -249,24 +115,23 @@ services:
   #     - externo
   #     - base 
 
-
-  # jaeger:
-  #   image: jaegertracing/all-in-one:1.37
-  #   container_name: jaeger
-  #   environment:
-  #       - PROMETHEUS_SERVER_URL=http://prometheus:9090
-  #       - METRICS_STORAGE_TYPE=prometheus
-  #   ports:
-  #     - 14250:14250
-  #     - 14268:14268
-  #     - 6831:6831/udp
-  #     - 16686:16686
-  #     - 16685:16685
-  #   networks:
-  #     - externo
-  #   depends_on:
-  #     prometheus:
-  #       condition: service_started            
+  jaeger:
+     image: jaegertracing/all-in-one:1.37
+     container_name: jaeger
+     environment:
+         - PROMETHEUS_SERVER_URL=http://prometheus:9090
+         - METRICS_STORAGE_TYPE=prometheus
+     ports:
+       - 14250:14250
+       - 14268:14268
+       - 6831:6831/udp
+       - 16686:16686
+       - 16685:16685
+     networks:
+       - externo
+     depends_on:
+       prometheus:
+         condition: service_started            
 
   prometheus:
     image: prom/prometheus:v2.37.0
@@ -309,30 +174,31 @@ services:
     networks:
       - externo
 
-  Keycloak:
+  keycloak:
    image: quay.io/keycloak/keycloak:19.0.1
-   container_name: Keycloak
+   container_name: keycloak
    command:
      - start-dev --import-realm
    environment:
+     - DB_DATABASE=keycloak
+     - KEYCLOAK_ADMIN=admin
+     - KEYCLOAK_ADMIN_PASSWORD=admin
+     - PROXY_ADDRESS_FORWARDING=true
      - KC_HTTP_ENABLED=true
-     - KC_LOG=console
      - KC_HTTP_PORT=8080
      - KC_DB=postgres
      - KC_DB_USERNAME=postgres
      - KC_DB_PASSWORD=postgres
      - KC_DB_URL=jdbc:postgresql://db/keycloak
-     - DB_DATABASE=keycloak
-     - KEYCLOAK_ADMIN=admin
-     - KEYCLOAK_ADMIN_PASSWORD=admin
-     - PROXY_ADDRESS_FORWARDING=true
      - KC_PROXY=edge
-     - KC_METRICS_ENABLED=true
      - KC_HOSTNAME=keycloak.localhost
      - KC_FEATURES=token-exchange
+     - KC_LOG=console
      - KC_HEALTH_ENABLED=true
+     - KC_METRICS_ENABLED=true
    volumes:
      - ./src/keycloak/realm-export v19.0.1.json:/opt/keycloak/data/import/realm.json  
+     - ./src/keycloak/extension/keycloak-metrics-spi-2.5.3.jar:/opt/keycloak/providers/keycloak-metrics-spi-2.5.3.jar 
    depends_on:
      db:
       condition: service_started
@@ -460,6 +326,17 @@ services:
       nginx:
         condition: service_started  
 
+  angular_exporter:
+    image: nginx/nginx-prometheus-exporter:0.10.0
+    container_name: angular_exporter
+    command: 
+      -  "-nginx.scrape-uri=http://cadastro.angular/metrics"
+    networks:
+      - externo
+    depends_on:
+      cadastro.angular:
+        condition: service_started        
+
   nginx:
     image: nginx:1.23.1-alpine
     container_name: nginx
@@ -484,7 +361,7 @@ services:
          condition: service_started      
       cadastro.api:
          condition: service_started      
-      Keycloak:
+      keycloak:
         condition: service_started
     environment: 
       - NGINX_HOST=localhost
@@ -497,6 +374,3 @@ volumes:
   dbData:
   mq_data:
   grafana_data:
-  # elk_data:
-  # kibana_data:
-

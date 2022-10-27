@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
 using Serilog;
 using System;
 using System.Data;
@@ -100,7 +102,9 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.AddPostgres11_0();
             rb.WithGlobalConnectionString("Base");
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
-        });
+        });        
+
+        services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, configuration);
     })
     .Build();
 

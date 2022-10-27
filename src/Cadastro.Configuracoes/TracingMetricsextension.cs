@@ -10,6 +10,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cadastro.Configuracoes
@@ -21,18 +22,31 @@ namespace Cadastro.Configuracoes
         {
             services.AddOpenTelemetryTracing(traceProvider =>
             {
-                traceProvider
-                    .AddSource(serviceName)
-                    .SetResourceBuilder(
-                        ResourceBuilder.CreateDefault()
-                            .AddService(serviceName: serviceName,
-                                serviceVersion: serviceVersion))
-                    .AddGrpcCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddAspNetCoreInstrumentation()
-                    .AddSqlClientInstrumentation()
-                    .AddConsoleExporter()
-                    .AddJaegerExporter();
+               traceProvider
+                .AddSource(serviceName)
+                .SetResourceBuilder(
+                    ResourceBuilder.CreateDefault()
+                        .AddService(serviceName: serviceName,
+                            serviceVersion: serviceVersion))
+                // .AddGrpcCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddAspNetCoreInstrumentation()
+                .AddSqlClientInstrumentation()
+                .AddConsoleExporter()
+                .AddJaegerExporter(opt =>
+                {
+                    opt.AgentHost = config.GetSection("jaeger:host").Value;
+                    opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
+                    opt.Endpoint = new Uri($"http://{opt.AgentHost}:14268/api/traces");
+                    opt.ExportProcessorType = ExportProcessorType.Batch;
+                    opt.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
+                    {
+                        MaxQueueSize = 2048,
+                        ScheduledDelayMilliseconds = 5000,
+                        ExporterTimeoutMilliseconds = 30000,
+                        MaxExportBatchSize = 512,
+                    };
+                });
             });
 
             services.Configure<AspNetCoreInstrumentationOptions>((options)
@@ -54,11 +68,6 @@ namespace Cadastro.Configuracoes
                         }
                     });
 
-            services.Configure<JaegerExporterOptions>(exporter =>
-            {
-                exporter.AgentHost = config.GetSection("jaeger:host").Value;
-                exporter.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
-            });
 
             services.Configure<SqlClientInstrumentationOptions>(options =>
             {
@@ -85,20 +94,6 @@ namespace Cadastro.Configuracoes
                 .AddHttpClientInstrumentation()
                 .AddPrometheusExporter();
             });
-
-            var meterProvider = Sdk.CreateMeterProviderBuilder()
-                .AddPrometheusExporter()
-                .Build();
-
-            services.Configure<PrometheusExporterOptions>(conf =>
-            {
-                conf.StartHttpListener = true;
-                conf.HttpListenerPrefixes = new string[] { $"{config.GetSection("prometheus:url").Value}:{config.GetSection("prometheus:port").Value}" };
-                conf.ScrapeResponseCacheDurationMilliseconds = 0;
-                conf.ScrapeEndpointPath = "/metrics";
-            });
-
-            services.AddSingleton(meterProvider);
 
             return services;
         }

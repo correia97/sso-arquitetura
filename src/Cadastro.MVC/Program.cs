@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using MVC.Interfaces;
 using MVC.Services;
-using Prometheus;
 using Serilog;
 using System;
 using System.Diagnostics;
@@ -27,11 +26,13 @@ builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 
 builder.Services.AddMVCCustomCookiePolicyOptionsConfig();
 
-builder.Services.AddHealthChecks()
-                .ForwardToPrometheus();
+builder.Services.AddHealthChecks();
 
 string serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version?.ToString();
+
+builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
 
 var activity = new ActivitySource(serviceName, serviceVersion);
 builder.Services.AddScoped<ActivitySource>(x => activity);
@@ -40,6 +41,8 @@ builder.Services.AddScoped<ActivitySource>(x => activity);
 builder.Services.AddRazorPages();
 
 Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, serviceName);
+
+
 
 var app = builder.Build();
 
@@ -66,17 +69,14 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseHttpMetrics();
-
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
 
-    endpoints.MapMetrics();
 });
-
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 app.MapHealthChecks("/health");
 
 try

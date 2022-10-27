@@ -16,7 +16,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Npgsql;
-using Prometheus;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
@@ -106,8 +105,7 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddHealthChecks()
-                .ForwardToPrometheus();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddScoped<IDbConnection>(sp =>
 {
@@ -133,6 +131,9 @@ builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 
 string serviceName = typeof(FuncionarioAppService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version?.ToString();
+
+builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
 
 var activity = new ActivitySource(serviceName, serviceVersion);
 builder.Services.AddScoped<ActivitySource>(x => activity);
@@ -171,15 +172,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseHttpMetrics();
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseMetricServer();
 
 app.MapControllers();
 
