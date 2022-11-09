@@ -29,15 +29,15 @@ namespace Cadastro.API.Controllers.V1
         }
 
         [HttpGet]
-        [Route("funcionario")]
-        [SwaggerResponse(200, "Funcionarios localizado", typeof(IEnumerable<FuncionarioResponse>))]
+        [Route("funcionario/pagina/{pagina:int}/qtdItens/{qtdItens:int}")]
+        [SwaggerResponse(200, "Funcionarios localizado", typeof(Response<IEnumerable<FuncionarioResponse>>))]
         [SwaggerResponse(400, "Funcionarios não localizado")]
-        public async Task<IActionResult> Get([FromHeader] Guid correlationId)
+        public async Task<IActionResult> Get([FromHeader] Guid correlationId, [FromRoute] int pagina = 0, [FromRoute] int qtdItens = 10)
         {
             try
             {
-                var result = await _service.ObterTodos();
-                return Ok(result);
+                var result = await _service.ObterTodos(pagina, qtdItens);
+                return Ok(Response<IEnumerable<FuncionarioResponse>>.SuccessResult(result.Item1, result.Item2, qtdItens, pagina));
             }
             catch (Exception ex)
             {
@@ -48,14 +48,14 @@ namespace Cadastro.API.Controllers.V1
 
         [HttpGet]
         [Route("funcionario/{id:guid}")]
-        [SwaggerResponse(200, "Funcionario localizado", typeof(FuncionarioResponse))]
+        [SwaggerResponse(200, "Funcionario localizado", typeof(Response<FuncionarioResponse>))]
         [SwaggerResponse(400, "Funcionario não localizado")]
         public async Task<IActionResult> Get([FromHeader] Guid correlationId, Guid id)
         {
             try
             {
                 var result = await _service.ObterPorId(id);
-                return Ok(result);
+                return Ok(Response<FuncionarioResponse>.SuccessResult(result, 1));
             }
             catch (Exception ex)
             {
@@ -67,7 +67,7 @@ namespace Cadastro.API.Controllers.V1
 
         [HttpPost]
         [Route("funcionario")]
-        [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
+        [SwaggerResponse(200, "Funcionario recebido", typeof(Response<bool>))]
         [SwaggerResponse(400, "Funcionario não recebido")]
         public IActionResult Post([FromHeader] Guid correlationId, [FromBody] FuncionarioRequest funcionario)
         {
@@ -101,9 +101,11 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoComercial?.Cidade,
                                                                              funcionario.EnderecoComercial?.UF,
                                                                              Domain.Enums.TipoEnderecoEnum.Comercial,
-                                                                             Guid.Parse(funcionario.UserId))), correlationId);
+                                                                             Guid.Parse(funcionario.UserId)),
+                                                                             funcionario.Ativo),
+                                                                             correlationId);
 
-                return Ok(new { received = result });
+                return Ok(Response<bool>.SuccessResult(result, 1));
             }
             catch (Exception ex)
             {
@@ -115,7 +117,7 @@ namespace Cadastro.API.Controllers.V1
 
         [HttpPatch]
         [Route("funcionario")]
-        [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
+        [SwaggerResponse(200, "Funcionario recebido", typeof(Response<bool>))]
         [SwaggerResponse(400, "Funcionario não recebido")]
         public IActionResult Patch([FromHeader] Guid correlationId, [FromBody] FuncionarioRequest funcionario)
         {
@@ -151,10 +153,11 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoComercial?.Cidade,
                                                                              funcionario.EnderecoComercial?.UF,
                                                                              Domain.Enums.TipoEnderecoEnum.Comercial,
-                                                                             Guid.Parse(funcionario.UserId)));
+                                                                             Guid.Parse(funcionario.UserId)),
+                                                                             funcionario.Ativo);
 
                 var result = _service.Atualizar(funcionarioModel, correlationId);
-                return Ok(new { received = result });
+                return Ok(Response<bool>.SuccessResult(result, 1));
             }
             catch (Exception ex)
             {
@@ -163,19 +166,16 @@ namespace Cadastro.API.Controllers.V1
             }
         }
 
-
-
-
         [HttpDelete]
         [Route("funcionario/{id:guid}")]
-        [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
+        [SwaggerResponse(200, "Funcionario recebido", typeof(Response<bool>))]
         [SwaggerResponse(400, "Funcionario não recebido")]
-        public IActionResult Delete([FromHeader] Guid correlationId, [FromQuery] Guid id)
+        public IActionResult Delete([FromHeader] Guid correlationId, [FromRoute] Guid id)
         {
             try
             {
                 var result = _service.Remover(id, correlationId);
-                return Ok(new { received = result });
+                return Ok(Response<bool>.SuccessResult(result, 1));
             }
             catch (Exception ex)
             {
@@ -186,14 +186,14 @@ namespace Cadastro.API.Controllers.V1
 
         [HttpPatch]
         [Route("funcionario/{id:guid}/desativar")]
-        [SwaggerResponse(200, "Funcionario recebido", typeof(bool))]
+        [SwaggerResponse(200, "Funcionario recebido", typeof(Response<bool>))]
         [SwaggerResponse(400, "Funcionario não recebido")]
-        public IActionResult Desativar([FromHeader] Guid correlationId, [FromQuery] Guid id)
+        public IActionResult Desativar([FromHeader] Guid correlationId, [FromRoute] Guid id)
         {
             try
             {
                 var result = _service.Desativar(id, correlationId);
-                return Ok(new { received = result });
+                return Ok(Response<bool>.SuccessResult(result, 1));
             }
             catch (Exception ex)
             {

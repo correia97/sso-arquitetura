@@ -78,15 +78,15 @@ namespace Cadastro.API.Services
             return new FuncionarioResponse(funcionario);
         }
 
-        public async Task<IEnumerable<FuncionarioResponse>> ObterTodos()
+        public async Task<(IEnumerable<FuncionarioResponse>, int)> ObterTodos(int pagina, int qtdItens)
         {
-            var funcionario = await _retryAsyncPolicy.ExecuteAsync(() => _service.ObterTodos());
+            var funcionario = await _retryAsyncPolicy.ExecuteAsync(() => _service.ObterTodos(pagina, qtdItens));
             var result = new List<FuncionarioResponse>();
-            foreach (var item in funcionario)
+            foreach (var item in funcionario.Item1)
             {
                 result.Add(new FuncionarioResponse(item));
             }
-            return result;
+            return (result, funcionario.Item2);
         }
     }
 }

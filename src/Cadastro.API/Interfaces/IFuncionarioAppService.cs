@@ -13,6 +13,6 @@ namespace Cadastro.API.Interfaces
         bool Desativar(Guid id, Guid correlationId);
         bool Remover(Guid id, Guid correlationId);
         Task<FuncionarioResponse> ObterPorId(Guid id);
-        Task<IEnumerable<FuncionarioResponse>> ObterTodos();
+        Task<(IEnumerable<FuncionarioResponse>, int)> ObterTodos(int pagina, int qtdItens);
     }
 }
