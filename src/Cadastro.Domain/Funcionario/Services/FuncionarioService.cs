@@ -36,6 +36,7 @@ namespace Cadastro.Domain.Services
             baseFuncionario.AtualizarTelefones(funcionario.Telefones);
             baseFuncionario.AtualizarEnderecoComercial(funcionario.EnderecoComercial);
             baseFuncionario.AtualizarEnderecoResidencial(funcionario.EnderecoResidencial);
+            baseFuncionario.AtualizarStatus(funcionario.Ativo);
 
             _repositoryWrite.IniciarTransacao();
             var result = await _repositoryWrite.Atualizar(baseFuncionario);
@@ -190,12 +191,19 @@ namespace Cadastro.Domain.Services
             return funcionario;
         }
 
-        public async Task<IEnumerable<Funcionario>> ObterTodos()
+        public async Task<(IEnumerable<Funcionario>,int)> ObterTodos(int pagina, int qtdItens)
         {
             using var activity = _activitySource.StartActivity("Obter Funcionarios", ActivityKind.Internal);
-            _logger.LogInformation($"ObterTodos Funcionário iniciado {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
-            IEnumerable<Funcionario> data = await _repositoryRead.ObterTodos();
-            _logger.LogInformation($"ObterTodos Funcionário concluido {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
+            pagina = pagina--;
+            if (pagina < 0)
+                pagina = 0;
+
+            if (qtdItens < 1 || qtdItens > 50)
+                qtdItens = 50;
+
+            _logger.LogInformation($"ObterTodos Funcionário iniciado pagina {pagina} qtd {qtdItens} Data {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
+            var data = await _repositoryRead.ObterTodos(pagina, qtdItens);
+            _logger.LogInformation($"ObterTodos Funcionário concluido pagina {pagina} qtd {qtdItens} Data {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}");
             return data;
         }
 

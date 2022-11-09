@@ -2,6 +2,7 @@ using Cadastro.Configuracoes;
 using Cadastro.Domain.Services;
 using Domain.Entities;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,10 @@ namespace Cadastro.WorkerService
             mQConsumer.AddConsumer<IFuncionarioService, Funcionario>((svc, msg) => svc.Cadastrar(msg), "cadastrar");
 
             mQConsumer.AddConsumer<IFuncionarioService, Funcionario>((svc, msg) => svc.Atualizar(msg), "atualizar");
+
+            mQConsumer.AddConsumer<IFuncionarioService, Guid>((svc, msg) => svc.Desativar(msg), "desativar");
+
+            mQConsumer.AddConsumer<IFuncionarioService, Guid>((svc, msg) => svc.Remover(msg), "remover");
 
             await Task.Delay(1000, stoppingToken);
         }

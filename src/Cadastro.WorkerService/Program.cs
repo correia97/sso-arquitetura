@@ -102,8 +102,9 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.AddPostgres11_0();
             rb.WithGlobalConnectionString("Base");
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
-        });        
+        });
 
+        services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion);
         services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, configuration);
     })
     .Build();

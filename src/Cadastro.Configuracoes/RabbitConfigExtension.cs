@@ -26,7 +26,7 @@ namespace Cadastro.Configuracoes
             return services;
         }
 
-        private static IConnection CreateConnection(IConfiguration configuration)
+        public static IConnection CreateConnection(IConfiguration configuration)
         {
             var factory = new ConnectionFactory
             {

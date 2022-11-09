@@ -20,7 +20,7 @@ namespace Cadastro.Data.Repositories
             this.Connection = connection;
         }
 
-        public abstract Task<IEnumerable<T>> ObterTodos();
+        public abstract Task<(IEnumerable<Funcionario>, int)> ObterTodos(int pagina, int qtdItens);
 
         public abstract Task<T> ObterPorId(U id);
 

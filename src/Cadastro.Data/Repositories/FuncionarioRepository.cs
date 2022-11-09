@@ -36,6 +36,7 @@ namespace Cadastro.Data.Repositories
                         });
             Status = TransactionStatusEnum.None;
         }
+
         public async Task<Funcionario> ObterPorEmail(string email)
         {
             var query = @"SELECT  id
@@ -49,8 +50,8 @@ namespace Cadastro.Data.Repositories
                         , sobrenome
                         , datanascimento as date
                         , enderecoemail
-                        from public.funcionarios
-                        where enderecoemail = @email";
+                        FROM public.funcionarios
+                        WHERE enderecoemail = @email";
 
             var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
                     (funcionario, nome, dataNascimento, emailAddr) =>
@@ -89,7 +90,7 @@ namespace Cadastro.Data.Repositories
             return result.FirstOrDefault();
         }
 
-        public override async Task<IEnumerable<Funcionario>> ObterTodos()
+        public override async Task<(IEnumerable<Funcionario>, int)> ObterTodos(int pagina, int qtdItens)
         {
             var query = @"SELECT   id
                         , userid
@@ -102,26 +103,37 @@ namespace Cadastro.Data.Repositories
                         , sobrenome
                         , datanascimento as date
                         , enderecoemail
-                        FROM public.funcionarios";
+                        , (SELECT count(id) FROM public.funcionarios) as total
+                        FROM public.funcionarios
+                        ORDER BY datacadastro
+                        LIMIT @qtd
+                        OFFSET @pular";
 
-            var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Funcionario>(query,
-                    (funcionario, nome, dataNascimento, emailAddr) =>
+
+            var @params = new DynamicParameters();
+            @params.Add("@qtd", qtdItens, DbType.Int32);
+            @params.Add("@pular", pagina * qtdItens, DbType.Int32);
+
+            Int64 qtdTotal = 0;
+            var result = await _retryPolicy.ExecuteAsync(() => Connection.QueryAsync<Funcionario, Nome, DataNascimento, Email, Int64, Funcionario>(query,
+                    (funcionario, nome, dataNascimento, emailAddr, total) =>
                     {
+                        qtdTotal = total;
                         funcionario.Atualizar(nome, dataNascimento, emailAddr, funcionario.Matricula, funcionario.Cargo);
                         return funcionario;
-                    }, splitOn: "primeironome, date, enderecoemail", transaction: Transaction));
-            return result;
+                    }, splitOn: "primeironome, date, enderecoemail, total", transaction: Transaction, param: @params));
+            return (result, ((int)qtdTotal));
         }
 
         public async Task<List<Telefone>> ObterTelefonesPorFuncionarioId(Guid funcionarioId)
         {
-            var query = @"Select id
+            var query = @"SELECT id
                         , ddi
                         , ddd
                         , numeroTelefone
                         , funcionarioId
-                        from public.telefones
-                         where funcionarioId = @funcionarioId";
+                         FROM public.telefones
+                         WHERE funcionarioId = @funcionarioId";
 
             var param = new DynamicParameters();
             param.Add("@funcionarioId", funcionarioId);
@@ -132,7 +144,7 @@ namespace Cadastro.Data.Repositories
 
         public async Task<List<Endereco>> ObterEnderecosPorFuncionarioId(Guid funcionarioId)
         {
-            var query = @"Select id
+            var query = @"SELECT id
                         , rua        
                         , numero     
                         , complemento
@@ -142,8 +154,8 @@ namespace Cadastro.Data.Repositories
                         , bairro     
                         , tipoEndereco     
                         , funcionarioId 
-                        from public.enderecos
-                         where funcionarioId = @funcionarioId";
+                         FROM public.enderecos
+                         WHERE funcionarioId = @funcionarioId";
 
             var param = new DynamicParameters();
             param.Add("@funcionarioId", funcionarioId);
@@ -158,7 +170,6 @@ namespace Cadastro.Data.Repositories
                           matricula       =@matricula
                         , cargo           =@cargo
                         , ativo           =@ativo
-                        , datacadastro    =@dataCadastro
                         , dataatualizacao =@dataAtualizacao
                         , primeironome    =@primeiroNome
                         , sobrenome       =@sobreNome
@@ -171,7 +182,6 @@ namespace Cadastro.Data.Repositories
             param.Add("@matricula", string.IsNullOrEmpty(data.Matricula) ? "" : data.Matricula);
             param.Add("@cargo", string.IsNullOrEmpty(data.Cargo) ? "" : data.Cargo);
             param.Add("@ativo", data.Ativo, DbType.Boolean);
-            param.Add("@dataCadastro", data.DataCadastro.ToUniversalTime(), DbType.DateTime);
             param.Add("@dataAtualizacao", DateTime.Now.ToUniversalTime(), DbType.DateTime);
             param.Add("@primeiroNome", data.Nome.PrimeiroNome);
             param.Add("@sobreNome", data.Nome.SobreNome);
@@ -239,7 +249,7 @@ namespace Cadastro.Data.Repositories
             var param = new DynamicParameters();
             param.Add("@rua", endereco.Rua);
             param.Add("@numero", endereco.Numero);
-            param.Add("@complemento", endereco.Complemento.Substring(0, 19));
+            param.Add("@complemento", string.IsNullOrEmpty(endereco.Complemento) ? null : endereco.Complemento.Substring(0, 19));
             param.Add("@cep", endereco.CEP);
             param.Add("@uf", endereco.UF);
             param.Add("@cidade", endereco.Cidade);
@@ -331,8 +341,8 @@ namespace Cadastro.Data.Repositories
 
         public async Task<bool> RemoverEndereco(int id)
         {
-            var query = @"delete from public.enderecos
-                           where id = @id";
+            var query = @"DELETE from public.enderecos
+                           WHERE id = @id";
 
             var param = new DynamicParameters();
             param.Add("@id", id);
@@ -343,8 +353,8 @@ namespace Cadastro.Data.Repositories
 
         public async Task<bool> RemoverTelefone(int id)
         {
-            var query = @"delete from public.telefones
-                           where id = @id";
+            var query = @"DELETE from public.telefones
+                           WHERE id = @id";
 
             var param = new DynamicParameters();
             param.Add("@id", id);
@@ -370,11 +380,11 @@ namespace Cadastro.Data.Repositories
 
         public override async Task<bool> Remover(Guid id)
         {
-            var query = @"delete from public.funcionarios
-                           WHERE userId = @userId";
+            var query = @"DELETE from public.funcionarios
+                           WHERE userId = @id";
 
             var param = new DynamicParameters();
-            param.Add("@userId", id);
+            param.Add("@id", id.ToString(), DbType.String);
 
             var result = await _retryPolicy.ExecuteAsync(() => Connection.ExecuteAsync(query, param, Transaction));
             return result > 0;

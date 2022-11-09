@@ -12,6 +12,6 @@ namespace Cadastro.Domain.Services
         Task Remover(Guid id);
         Task Desativar(Guid id);
         Task<Funcionario> ObterPorId(Guid id);
-        Task<IEnumerable<Funcionario>> ObterTodos();
+        Task<(IEnumerable<Funcionario>, int)> ObterTodos(int pagina, int qtdItens);
     }
 }

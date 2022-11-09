@@ -749,53 +749,53 @@ namespace Cadastro.Test.Domain
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email), tels, endereco, endereco);
 
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
-                .ReturnsAsync(new List<Funcionario>() { funcionario });
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync((new List<Funcionario>() { funcionario },1));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            var result = await service.ObterTodos();
+            var result = await service.ObterTodos(1,10);
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
             result.Should().NotBeNull();
-            result.Should().HaveCount(1);
+            result.Item1.Should().HaveCount(1);
         }
 
         [Fact]
         public async Task ObterTodos_OK_Quando_Registros_Nao_Existem()
         {
             var activity = new ActivitySource("ObterTodos_OK_Quando_Registros_Nao_Existem");
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
-                .ReturnsAsync(new List<Funcionario>());
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync((new List<Funcionario>(), 0));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                     _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            var result = await service.ObterTodos();
+            var result = await service.ObterTodos(1,10);
 
             Output.WriteLine($"Result: {result}");
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
             result.Should().NotBeNull();
-            result.Should().HaveCount(0);
+            result.Item1.Should().HaveCount(0);
         }
 
         [Fact]
         public async Task ObterTodos_Nao_OK_Quando_Base_Nao_Disponivel()
         {
             var activity = new ActivitySource("ObterTodos_Nao_OK_Quando_Base_Nao_Disponivel");
-            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos())
+            _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new Exception("Teste"));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            await Assert.ThrowsAsync<Exception>(async () => await service.ObterTodos());
+            await Assert.ThrowsAsync<Exception>(async () => await service.ObterTodos(1, 10));
 
-            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(), Times.Once);
+            _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
         }
         #endregion
     }

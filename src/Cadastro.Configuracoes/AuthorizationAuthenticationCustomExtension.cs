@@ -121,7 +121,7 @@ namespace Cadastro.Configuracoes
 
             IdentityModelEventSource.ShowPII = true;
 
-            services.AddAuthentication(options =>
+            _ = services.AddAuthentication(options =>
             {
                 options.DefaultScheme = OpenIdConnectDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
@@ -131,7 +131,7 @@ namespace Cadastro.Configuracoes
            {
                options.Cookie.Name = $"ambiente_{environment.EnvironmentName}";
            })
-           .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+           .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, async options =>
            {
                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                options.Authority = authUrl;
@@ -174,6 +174,7 @@ namespace Cadastro.Configuracoes
                options.Configuration = openidconfig;
 
                options.Events = SetupOpenIdConnectEvents();
+
            });
 
             return services;

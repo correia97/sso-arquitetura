@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
@@ -29,27 +30,15 @@ namespace Cadastro.Configuracoes
                         .AddService(serviceName: serviceName,
                             serviceVersion: serviceVersion))
                 // .AddGrpcCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .AddAspNetCoreInstrumentation()
-                .AddSqlClientInstrumentation()
-                .AddConsoleExporter()
-                .AddJaegerExporter(opt =>
+                .AddHttpClientInstrumentation(options =>
                 {
-                    opt.AgentHost = config.GetSection("jaeger:host").Value;
-                    opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
-                    opt.Endpoint = new Uri($"http://{opt.AgentHost}:14268/api/traces");
-                    opt.ExportProcessorType = ExportProcessorType.Batch;
-                    opt.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
+                    options.RecordException = true;
+                    options.Enrich = (activity, eventName, rawObject) =>
                     {
-                        MaxQueueSize = 2048,
-                        ScheduledDelayMilliseconds = 5000,
-                        ExporterTimeoutMilliseconds = 30000,
-                        MaxExportBatchSize = 512,
-                    };
-                });
-            });
 
-            services.Configure<AspNetCoreInstrumentationOptions>((options)
+                    };
+                })
+                .AddAspNetCoreInstrumentation(options
                     => options.Enrich
                     = (activity, eventName, rawObject) =>
                     {
@@ -66,18 +55,31 @@ namespace Cadastro.Configuracoes
 
                                 break;
                         }
-                    });
-
-
-            services.Configure<SqlClientInstrumentationOptions>(options =>
-            {
-                options.SetDbStatementForText = true;
-                options.RecordException = true;
+                    })
+                .AddSqlClientInstrumentation(options =>
+                {
+                    options.SetDbStatementForText = true;
+                    options.RecordException = true;
+                })
+                .AddConsoleExporter()
+                .AddJaegerExporter(opt =>
+                {
+                    opt.AgentHost = config.GetSection("jaeger:host").Value;
+                    opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
+                    opt.Endpoint = new Uri($"http://{opt.AgentHost}:14268/api/traces");
+                    opt.ExportProcessorType = ExportProcessorType.Batch;
+                    opt.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
+                    {
+                        MaxQueueSize = 2048,
+                        ScheduledDelayMilliseconds = 5000,
+                        ExporterTimeoutMilliseconds = 30000,
+                        MaxExportBatchSize = 512,
+                    };
+                });
             });
-
             return services;
         }
-        public static IServiceCollection AddCustomOpenTelemetryMetrics(this IServiceCollection services, string serviceName, string serviceVersion, IConfiguration config)
+        public static IServiceCollection AddCustomOpenTelemetryMetrics(this IServiceCollection services, string serviceName, string serviceVersion)
         {
             services.AddOpenTelemetryMetrics(context =>
             {
@@ -108,14 +110,11 @@ namespace Cadastro.Configuracoes
             {
                 options.ConfigureResource(configureResource);
                 options.AddConsoleExporter();
+                options.IncludeScopes = true;
+                options.ParseStateValues = true;
+                options.IncludeFormattedMessage = true;
             });
 
-            services.Configure<OpenTelemetryLoggerOptions>(opt =>
-            {
-                opt.IncludeScopes = true;
-                opt.ParseStateValues = true;
-                opt.IncludeFormattedMessage = true;
-            });
             return services;
         }
     }

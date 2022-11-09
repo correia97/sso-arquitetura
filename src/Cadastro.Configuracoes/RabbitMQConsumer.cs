@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 using RabbitMQ.Client;
@@ -14,16 +15,18 @@ namespace Cadastro.Configuracoes
     public class RabbitMQConsumer
     {
         private readonly ILogger<RabbitMQConsumer> _logger;
-        private readonly IModel _model;
+        private  IModel _model { get; set; }
         private readonly IServiceProvider _serviceProvider;
         private readonly AsyncPolicy _retryAsyncPolicy;
         private readonly ActivitySource _activity;
-        public RabbitMQConsumer(ILogger<RabbitMQConsumer> logger, ActivitySource activity, IModel model, IServiceProvider serviceProvider)
+        private readonly IConfiguration _configuration;
+        public RabbitMQConsumer(ILogger<RabbitMQConsumer> logger, ActivitySource activity, IModel model, IServiceProvider serviceProvider, IConfiguration configuration)
         {
             _logger = logger;
             _model = model;
             _serviceProvider = serviceProvider;
             _activity = activity;
+            _configuration = configuration;
             _retryAsyncPolicy = Policy.Handle<TimeoutException>()
                         .Or<Exception>()
                         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
@@ -38,19 +41,32 @@ namespace Cadastro.Configuracoes
         }
         public void AddConsumer<TService, TMessage>(Func<TService, TMessage, Task> action, string queue)
         {
+            if (_model.IsClosed)
+                Reconnect();
+
             _model.BasicQos(prefetchSize: 0, prefetchCount: 20, global: false);
 
             var consumer = new EventingBasicConsumer(_model);
 
-            consumer.Received += async (sender, ea) => await ReceiveidMessage(ea, action, queue);
+            consumer.Received += async (sender, ea) => await ReceiveidMessage(ea, action, queue);           
 
             _model.BasicConsume(queue, false, consumer);
+        }
+
+        private void Reconnect()
+        {
+            var connection = RabbitConfigExtension.CreateConnection(_configuration);
+            _model = connection.CreateModel();
         }
 
         protected async Task ReceiveidMessage<TService, TMessage>(BasicDeliverEventArgs ea, Func<TService, TMessage, Task> action, string queue)
         {
             _logger.LogInformation($"Message received from {queue} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
             using var act = _activity.StartActivity("ReceiveidMessage");
+            
+            if (_model.IsClosed)
+                Reconnect();
+
             TMessage messageObject = default;
             bool canDispatch = false;
             int dlqCount = 0;

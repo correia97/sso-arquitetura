@@ -140,13 +140,13 @@ namespace Cadastro.Test.Apresentacao.API.Services
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
                 new Email(person.Email));
-            _mockService.Setup(x => x.ObterTodos())
-                .ReturnsAsync(new List<Funcionario> { funcionario });
+            _mockService.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync((new List<Funcionario> { funcionario },1));
 
             var appService = new FuncionarioAppService(_mockModel.Object, _mockService.Object, _mockLogger.Object);
-            var result = await appService.ObterTodos();
-            _mockService.Verify(x => x.ObterTodos(), Times.Once);
-            result.Should().HaveCount(1);
+            var result = await appService.ObterTodos(1,10);
+            _mockService.Verify(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+            result.Item1.Should().HaveCount(1);
         }
     }
 }

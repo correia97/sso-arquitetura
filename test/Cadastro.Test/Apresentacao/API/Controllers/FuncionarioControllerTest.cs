@@ -30,12 +30,12 @@ namespace Cadastro.Test.Apresentacao.Controllers
         [Fact]
         public async Task Get_Success_Test()
         {
-            _service.Setup(x => x.ObterTodos()).ReturnsAsync(new List<FuncionarioResponse>());
+            _service.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((new List<FuncionarioResponse>(),0));
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
             var result = await controller.Get(correlationId: Guid.NewGuid()) as OkObjectResult;
 
-            _service.Verify(x => x.ObterTodos(), Times.Once);
+            _service.Verify(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
             result.StatusCode.Should().Be(200);
             _outputHelper.WriteLine($"Expected: {200} Received: {result.StatusCode}");
         }
@@ -43,12 +43,12 @@ namespace Cadastro.Test.Apresentacao.Controllers
         [Fact]
         public async Task Get_Fail_Test()
         {
-            _service.Setup(x => x.ObterTodos()).Throws(new Exception());
+            _service.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>())).Throws(new Exception());
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
             var result = await controller.Get(correlationId: Guid.NewGuid()) as BadRequestObjectResult;
 
-            _service.Verify(x => x.ObterTodos(), Times.Once);
+            _service.Verify(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
             result.StatusCode.Should().Be(400);
             _outputHelper.WriteLine($"Expected: {400} Received: {result.StatusCode}");
         }

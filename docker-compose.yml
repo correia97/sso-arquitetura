@@ -24,7 +24,10 @@ services:
     networks:
       - externo
     depends_on:
-      - cadastro.api
+     cadastro.api:
+      condition: service_started
+     keycloak:
+      condition: service_started
 
   cadastro.workerservice:
     image: ${DOCKER_REGISTRY-}cadastroworker
@@ -40,7 +43,7 @@ services:
        rabbitmq:
          condition: service_healthy
        jaeger:
-        condition: service_started
+         condition: service_started
 
   cadastro.angular:
     image: angular

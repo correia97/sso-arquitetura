@@ -26,7 +26,7 @@ namespace Domain.Entities
 
         [JsonConstructor]
         public Funcionario(string userId, string matricula, string cargo, Nome nome, DataNascimento dataNascimento, Email email,
-            IEnumerable<Telefone> telefones, Endereco enderecoResidencial, Endereco enderecoComercial)
+            IEnumerable<Telefone> telefones, Endereco enderecoResidencial, Endereco enderecoComercial, bool ativo = false)
         {
             Id = Guid.Parse(userId);
             UserId = userId;
@@ -39,6 +39,7 @@ namespace Domain.Entities
             Telefones = telefones;
             EnderecoComercial = enderecoComercial;
             DataCadastro = DateTime.Now;
+            Ativo = ativo;
         }
 
         public string UserId { get; protected set; }
@@ -78,6 +79,12 @@ namespace Domain.Entities
         {
             EnderecoResidencial = enderecoResidencial;
         }
+
+        public void AtualizarStatus(bool ativo)
+        {
+            Ativo = ativo;
+        }
+
 
         public override string ToJson()
         {
