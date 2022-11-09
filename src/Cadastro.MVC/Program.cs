@@ -31,7 +31,7 @@ builder.Services.AddHealthChecks();
 string serviceName = typeof(FuncionarioService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioService).Assembly.GetName().Version?.ToString();
 
-builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion);
 builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
 
 var activity = new ActivitySource(serviceName, serviceVersion);

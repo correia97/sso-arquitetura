@@ -1,4 +1,5 @@
-﻿using Flurl.Http;
+﻿using Cadastro.MVC.Models.Response;
+using Flurl.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MVC.Interfaces;
@@ -29,7 +30,11 @@ namespace MVC.Services
                                  .GetAsync();
 
                 if (result.ResponseMessage.IsSuccessStatusCode)
-                    return JsonSerializer.Deserialize<List<Forecast>>(await result.ResponseMessage.Content.ReadAsStringAsync());
+                {
+                    var response = JsonSerializer.Deserialize<Response<List<Forecast>>>(await result.ResponseMessage.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    return response.Data;
+                }
+                    
 
                 return null;
             }

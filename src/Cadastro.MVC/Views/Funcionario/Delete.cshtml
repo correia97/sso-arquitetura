@@ -1,5 +1,5 @@
-﻿@using Cadastro.MVC.Models.Request
-@model FuncionarioRequest
+﻿@using Cadastro.MVC.Models.Response
+@model FuncionarioResponse
 
 @{
     ViewData["Title"] = "Delete";
@@ -63,7 +63,8 @@
         </dd>
     </dl>
 
-    <form asp-action="Delete">
+    <form asp-action="ConfirmDelete">
+        <input type="hidden" asp-for="UserId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

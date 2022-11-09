@@ -4,29 +4,28 @@ namespace Cadastro.MVC.Models.Response
 {
     public class EnderecoResponse
     {
-        public EnderecoResponse(string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf)
-        {
-            Rua = rua;
-            Numero = numero;
-            CEP = cep;
-            Complemento = complemento;
-            Bairro = bairro;
-            Cidade = cidade;
-            UF = uf;
-        }
+        //public EnderecoResponse(string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf)
+        //{
+        //    Rua = rua;
+        //    Numero = numero;
+        //    CEP = cep;
+        //    Complemento = complemento;
+        //    Bairro = bairro;
+        //    Cidade = cidade;
+        //    UF = uf;
+        //}
 
-        [JsonConstructor]
-        public EnderecoResponse(int id, string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf)
-        {
-            Id = id;
-            Rua = rua;
-            Numero = numero;
-            CEP = cep;
-            Complemento = complemento;
-            Bairro = bairro;
-            Cidade = cidade;
-            UF = uf;
-        }
+        //public EnderecoResponse(int id, string rua, int? numero, string cep, string complemento, string bairro, string cidade, string uf)
+        //{
+        //    Id = id;
+        //    Rua = rua;
+        //    Numero = numero;
+        //    CEP = cep;
+        //    Complemento = complemento;
+        //    Bairro = bairro;
+        //    Cidade = cidade;
+        //    UF = uf;
+        //}
 
         public int Id { get; set; }
         public string Rua { get; set; }

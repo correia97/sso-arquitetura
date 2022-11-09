@@ -20,28 +20,37 @@ namespace Cadastro.MVC.Controllers
             _apiService = apiService;
         }
         // GET: FuncionarioController
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index([FromQuery] int pagina = 1, [FromQuery] int qtdItens = 10)
         {
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
 
             await GetTokens();
-            var funcionario = await _apiService.RecuperarFuncionario(this.UserId, this.AccessToken);
-            if (!funcionario.Sucesso)
-            {
-                var result = await _apiService.CadastrarFuncionario(new FuncionarioRequest
-                {
-                    Ativo = true,
-                    Email = User.Claims.First(x => x.Type == ClaimTypes.Email).Value,
-                    Nome = User.Claims.First(x => x.Type == ClaimTypes.GivenName).Value,
-                    SobreNome = User.Claims.First(x => x.Type == ClaimTypes.Surname).Value,
-                    UserId = this.UserId.ToString()
-                }, this.AccessToken);
 
-                if (!result.Sucesso)
-                    return RedirectToAction("Index", "Home");
+            await _apiService.CadastrarFuncionario(new FuncionarioRequest
+            {
+                Ativo = true,
+                Email = User.Claims.First(x => x.Type == ClaimTypes.Email).Value,
+                Nome = User.Claims.First(x => x.Type == ClaimTypes.GivenName).Value,
+                SobreNome = User.Claims.First(x => x.Type == ClaimTypes.Surname).Value,
+                UserId = this.UserId.ToString()
+            }, this.AccessToken);
+
+            if (IsAdmin)
+            {
+                pagina = pagina > 0 ? pagina - 1 : 0;
+                var funcionarios = await _apiService.ListarFuncionarios(this.AccessToken, pagina, qtdItens);
+                if (funcionarios.Sucesso)
+                {
+                    ViewBag.ItensPorPagina = qtdItens;
+                    ViewBag.paginaAtual = pagina + 1;
+                    return View(funcionarios);
+                }
+
+                return RedirectToAction("Error", "Home");
             }
-            return View("Edit", funcionario.Data);
+
+            return RedirectToAction("Edit", "Funcionario", new { id = this.UserId });
         }
 
 
@@ -71,6 +80,7 @@ namespace Cadastro.MVC.Controllers
         {
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
+
             await GetTokens();
             var funcionario = await _apiService.RecuperarFuncionario(id != Guid.Empty ? id : this.UserId, this.AccessToken);
             if (funcionario.Sucesso)
@@ -123,24 +133,36 @@ namespace Cadastro.MVC.Controllers
         }
 
         // GET: FuncionarioController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(Guid id)
         {
-            return View();
+            if (!User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Home");
+
+            await GetTokens();
+            var funcionario = await _apiService.RecuperarFuncionario(id != Guid.Empty ? id : this.UserId, this.AccessToken);
+            if (funcionario.Sucesso)
+            {
+                return View(funcionario.Data);
+            }
+            return RedirectToAction("Error", "Home");
         }
 
         // POST: FuncionarioController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ConfirmDelete(int id)
+        public async Task<ActionResult> ConfirmDelete([FromForm] Guid userId)
         {
-            try
+
+            if (!User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Home");
+
+            await GetTokens();
+            var funcionario = await _apiService.RemoverFuncionario(userId != Guid.Empty ? userId : this.UserId, this.AccessToken);
+            if (funcionario.Sucesso)
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Funcionario");
             }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction("Error", "Home");
         }
     }
 }
