@@ -15,8 +15,6 @@ openssl req -x509 -out angular.localhost.crt -keyout angular.localhost.key \
   -subj '/CN=angular.localhost' -extensions EXT -config <( \
    printf "[dn]\nCN=angular.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:angular.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
 
-
-   
 openssl req -x509 -out keycloak.localhost.crt -keyout keycloak.localhost.key \
   -newkey rsa:2048 -nodes -sha256 -days 1024 \
   -subj '/CN=keycloak.localhost' -extensions EXT -config <( \

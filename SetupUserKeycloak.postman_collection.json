@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "[SAT] Obtain accsess token from a service account",
+			"name": "01 - ObterToken",
 			"event": [
 				{
 					"listen": "test",
@@ -54,14 +54,11 @@
 				},
 				"url": {
 					"raw": "https://keycloak.localhost/realms/Sample/protocol/openid-connect/token",
-					"protocol": "http",
+					"protocol": "https",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"17"
+						"keycloak",
+						"localhost"
 					],
-					"port": "8088",
 					"path": [
 						"realms",
 						"Sample",
@@ -105,13 +102,13 @@
 							]
 						},
 						"url": {
-							"raw": "https://keycloak.localhost/realms/Sample/protocol/openid-connect/token",
+							"raw": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
 							"host": [
-								"https://keycloak.localhost"
+								"{{keycloak_url}}"
 							],
 							"path": [
 								"realms",
-								"Sample",
+								"{{realm}}",
 								"protocol",
 								"openid-connect",
 								"token"
@@ -173,7 +170,7 @@
 			]
 		},
 		{
-			"name": "Create user [SAT]",
+			"name": "02 - Criar Usuário",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -200,14 +197,11 @@
 				},
 				"url": {
 					"raw": "https://keycloak.localhost/admin/realms/Sample/users",
-					"protocol": "http",
+					"protocol": "https",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"17"
+						"keycloak",
+						"localhost"
 					],
-					"port": "8088",
 					"path": [
 						"admin",
 						"realms",
@@ -219,7 +213,7 @@
 			"response": []
 		},
 		{
-			"name": "Get users  [SAT]",
+			"name": "03 - Recuperar Usuário",
 			"event": [
 				{
 					"listen": "test",
@@ -255,14 +249,11 @@
 				],
 				"url": {
 					"raw": "https://keycloak.localhost/admin/realms/Sample/users",
-					"protocol": "http",
+					"protocol": "https",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"17"
+						"keycloak",
+						"localhost"
 					],
-					"port": "8088",
 					"path": [
 						"admin",
 						"realms",
@@ -328,14 +319,14 @@
 							}
 						],
 						"url": {
-							"raw": "https://keycloak.localhost/admin/realms/Sample/users",
+							"raw": "{{keycloak_url}}/admin/realms/{{realm}}/users",
 							"host": [
-								"https://keycloak.localhost"
+								"{{keycloak_url}}"
 							],
 							"path": [
 								"admin",
 								"realms",
-								"Sample",
+								"{{realm}}",
 								"users"
 							]
 						}
@@ -423,14 +414,11 @@
 				],
 				"url": {
 					"raw": "https://keycloak.localhost/admin/realms/Sample/groups",
-					"protocol": "http",
+					"protocol": "https",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"17"
+						"keycloak",
+						"localhost"
 					],
-					"port": "8088",
 					"path": [
 						"admin",
 						"realms",
@@ -442,7 +430,7 @@
 			"response": []
 		},
 		{
-			"name": "Add group [SAT] ",
+			"name": "05 - Adicionar usário ao grupo",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -466,14 +454,11 @@
 				],
 				"url": {
 					"raw": "https://keycloak.localhost/admin/realms/Sample/users/{{userId}}/groups/{{groupId}}",
-					"protocol": "http",
+					"protocol": "https",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"17"
+						"keycloak",
+						"localhost"
 					],
-					"port": "8088",
 					"path": [
 						"admin",
 						"realms",
@@ -488,7 +473,7 @@
 			"response": []
 		},
 		{
-			"name": "Set up a new password for the user [SAT]",
+			"name": "06 - Cadastrar senha para o usuário",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -515,14 +500,11 @@
 				},
 				"url": {
 					"raw": "https://keycloak.localhost/admin/realms/Sample/users/{{userId}}/reset-password",
-					"protocol": "http",
+					"protocol": "https",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"17"
+						"keycloak",
+						"localhost"
 					],
-					"port": "8088",
 					"path": [
 						"admin",
 						"realms",
