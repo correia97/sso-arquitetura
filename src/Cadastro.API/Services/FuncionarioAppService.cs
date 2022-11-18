@@ -28,8 +28,7 @@ namespace Cadastro.API.Services
                         .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                         (exception, timeSpan, retryCount, context) =>
                         {
-                            // Add logic to be executed before each retry, such as logging
-                            _logger.LogError(exception, $"Retry {retryCount} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
+                            _logger.LogError(exception, $"Retry {retryCount} at: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
                         });
         }
 

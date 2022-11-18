@@ -2,13 +2,13 @@
 using Cadastro.API.Interfaces;
 using Cadastro.API.Models.Request;
 using Cadastro.API.Models.Response;
+using Cadastro.Domain.Enums;
 using Domain.Entities;
 using Domain.ValueObject;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
-using Cadastro.Domain.Enums;
 
 namespace Cadastro.Test.Apresentacao.Controllers
 {
@@ -30,7 +30,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
         [Fact]
         public async Task Get_Success_Test()
         {
-            _service.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((new List<FuncionarioResponse>(),0));
+            _service.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((new List<FuncionarioResponse>(), 0));
             var controller = new FuncionarioController(_logger.Object, _service.Object);
 
             var result = await controller.Get(correlationId: Guid.NewGuid()) as OkObjectResult;

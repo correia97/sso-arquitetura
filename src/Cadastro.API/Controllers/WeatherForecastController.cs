@@ -1,5 +1,6 @@
 ﻿using Cadastro.API.Models;
 using Cadastro.API.Models.Response;
+using Cadastro.Configuracoes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,7 @@ namespace Cadastro.API.Controllers
         [Route("weatherForecast")]
         public Response<IEnumerable<WeatherForecast>> Get()
         {
-            _logger.LogInformation($"GET weatherForecast User {this.User?.Identity?.Name}");
+            _logger.CustomLogInformation($"GET weatherForecast User {this.User?.Identity?.Name}");
 
             return Response<IEnumerable<WeatherForecast>>.SuccessResult(Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -45,7 +46,7 @@ namespace Cadastro.API.Controllers
         [Route("weatherForecast")]
         public Response<IEnumerable<WeatherForecast>> Post()
         {
-            _logger.LogInformation($"POST weatherForecast User {this.User?.Identity?.Name}");
+            _logger.CustomLogInformation($"POST weatherForecast User {this.User?.Identity?.Name}");
 
             return Response<IEnumerable<WeatherForecast>>.SuccessResult(Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -61,7 +62,7 @@ namespace Cadastro.API.Controllers
         [Route("authorization")]
         public Response<IEnumerable<WeatherForecast>> GetWithAutorization()
         {
-            _logger.LogInformation($"GET authorization User {this.User?.Identity?.Name}");
+            _logger.CustomLogInformation($"GET authorization User {this.User?.Identity?.Name}");
 
             return Response<IEnumerable<WeatherForecast>>.SuccessResult(Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

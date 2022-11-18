@@ -2,11 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OpenTelemetry;
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Instrumentation.AspNetCore;
-using OpenTelemetry.Instrumentation.SqlClient;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -23,59 +19,37 @@ namespace Cadastro.Configuracoes
         {
             services.AddOpenTelemetryTracing(traceProvider =>
             {
-               traceProvider
-                .AddSource(serviceName)
-                .SetResourceBuilder(
-                    ResourceBuilder.CreateDefault()
-                        .AddService(serviceName: serviceName,
-                            serviceVersion: serviceVersion))
-                // .AddGrpcCoreInstrumentation()
-                .AddHttpClientInstrumentation(options =>
-                {
-                    options.RecordException = true;
-                    options.Enrich = (activity, eventName, rawObject) =>
-                    {
-
-                    };
-                })
-                .AddAspNetCoreInstrumentation(options
-                    => options.Enrich
-                    = (activity, eventName, rawObject) =>
-                    {
-                        switch (eventName)
-                        {
-                            case "OnStartActivity":
-                                if (rawObject is HttpRequest httpRequest)
-                                    activity.SetTag("requestProtocol", httpRequest.Protocol);
-
-                                break;
-                            case "OnStopActivity":
-                                if (rawObject is HttpResponse httpResponse)
-                                    activity.SetTag("responseLength", httpResponse.ContentLength);
-
-                                break;
-                        }
-                    })
-                .AddSqlClientInstrumentation(options =>
-                {
-                    options.SetDbStatementForText = true;
-                    options.RecordException = true;
-                })
-                .AddConsoleExporter()
-                .AddJaegerExporter(opt =>
-                {
-                    opt.AgentHost = config.GetSection("jaeger:host").Value;
-                    opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
-                    opt.Endpoint = new Uri($"http://{opt.AgentHost}:14268/api/traces");
-                    opt.ExportProcessorType = ExportProcessorType.Batch;
-                    opt.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
-                    {
-                        MaxQueueSize = 2048,
-                        ScheduledDelayMilliseconds = 5000,
-                        ExporterTimeoutMilliseconds = 30000,
-                        MaxExportBatchSize = 512,
-                    };
-                });
+                traceProvider
+                 .AddSource(serviceName)
+                 .SetResourceBuilder(
+                     ResourceBuilder.CreateDefault()
+                         .AddService(serviceName: serviceName,
+                             serviceVersion: serviceVersion))
+                 .AddHttpClientInstrumentation(options =>
+                 {
+                     options.RecordException = true;
+                 })
+                 .AddAspNetCoreInstrumentation()
+                 .AddSqlClientInstrumentation(options =>
+                 {
+                     options.SetDbStatementForText = true;
+                     options.RecordException = true;
+                 })
+                 .AddConsoleExporter()
+                 .AddJaegerExporter(opt =>
+                 {
+                     opt.AgentHost = config.GetSection("jaeger:host").Value;
+                     opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
+                     opt.Endpoint = new Uri($"http://{opt.AgentHost}:14268/api/traces");
+                     opt.ExportProcessorType = ExportProcessorType.Batch;
+                     opt.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
+                     {
+                         MaxQueueSize = 2048,
+                         ScheduledDelayMilliseconds = 5000,
+                         ExporterTimeoutMilliseconds = 30000,
+                         MaxExportBatchSize = 512,
+                     };
+                 });
             });
             return services;
         }

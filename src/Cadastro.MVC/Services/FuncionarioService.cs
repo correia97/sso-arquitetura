@@ -1,4 +1,5 @@
-﻿using Cadastro.MVC.Interfaces;
+﻿using Cadastro.Configuracoes;
+using Cadastro.MVC.Interfaces;
 using Cadastro.MVC.Models.Request;
 using Cadastro.MVC.Models.Response;
 using Flurl;
@@ -38,19 +39,15 @@ namespace Cadastro.MVC.Services
                 .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                         (responseOrException, timeSpan, retryCount, context) =>
                         {
-                            // Add logic to be executed before each retry, such as logging
-                            _logger.LogInformation("-------------------------------------------------------");
-                            _logger.LogInformation("-------------------------------------------------------");
-                            _logger.LogInformation("-------------------------------------------------------");
                             if (responseOrException.Result?.StatusCode == 401)
                             {
-                                _logger.LogError($"Retry {retryCount} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")} HTTP status 401");
+                                _logger.CustomLogError($"Retry {retryCount} HTTP status 401");
                                 throw new UnauthorizedAccessException();
                             }
                             if (responseOrException.Exception is not null)
-                                _logger.LogError(responseOrException.Exception, $"Retry {retryCount} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
+                                _logger.CustomLogError(responseOrException.Exception, $"Retry {retryCount}");
                             else
-                                _logger.LogError($"Retry {retryCount} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")} HTTP status {responseOrException.Result?.StatusCode}");
+                                _logger.CustomLogError($"Retry {retryCount} HTTP status {responseOrException.Result?.StatusCode}");
 
                         });
         }

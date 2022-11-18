@@ -11,8 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
-using OpenTelemetry;
-using OpenTelemetry.Exporter;
 using Serilog;
 using System;
 using System.Data;
@@ -28,10 +26,8 @@ void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
 
         CreateDataBase(configuration);
 
-        // Instantiate the runner
         var runner = services.GetRequiredService<IMigrationRunner>();
 
-        // Execute the migrations
         runner.MigrateUp();
     }
     catch (Exception ex)
@@ -42,19 +38,22 @@ void UpdateDatabase(IServiceProvider services, IConfiguration configuration)
 
 void CreateDataBase(IConfiguration configuration)
 {
+    string connStr = configuration.GetConnectionString("Base");
+    connStr = connStr.Replace("Database=funcionarios;", "");
+    using var m_conn = new NpgsqlConnection(connStr);
+    using var m_createdb_cmd = new NpgsqlCommand(@"CREATE DATABASE funcionarios", m_conn);
     try
     {
-        string connStr = configuration.GetConnectionString("Base");
-        connStr = connStr.Replace("Database=funcionarios;", "");
-        using var m_conn = new NpgsqlConnection(connStr);
-        using var m_createdb_cmd = new NpgsqlCommand(@"CREATE DATABASE funcionarios", m_conn);
         m_conn.Open();
         m_createdb_cmd.ExecuteNonQuery();
-        m_conn.Close();
     }
     catch (Exception ex)
     {
         Log.Error(ex, "Erro ao criar base de dados");
+    }
+    finally
+    {
+        m_conn.Close();
     }
 }
 

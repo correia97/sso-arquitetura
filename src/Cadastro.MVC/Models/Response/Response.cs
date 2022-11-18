@@ -23,8 +23,8 @@
         public bool Sucesso { get; set; }
         public string Erro { get; set; }
         public int QtdTotalItens { get; set; }
-        public int? QtdItensPorPaginas { get;  set; }
-        public int? PaginaAtual { get;  set; }
+        public int? QtdItensPorPaginas { get; set; }
+        public int? PaginaAtual { get; set; }
         public int? QtdTotalPaginas
         {
             get

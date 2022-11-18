@@ -52,5 +52,24 @@ namespace Cadastro.Configuracoes
 
             return Log.Logger;
         }
+
+
+        public static void CustomLogInformation(this Microsoft.Extensions.Logging.ILogger logger, string message)
+        {
+
+            logger.LogInformation($"{message} at: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+        }
+
+        public static void CustomLogError(this Microsoft.Extensions.Logging.ILogger logger, Exception exception, string message)
+        {
+
+            logger.LogError(exception, $"{message} at: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+        }
+
+        public static void CustomLogError(this Microsoft.Extensions.Logging.ILogger logger, string message)
+        {
+
+            logger.LogError($"{message} at: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+        }
     }
 }

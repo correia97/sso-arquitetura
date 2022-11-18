@@ -37,7 +37,6 @@ builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, buil
 var activity = new ActivitySource(serviceName, serviceVersion);
 builder.Services.AddScoped<ActivitySource>(x => activity);
 
-// Add services to the container.
 builder.Services.AddRazorPages();
 
 Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configuration, serviceName);
@@ -48,7 +47,6 @@ var app = builder.Build();
 
 app.UseCookiePolicy();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.EnvironmentName.ToUpper().Contains("PROD"))
 {
     app.UseExceptionHandler("/Error");

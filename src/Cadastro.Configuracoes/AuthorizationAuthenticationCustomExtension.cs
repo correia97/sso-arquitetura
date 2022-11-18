@@ -161,7 +161,7 @@ namespace Cadastro.Configuracoes
                        RequireHttps = false
                    });
 
-               var openidconfig = configManager.GetConfigurationAsync().Result;
+               var openidconfig = await configManager.GetConfigurationAsync();
 
                options.TokenValidationParameters = new TokenValidationParameters
                {

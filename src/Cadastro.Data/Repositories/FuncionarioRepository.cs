@@ -28,8 +28,7 @@ namespace Cadastro.Data.Repositories
                         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(3, retryAttempt)),
                         (exception, timeSpan, retryCount, context) =>
                         {
-                            // Add logic to be executed before each retry, such as logging
-                            _logger.LogError(exception, $"Retry {retryCount} at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
+                            _logger.LogError(exception, $"Retry {retryCount} at: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
 
                             if (exception.Message.Contains("A transaction is already in progress"))
                                 Thread.Sleep(100);

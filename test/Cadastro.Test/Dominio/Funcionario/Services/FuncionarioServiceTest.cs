@@ -750,12 +750,12 @@ namespace Cadastro.Test.Domain
                 new Email(person.Email), tels, endereco, endereco);
 
             _mockFuncionarioRepositorioLeitura.Setup(x => x.ObterTodos(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync((new List<Funcionario>() { funcionario },1));
+                .ReturnsAsync((new List<Funcionario>() { funcionario }, 1));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            var result = await service.ObterTodos(1,10);
+            var result = await service.ObterTodos(1, 10);
 
             Output.WriteLine($"Result: {result}");
 
@@ -774,7 +774,7 @@ namespace Cadastro.Test.Domain
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                     _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            var result = await service.ObterTodos(1,10);
+            var result = await service.ObterTodos(1, 10);
 
             Output.WriteLine($"Result: {result}");
 

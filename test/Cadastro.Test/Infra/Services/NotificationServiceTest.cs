@@ -30,7 +30,7 @@ namespace Cadastro.Test.Infra.Services
 
             var notification = new NotificationMessage(Guid.NewGuid(), Guid.NewGuid(), _faker.Random.String(), true);
 
-            var appService = new NotificationService(_mockModel.Object);            
+            var appService = new NotificationService(_mockModel.Object);
 
             appService.SendEvent(notification);
 

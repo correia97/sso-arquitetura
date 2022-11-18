@@ -19,7 +19,6 @@ namespace Cadastro.MVC.Controllers
             _logger = logger;
             _apiService = apiService;
         }
-        // GET: FuncionarioController
         public async Task<ActionResult> Index([FromQuery] int pagina = 1, [FromQuery] int qtdItens = 10)
         {
             if (!User.Identity.IsAuthenticated)
@@ -54,13 +53,11 @@ namespace Cadastro.MVC.Controllers
         }
 
 
-        // GET: FuncionarioController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: FuncionarioController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([FromForm] FuncionarioRequest request)
@@ -75,7 +72,6 @@ namespace Cadastro.MVC.Controllers
             }
         }
 
-        // GET: FuncionarioController/Edit/5
         public async Task<ActionResult> Edit(Guid id)
         {
             if (!User.Identity.IsAuthenticated)
@@ -90,7 +86,6 @@ namespace Cadastro.MVC.Controllers
             return RedirectToAction("Error", "Home");
         }
 
-        // POST: FuncionarioController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(Guid id, [FromForm] FuncionarioRequest request)
@@ -132,7 +127,6 @@ namespace Cadastro.MVC.Controllers
             }
         }
 
-        // GET: FuncionarioController/Delete/5
         public async Task<ActionResult> Delete(Guid id)
         {
             if (!User.Identity.IsAuthenticated)
@@ -147,7 +141,6 @@ namespace Cadastro.MVC.Controllers
             return RedirectToAction("Error", "Home");
         }
 
-        // POST: FuncionarioController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ConfirmDelete([FromForm] Guid userId)

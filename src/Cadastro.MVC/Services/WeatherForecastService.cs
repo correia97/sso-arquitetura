@@ -34,7 +34,7 @@ namespace MVC.Services
                     var response = JsonSerializer.Deserialize<Response<List<Forecast>>>(await result.ResponseMessage.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     return response.Data;
                 }
-                    
+
 
                 return null;
             }

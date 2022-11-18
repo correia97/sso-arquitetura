@@ -54,7 +54,7 @@ builder.Services.AddVersionedApiExplorer(p =>
     p.AddApiVersionParametersWhenVersionNeutral = true;
     p.AssumeDefaultVersionWhenUnspecified = true;
 });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback +=
@@ -144,7 +144,6 @@ Log.Logger = LoggingExtension.AddCustomLogging(builder.Services, builder.Configu
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.EnvironmentName.ToUpper().Contains("PROD"))
 {
     app.UseHttpLogging();
