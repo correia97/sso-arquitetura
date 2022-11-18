@@ -1,0 +1,338 @@
+<div class="content">
+    <div class="container">
+
+        <h4>Funcionário</h4>
+        <hr />
+        <form [formGroup]="funcionarioForm">
+            <div class="row">
+                <div class="col">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label class="control-label"></label>
+                        <input formControlName="userId" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label"></label>
+                        <input formControlName="matricula" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label"></label>
+                        <input formControlName="nome" class="form-control" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+
+
+                        <label class="control-label"></label>
+                        <input formControlName="sobrenome" class="form-control" />
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+
+                        <label class="control-label"></label>
+                        <input formControlName="cargo" class="form-control" />
+                    </div>
+
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label"></label>
+                        <input formControlName="email" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label"></label>
+                        <input formControlName="dataNascimento" class="form-control" type="date"
+                            placeholder="dd/mm/yyyy" />
+                    </div>
+
+                </div>
+                <div class="col">
+                    <div class="form-group">
+
+                        <label class="control-label"></label>
+                        <div class="form-check  form-switch" style="padding-left:50px">
+                            <input class="form-control-lg form-check-input" formControlName="status" [checked]="ativo"
+                                role="switch" style="width:70px !important; min-height:30px !important" />
+                            <label class="form-check-label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-4">
+                    &nbsp;
+                </div>
+            </div>
+
+
+
+            <h4>Telefones <span style="font-size:small"><a href="#"> Adicionar</a></span></h4>
+            <hr />
+            <!-- <div class="row">
+        <div class="col" id="tels">
+            @foreach (var telefones in Model.Telefones)
+            {
+                <input formControlName="@telefones.Id" type="hidden" />
+                <div class="form-group">
+                    <label"@telefones.DDI" class="control-label"></label>
+                    <input formControlName="@telefones.DDI" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label"@telefones.Telefone" class="control-label"></label>
+                    <input formControlName="@telefones.Telefone" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <input type="button" value="Remover" class="button button-danger" />
+                </div>
+            }
+        </div>
+    </div> -->
+
+
+            <div class="row">
+                <div class="col-md-4">
+                    &nbsp;
+                </div>
+            </div>
+            <div class="row">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs"  ngbNav #nav="ngbNav" [(activeId)]="tabActive"   >
+                    <li [ngbNavItem]="1">
+                        <a  ngbNavLink>Endereço Residencial</a>
+
+                        <ng-template ngbNavContent>
+
+                            <input formControlName="idResidencial" type="hidden" />
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="cepResidencial" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="ruaResidencial" class="form-control" />
+                                    </div>
+
+                                </div>
+                                <div class="col-md-2">
+
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="numeroResidencial" class="form-control" />
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="complementoResidencial" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="bairroResidencial" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="cidadeResidencial" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+
+                                        <select formControlName="ufResidencial" class="form-select">
+                                            <option value="" disabled selected>Selecione uma UF</option>
+                                            <option value="SP">SP - São Paulo</option>
+                                            <option value="AC">AC - Acre</option>
+                                            <option value="AL">AL - Alagoas</option>
+                                            <option value="AP">AP - Amapá</option>
+                                            <option value="AM">AM - Amazonas</option>
+                                            <option value="BA">BA - Bahia</option>
+                                            <option value="CE">CE - Ceará</option>
+                                            <option value="DF">DF - Distrito Federal</option>
+                                            <option value="ES">ES - Espírito Santo</option>
+                                            <option value="GO">GO - Goiás</option>
+                                            <option value="MA">MA - Maranhão</option>
+                                            <option value="MT">MT - Mato Grosso</option>
+                                            <option value="MS">MS - Mato Grosso do Sul</option>
+                                            <option value="MG">MG - Minas Gerais</option>
+                                            <option value="PA">PA - Pará</option>
+                                            <option value="PB">PB - Paraíba</option>
+                                            <option value="PR">PR - Paraná</option>
+                                            <option value="PE">PE - Pernambuco</option>
+                                            <option value="PI">PI - Piauí</option>
+                                            <option value="RJ">RJ - Rio de Janeiro</option>
+                                            <option value="RN">RN - Rio Grande do Norte</option>
+                                            <option value="RS">RS - Rio Grande do Sul</option>
+                                            <option value="RO">RO - Rondônia</option>
+                                            <option value="RR">RR - Roraima</option>
+                                            <option value="SC">SC - Santa Catarina</option>
+                                            <option value="SE">SE - Sergipe</option>
+                                            <option value="TO">TO - Tocantins</option>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </ng-template>
+
+                    </li>
+                    <li [ngbNavItem]="2">
+                        <a  ngbNavLink>Endereço
+                            Comercial</a>
+
+                        <ng-template ngbNavContent>
+                            <input formControlName="idComercial" type="hidden" />
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="cepComercial" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="ruaComercial" class="form-control" />
+                                    </div>
+
+                                </div>
+                                <div class="col-md-2">
+
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="numeroComercial" class="form-control" />
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="complementoComercial" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="bairroComercial" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+                                        <input formControlName="cidadeComercial" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label class="control-label"></label>
+
+                                        <select formControlName="ufComercial" class="form-select">
+                                            <option value="" disabled selected>Selecione uma UF</option>
+                                            <option value="SP">SP - São Paulo</option>
+                                            <option value="AC">AC - Acre</option>
+                                            <option value="AL">AL - Alagoas</option>
+                                            <option value="AP">AP - Amapá</option>
+                                            <option value="AM">AM - Amazonas</option>
+                                            <option value="BA">BA - Bahia</option>
+                                            <option value="CE">CE - Ceará</option>
+                                            <option value="DF">DF - Distrito Federal</option>
+                                            <option value="ES">ES - Espírito Santo</option>
+                                            <option value="GO">GO - Goiás</option>
+                                            <option value="MA">MA - Maranhão</option>
+                                            <option value="MT">MT - Mato Grosso</option>
+                                            <option value="MS">MS - Mato Grosso do Sul</option>
+                                            <option value="MG">MG - Minas Gerais</option>
+                                            <option value="PA">PA - Pará</option>
+                                            <option value="PB">PB - Paraíba</option>
+                                            <option value="PR">PR - Paraná</option>
+                                            <option value="PE">PE - Pernambuco</option>
+                                            <option value="PI">PI - Piauí</option>
+                                            <option value="RJ">RJ - Rio de Janeiro</option>
+                                            <option value="RN">RN - Rio Grande do Norte</option>
+                                            <option value="RS">RS - Rio Grande do Sul</option>
+                                            <option value="RO">RO - Rondônia</option>
+                                            <option value="RR">RR - Roraima</option>
+                                            <option value="SC">SC - Santa Catarina</option>
+                                            <option value="SE">SE - Sergipe</option>
+                                            <option value="TO">TO - Tocantins</option>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </li>
+
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content" [ngbNavOutlet]="nav" class="mt-2">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    &nbsp;
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+
+        </form>
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>

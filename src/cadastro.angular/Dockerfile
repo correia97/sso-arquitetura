@@ -1,6 +1,6 @@
 FROM nginx:1.23.1-alpine as base
 
-FROM node:18.9.0-buster as build-step
+FROM node:19-buster-slim as build-step
 WORKDIR /app
 USER root
 COPY package.json .

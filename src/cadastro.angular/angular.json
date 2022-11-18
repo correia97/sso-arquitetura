@@ -61,6 +61,14 @@
                 }
               ]
             },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            },
             "keycloak": {
               "fileReplacements": [
                 {
@@ -131,8 +139,12 @@
             },
             "auth0": {
               "browserTarget": "cadastro.angular:build:auth0"
+            },
+            "development": {
+              "browserTarget": "cadastro.angular:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -192,7 +204,6 @@
       }
     }
   },
-  "defaultProject": "cadastro.angular",
   "cli": {
     "analytics": "006ddab5-4ffc-4b6e-9c1a-8d315ec0f6bc"
   }

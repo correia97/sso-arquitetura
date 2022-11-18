@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Observable } from 'rxjs';
 import { Forecast } from '../models/forecast';
+
+import { Response } from '../models/response/response';
 import { ApiclientService } from '../service/apiclient.service';
 
 @Component({
@@ -12,7 +14,7 @@ import { ApiclientService } from '../service/apiclient.service';
 export class HomeComponent implements OnInit {
 
   title = 'Home';
-  forecast: Forecast[] | undefined;
+  forecast: Response<Forecast[]> | undefined;
   isAuthenticated: boolean = false;
 
   constructor(public oidcSecurityService: OidcSecurityService, public service: ApiclientService) {
@@ -21,20 +23,17 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.oidcSecurityService.isAuthenticated$.subscribe({
-      next: x => {
-        this.isAuthenticated = x.isAuthenticated
-        if (this.isAuthenticated) {
-          this.service.getWeatherForecast()
-            .subscribe({
-              next: result => this.forecast = result,
-              error: er => console.log(er)
-            });
-        }
-      },
+      next: x => this.isAuthenticated = x.isAuthenticated,
       error: err => console.error('Observer got an error: ' + err),
-      complete: () => console.log('Observer got a complete notification'),
-
-    })
+      complete: () => console.log('Observer got a complete notification')
+    });
+    if (this.isAuthenticated) {
+      this.service.getWeatherForecast()
+        .subscribe({
+          next: result => this.forecast = result,
+          error: er => console.log(er)
+        });
+    }
   }
 
   login() {

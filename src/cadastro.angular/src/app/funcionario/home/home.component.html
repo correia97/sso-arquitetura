@@ -1,0 +1,85 @@
+<div class="content">
+    <div class="container">
+        <table class="table  table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        Matricula
+                    </th>
+                    <th>
+                        Cargo
+                    </th>
+                    <th>
+                        Nome
+                    </th>
+                    <th>
+                        SobreNome
+                    </th>
+                    <th>
+                        E-mail
+                    </th>
+                    <th>
+                        Nascimento
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of funcionarios?.data">
+                    <td>
+                        {{ item.matricula }}
+                    </td>
+                    <td>
+                        {{ item.cargo }}
+                    </td>
+                    <td>
+                        {{ item.nome }}
+                    </td>
+                    <td>
+                        {{ item.sobreNome }}
+                    </td>
+                    <td>
+                        {{ item.email }}
+                    </td>
+                    <td>
+                        {{ item.dataNascimento | date: "dd/MM/yyyy"}}
+                    </td>
+                    <td>
+                        {{ item.ativo }}
+                    </td>
+                    <td>
+                        <a class="page-link"  aria-label="Editar" [routerLink]="['/funcionario/edit/', item.userId]"  >
+                            Editar
+                        </a>
+                        
+                        <a class="page-link"  aria-label="Deletar" >
+                            Deletar
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <nav aria-label="Paginação">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <li *ngFor="let item of pages" class="page-item"  [ngClass]="{ active : item.isActive }" aria-current="page">
+                    <a class="page-link" (click)="goToPage(item.page, qtd)" [routerLink]="['/funcionario']" [queryParams]="{ page: item.page, qtd: qtd }" >{{item.page}}</a></li>
+
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

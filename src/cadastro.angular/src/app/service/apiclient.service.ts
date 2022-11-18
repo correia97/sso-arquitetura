@@ -2,40 +2,65 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angul
 import { Injectable } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { Forecast } from '../models/forecast';
+import { catchError, retry } from 'rxjs/operators';
+import { FuncionarioRequest } from 'src/app/models/request/funcionarioRequest';
 
-import { environment } from './../../environments/environment';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiclientService {
 
-  constructor(private http: HttpClient, public oidcSecurityService: OidcSecurityService) { }
-
-  private getHeader(): any {
-    let currentToken;
-    this.oidcSecurityService.getAccessToken().subscribe((token) => {
-      currentToken = token;
-    })
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: 'bearer ' + currentToken
-      })
-    };
-    return httpOptions;
-  }
-
+  constructor(private http: HttpClient) { }
 
   getWeatherForecast(): Observable<any> {
-    return this.http.get(environment.apiBaseUrl + '/api/WeatherForecast/authorization', this.getHeader())
+    return this.http.get(environment.apiBaseUrl + '/api/WeatherForecast/authorization')
       .pipe(
+        retry(2), // retry a failed request up to 3 times
         catchError(this.handleError)
       );
   }
 
+  listarFuncionarios(paginaAtual: number, qtdItensPorPaginas: number): Observable<any> {
+    return this.http.get(environment.apiBaseUrl + `/api/v1/Funcionario/funcionario/pagina/${paginaAtual}/qtdItens/${qtdItensPorPaginas}`)
+      .pipe(
+        retry(2), // retry a failed request up to 3 times
+        catchError(this.handleError)
+      );
+  }
+
+  recuperarFuncionario(id: string): Observable<any> {
+    return this.http.get(environment.apiBaseUrl + `/api/v1/Funcionario/funcionario/${id}`)
+      .pipe(
+        retry(2), // retry a failed request up to 3 times
+        catchError(this.handleError)
+      );
+  }
+
+  cadastrarFuncionario(funcionario: FuncionarioRequest): Observable<any> {
+    return this.http.post<FuncionarioRequest>(environment.apiBaseUrl + '/api/v1/Funcionario/funcionario', funcionario)
+      .pipe(
+        retry(2), // retry a failed request up to 3 times
+        catchError(this.handleError)
+      );
+  }
+
+  atualizarFuncionario(funcionario: FuncionarioRequest): Observable<any> {
+    return this.http.patch<FuncionarioRequest>(environment.apiBaseUrl + '/api/v1/Funcionario/funcionario', funcionario)
+      .pipe(
+        retry(2), // retry a failed request up to 3 times
+        catchError(this.handleError)
+      );
+  }
+
+  removerFuncionario(id: string): Observable<any> {
+    return this.http.delete(environment.apiBaseUrl + `/api/v1/Funcionario/funcionario/${id}`)
+      .pipe(
+        retry(2), // retry a failed request up to 3 times
+        catchError(this.handleError)
+      );
+  }
 
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
@@ -49,7 +74,6 @@ export class ApiclientService {
         `body was: ${error.error}`);
     }
     // Return an observable with a user-facing error message.
-    return throwError(
-      'Something bad happened; please try again later.');
+    return throwError(()=> new Error('Something bad happened; please try again later.'));
   }
 }
