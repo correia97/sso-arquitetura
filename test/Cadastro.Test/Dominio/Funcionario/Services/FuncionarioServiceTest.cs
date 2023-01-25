@@ -137,7 +137,7 @@ namespace Cadastro.Test.Domain
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -177,7 +177,7 @@ namespace Cadastro.Test.Domain
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000",id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Comercial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Comercial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new DateTime(1987, 08, 14)),
@@ -215,7 +215,7 @@ namespace Cadastro.Test.Domain
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000",id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Comercial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Comercial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new DateTime(1987, 08, 14)),
@@ -265,7 +265,7 @@ namespace Cadastro.Test.Domain
                 new Telefone("+55","11","80000-0000", id)
             };
 
-            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
                 new Nome(person.FirstName, "Silva Sauro"),
                 new DataNascimento(new DateTime(1985, 08, 14)),
@@ -305,7 +305,7 @@ namespace Cadastro.Test.Domain
                 new Telefone("+55","11","80000-0000", id)
             };
 
-            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
                 new Nome(person.FirstName, "Silva Sauro"),
                 new DataNascimento(new DateTime(1985, 08, 14)),
@@ -356,9 +356,9 @@ namespace Cadastro.Test.Domain
                 new Telefone("+55","11","90000-0000", funcionarioId),
                 new Telefone(2,"+55","11","80000-0000", funcionarioId)
             };
-            var enderecoNovoResidencial = new Endereco(1, "Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Comercial, funcionarioId);
+            var enderecoNovoResidencial = new Endereco(1, "Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEndereco.Comercial, funcionarioId);
 
-            var enderecoNovoComercial = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Comercial, funcionarioId);
+            var enderecoNovoComercial = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEndereco.Comercial, funcionarioId);
             var funcionarioAtualizado = new Funcionario(funcionarioId.ToString(), "matricular", "cargo 2",
                 new Nome(person.FirstName, "Silva Sauro"),
                 new DataNascimento(new DateTime(1985, 08, 14)),
@@ -518,7 +518,7 @@ namespace Cadastro.Test.Domain
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                  _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            await Assert.ThrowsAsync<NullReferenceException>(async () => await service.Remover(id));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Remover(id));
 
             Output.WriteLine($"Result: ok");
 
@@ -539,7 +539,7 @@ namespace Cadastro.Test.Domain
                 new Telefone("+55","11","80000-0000", id)
             };
 
-            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
                 new Nome(person.FirstName, "Silva Sauro"),
                 new DataNascimento(new DateTime(1985, 08, 14)),
@@ -593,7 +593,7 @@ namespace Cadastro.Test.Domain
                 new Telefone("+55","11","80000-0000", id)
             };
 
-            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var enderecoNovo = new Endereco("Rua", 11, "00000-000", "apt", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionarioAtualizado = new Funcionario(id.ToString(), "matricular", "cargo 2",
                 new Nome(person.FirstName, "Silva Sauro"),
                 new DataNascimento(new DateTime(1985, 08, 14)),
@@ -648,8 +648,8 @@ namespace Cadastro.Test.Domain
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var enderecoRes = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
-            var enderecoCom = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Comercial, id);
+            var enderecoRes = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
+            var enderecoCom = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Comercial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -743,7 +743,7 @@ namespace Cadastro.Test.Domain
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),

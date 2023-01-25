@@ -53,15 +53,6 @@ namespace Cadastro.Configuracoes
                      {
                          opt.AgentHost = config.GetSection("jaeger:host").Value;
                          opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
-                         //opt.Endpoint = new Uri($"http://{opt.AgentHost}:14268/api/traces");
-                         //opt.ExportProcessorType = ExportProcessorType.Batch;
-                         //opt.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
-                         //{
-                         //    MaxQueueSize = 2048,
-                         //    ScheduledDelayMilliseconds = 5000,
-                         //    ExporterTimeoutMilliseconds = 30000,
-                         //    MaxExportBatchSize = 512,
-                         //};
                      });
                 })                
                 .StartWithHost();

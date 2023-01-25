@@ -33,7 +33,7 @@ namespace Cadastro.Data.Repositories
                             if (exception.Message.Contains("A transaction is already in progress"))
                                 Thread.Sleep(100);
                         });
-            Status = TransactionStatusEnum.None;
+            Status = TransactionStatus.None;
         }
 
         public async Task<Funcionario> ObterPorEmail(string email)

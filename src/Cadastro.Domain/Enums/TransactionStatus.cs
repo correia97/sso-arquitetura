@@ -1,6 +1,6 @@
 ﻿namespace Cadastro.Domain.Enums
 {
-    public enum TransactionStatusEnum
+    public enum TransactionStatus
     {
         None,
         Started,

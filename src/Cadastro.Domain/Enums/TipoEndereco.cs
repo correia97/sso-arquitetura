@@ -1,6 +1,6 @@
 ﻿namespace Cadastro.Domain.Enums
 {
-    public enum TipoEnderecoEnum
+    public enum TipoEndereco
     {
         Comercial = 0,
         Residencial = 1

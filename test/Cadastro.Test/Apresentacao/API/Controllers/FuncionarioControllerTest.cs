@@ -61,7 +61,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -98,7 +98,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -159,7 +159,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -220,7 +220,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),
@@ -282,7 +282,7 @@ namespace Cadastro.Test.Apresentacao.Controllers
             var tels = new List<Telefone> {
                 new Telefone("+55","11","90000-0000", id)
             };
-            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEnderecoEnum.Residencial, id);
+            var endereco = new Endereco("Rua", 10, "00000-000", "apto", "bairro", "cidade", "sp", TipoEndereco.Residencial, id);
             var funcionario = new Funcionario(id.ToString(), "matricular", "cargo",
                 new Nome(person.FirstName, person.LastName),
                 new DataNascimento(new System.DateTime(1987, 08, 14)),

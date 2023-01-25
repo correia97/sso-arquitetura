@@ -36,7 +36,7 @@ namespace Cadastro.Domain.Services
             using var activity = _activitySource.StartActivity("Atualizar Funcionario", ActivityKind.Internal);
             _logger.LogInformation($"Atualizar Funcionário iniciado {DataHoraAtual()}");
             Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
-            if(baseFuncionario==null)
+            if (baseFuncionario == null)
             {
                 _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", false));
                 _logger.LogError($"Funcionario {funcionario.Id} não localizado {DataHoraAtual()}");
@@ -146,7 +146,7 @@ namespace Cadastro.Domain.Services
             {
                 _notificationService.SendEvent(new NotificationMessage(id, id, "Remover", false));
                 _logger.LogError($"Funcionário {id} não localizado {DataHoraAtual()}");
-                throw new NullReferenceException($"Funcionário {id} não localizado");
+                throw new InvalidOperationException($"Funcionário {id} não localizado");
             }
             _repositoryWrite.IniciarTransacao();
 
@@ -192,11 +192,11 @@ namespace Cadastro.Domain.Services
 
             if (enderecos != null && enderecos.Any())
             {
-                if (enderecos.Any(x => x.TipoEndereco == TipoEnderecoEnum.Comercial))
-                    funcionario.AtualizarEnderecoComercial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEnderecoEnum.Comercial));
+                if (enderecos.Any(x => x.TipoEndereco == TipoEndereco.Comercial))
+                    funcionario.AtualizarEnderecoComercial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEndereco.Comercial));
 
-                if (enderecos.Any(x => x.TipoEndereco == TipoEnderecoEnum.Residencial))
-                    funcionario.AtualizarEnderecoResidencial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEnderecoEnum.Residencial));
+                if (enderecos.Any(x => x.TipoEndereco == TipoEndereco.Residencial))
+                    funcionario.AtualizarEnderecoResidencial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEndereco.Residencial));
             }
             _logger.LogInformation($"ObterPorId Funcionário concluido {DataHoraAtual()}");
             return funcionario;
@@ -205,7 +205,7 @@ namespace Cadastro.Domain.Services
         public async Task<(IEnumerable<Funcionario>, int)> ObterTodos(int pagina, int qtdItens)
         {
             using var activity = _activitySource.StartActivity("Obter Funcionarios", ActivityKind.Internal);
-            pagina = pagina--;
+            pagina--;
             if (pagina < 0)
                 pagina = 0;
 

@@ -85,14 +85,14 @@ namespace Cadastro.Configuracoes
             if (payload != null && !string.IsNullOrEmpty(payload.given_name))
             {
                 claims.Add(new Claim(ClaimTypes.GivenName, payload.given_name));
-                claims.Add(new Claim(ClaimTypes.Name, payload.name));
-                claims.Add(new Claim(ClaimTypes.Email, payload.email));
+                claims.Add(new Claim(ClaimTypes.Name, payload.Name));
+                claims.Add(new Claim(ClaimTypes.Email, payload.Email));
                 claims.Add(new Claim(ClaimTypes.Surname, payload.family_name));
-                claims.Add(new Claim("userId", payload.sub));
+                claims.Add(new Claim("userId", payload.Sub));
 
-                AddClaimFromRoleList(claims, payload.group);
-                AddClaimFromRoleList(claims, payload.realm_access?.roles);
-                AddClaimFromRoleList(claims, payload.resource_access?.account?.roles);
+                AddClaimFromRoleList(claims, payload.Group);
+                AddClaimFromRoleList(claims, payload.realmAccess?.Roles);
+                AddClaimFromRoleList(claims, payload.resource_access?.Account?.Roles);
             }
             var identity = new ClaimsIdentity(claims);
             return new List<ClaimsIdentity> { identity };

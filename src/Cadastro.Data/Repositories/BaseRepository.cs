@@ -14,7 +14,7 @@ namespace Cadastro.Data.Repositories
     {
         protected IDbConnection Connection { get; set; }
         protected IDbTransaction Transaction { get; set; }
-        protected TransactionStatusEnum Status { get; set; }
+        protected TransactionStatus Status { get; set; }
         protected BaseRepository(IDbConnection connection)
         {
             this.Connection = connection;
@@ -33,27 +33,26 @@ namespace Cadastro.Data.Repositories
         public virtual void IniciarTransacao()
         {
             Transaction = Connection.BeginTransaction();
-            Status = TransactionStatusEnum.Started;
+            Status = TransactionStatus.Started;
         }
 
         public virtual void CompletarTransacao()
         {
             Transaction?.Commit();
-            Status = TransactionStatusEnum.Completed;
+            Status = TransactionStatus.Completed;
         }
 
         public virtual void CancelarTransacao()
         {
             Transaction?.Rollback();
-            Status = TransactionStatusEnum.Canceled;
+            Status = TransactionStatus.Canceled;
         }
-        public virtual void Dispose()
+        public void Dispose()
         {
-            if (Status == TransactionStatusEnum.Started)
+            if (Status == TransactionStatus.Started)
                 Transaction?.Rollback();
-            Status = TransactionStatusEnum.None;
+            Status = TransactionStatus.None;
             Transaction?.Dispose();
-
             GC.SuppressFinalize(this);
         }
     }

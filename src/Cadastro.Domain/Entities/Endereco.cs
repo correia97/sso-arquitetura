@@ -12,7 +12,7 @@ namespace Domain.Entities
         }
 
         public Endereco(string rua, int? numero, string cep, string complemento, string bairro,
-            string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
+            string cidade, string uf, TipoEndereco tipoEndereco, Guid funcionarioId)
         {
             Rua = rua;
             Numero = numero;
@@ -27,7 +27,7 @@ namespace Domain.Entities
 
         [JsonConstructor]
         public Endereco(int id, string rua, int? numero, string cep, string complemento, string bairro,
-            string cidade, string uf, TipoEnderecoEnum tipoEndereco, Guid funcionarioId)
+            string cidade, string uf, TipoEndereco tipoEndereco, Guid funcionarioId)
         {
             Id = id;
             Rua = rua;
@@ -48,7 +48,7 @@ namespace Domain.Entities
         public string Bairro { get; protected set; }
         public string Cidade { get; protected set; }
         public string UF { get; protected set; }
-        public TipoEnderecoEnum TipoEndereco { get; set; }
+        public TipoEndereco TipoEndereco { get; set; }
         public Guid FuncionarioId { get; set; }
         public override string ToJson()
         {

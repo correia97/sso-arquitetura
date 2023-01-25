@@ -91,7 +91,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoResidencial?.Bairro,
                                                                              funcionario.EnderecoResidencial?.Cidade,
                                                                              funcionario.EnderecoResidencial?.UF,
-                                                                             Domain.Enums.TipoEnderecoEnum.Residencial,
+                                                                             Domain.Enums.TipoEndereco.Residencial,
                                                                              Guid.Parse(funcionario.UserId)),
                                                                 new Endereco(funcionario.EnderecoComercial?.Rua,
                                                                              funcionario.EnderecoComercial?.Numero,
@@ -100,7 +100,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoComercial?.Bairro,
                                                                              funcionario.EnderecoComercial?.Cidade,
                                                                              funcionario.EnderecoComercial?.UF,
-                                                                             Domain.Enums.TipoEnderecoEnum.Comercial,
+                                                                             Domain.Enums.TipoEndereco.Comercial,
                                                                              Guid.Parse(funcionario.UserId)),
                                                                              funcionario.Ativo),
                                                                              correlationId);
@@ -142,7 +142,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoResidencial?.Bairro,
                                                                              funcionario.EnderecoResidencial?.Cidade,
                                                                              funcionario.EnderecoResidencial?.UF,
-                                                                             Domain.Enums.TipoEnderecoEnum.Residencial,
+                                                                             Domain.Enums.TipoEndereco.Residencial,
                                                                              Guid.Parse(funcionario.UserId)),
                                                                 new Endereco(funcionario.EnderecoComercial?.Id ?? 0,
                                                                              funcionario.EnderecoComercial?.Rua,
@@ -152,7 +152,7 @@ namespace Cadastro.API.Controllers.V1
                                                                              funcionario.EnderecoComercial?.Bairro,
                                                                              funcionario.EnderecoComercial?.Cidade,
                                                                              funcionario.EnderecoComercial?.UF,
-                                                                             Domain.Enums.TipoEnderecoEnum.Comercial,
+                                                                             Domain.Enums.TipoEndereco.Comercial,
                                                                              Guid.Parse(funcionario.UserId)),
                                                                              funcionario.Ativo);
 

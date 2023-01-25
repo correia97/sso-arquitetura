@@ -1,58 +1,73 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Cadastro.Domain.Entities
 {
     public class TokenPayload
     {
-        public int exp { get; set; }
-        public int iat { get; set; }
-        public int auth_time { get; set; }
-        public string jti { get; set; }
-        public string iss { get; set; }
-        public object aud { get; set; }
-        public string sub { get; set; }
-        public string typ { get; set; }
-        public string azp { get; set; }
-        public string nonce { get; set; }
-        public string session_state { get; set; }
-        public List<string> allowedorigins { get; set; }
-        public Realm_Access realm_access { get; set; }
-        public Resource_Access resource_access { get; set; }
-        public string scope { get; set; }
-        public string sid { get; set; }
-        public bool email_verified { get; set; }
-        public string name { get; set; }
-        public string preferred_username { get; set; }
-        public string given_name { get; set; }
-        public string family_name { get; set; }
-        public string email { get; set; }
-        public List<string> group { get; set; }
-        public string clientHost { get; set; }
-        public string clientId { get; set; }
-        public string clientAddress { get; set; }
+        public int Exp { get; set; }
+        public int Iat { get; set; }
+
+        [JsonPropertyName("auth_time")]
+        public int AuthTime { get; set; }
+        public string Jti { get; set; }
+        public string Iss { get; set; }
+        public object Aud { get; set; }
+        public string Sub { get; set; }
+        public string Typ { get; set; }
+        public string Azp { get; set; }
+        public string Nonce { get; set; }
+
+        [JsonPropertyName("session_state")]
+        public string SessionState { get; set; }
+        public List<string> Allowedorigins { get; set; }
+
+        [JsonPropertyName("realm_access")]
+        public RealmAccess RealmAccess { get; set; }
+
+        [JsonPropertyName("Resource_Access")]
+        public ResourceAccess ResourceAccess { get; set; }
+        public string Scope { get; set; }
+        public string Sid { get; set; }
+
+        [JsonPropertyName("email_verified")]
+        public bool EmailVerified { get; set; }
+        public string Name { get; set; }
+
+        [JsonPropertyName("preferred_username")]
+        public string PreferredUsername { get; set; }
+
+        [JsonPropertyName("given_name")]
+        public string GivenName { get; set; }
+
+        [JsonPropertyName("family_name")]
+        public string FamilyName { get; set; }
+        public string Email { get; set; }
+        public List<string> Group { get; set; }
+        public string ClientHost { get; set; }
+        public string ClientId { get; set; }
+        public string ClientAddress { get; set; }
     }
 
-    public class Realm_Access
+    public class RealmAccess
     {
-        public List<string> roles { get; set; }
+        public List<string> Roles { get; set; }
     }
 
     public class Account
     {
-        public List<string> roles { get; set; }
+        public List<string> Roles { get; set; }
     }
 
-    public class Resource_Access
+    
+    public class ResourceAccess
     {
-        public Broker broker { get; set; }
-        public Account account { get; set; }
+        public Broker Broker { get; set; }
+        public Account Account { get; set; }
     }
 
     public class Broker
     {
-        public List<string> roles { get; set; }
+        public List<string> Roles { get; set; }
     }
-
-
-
 }
