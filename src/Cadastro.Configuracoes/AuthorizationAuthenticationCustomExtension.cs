@@ -82,17 +82,17 @@ namespace Cadastro.Configuracoes
         private static List<ClaimsIdentity> FillToken(TokenPayload payload)
         {
             var claims = new List<Claim>();
-            if (payload != null && !string.IsNullOrEmpty(payload.given_name))
+            if (payload != null && !string.IsNullOrEmpty(payload.GivenName))
             {
-                claims.Add(new Claim(ClaimTypes.GivenName, payload.given_name));
+                claims.Add(new Claim(ClaimTypes.GivenName, payload.GivenName));
                 claims.Add(new Claim(ClaimTypes.Name, payload.Name));
                 claims.Add(new Claim(ClaimTypes.Email, payload.Email));
-                claims.Add(new Claim(ClaimTypes.Surname, payload.family_name));
+                claims.Add(new Claim(ClaimTypes.Surname, payload.FamilyName));
                 claims.Add(new Claim("userId", payload.Sub));
 
                 AddClaimFromRoleList(claims, payload.Group);
-                AddClaimFromRoleList(claims, payload.realmAccess?.Roles);
-                AddClaimFromRoleList(claims, payload.resource_access?.Account?.Roles);
+                AddClaimFromRoleList(claims, payload.RealmAccess?.Roles);
+                AddClaimFromRoleList(claims, payload.ResourceAccess?.Account?.Roles);
             }
             var identity = new ClaimsIdentity(claims);
             return new List<ClaimsIdentity> { identity };
