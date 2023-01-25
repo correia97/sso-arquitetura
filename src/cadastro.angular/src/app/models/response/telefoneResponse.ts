@@ -1,6 +1,6 @@
 
 export interface TelefoneResponse {
     id: number;
-    dDI: string;
+    ddi: string;
     telefone: string;
 }
