@@ -59,7 +59,7 @@ namespace Cadastro.Domain.Entities
         public List<string> Roles { get; set; }
     }
 
-    
+
     public class ResourceAccess
     {
         public Broker Broker { get; set; }

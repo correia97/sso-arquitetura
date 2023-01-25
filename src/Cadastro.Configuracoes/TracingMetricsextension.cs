@@ -54,7 +54,7 @@ namespace Cadastro.Configuracoes
                          opt.AgentHost = config.GetSection("jaeger:host").Value;
                          opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
                      });
-                })                
+                })
                 .StartWithHost();
             return services;
         }

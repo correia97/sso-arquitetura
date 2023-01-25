@@ -57,9 +57,8 @@ namespace Cadastro.Configuracoes
                         {
                             OnTokenValidated = context =>
                             {
-                                var token = (JwtSecurityToken)context.SecurityToken;
-                                var payload = JsonSerializer.Deserialize<TokenPayload>(token.Payload.SerializeToJson());
-                                context.Principal.AddIdentities(FillToken(payload));
+                                var tokenJwt = (JwtSecurityToken)context.SecurityToken;
+                                context.Principal.AddIdentities(FillClaims(FillToken(tokenJwt)));
                                 return Task.CompletedTask;
                             },
                             OnAuthenticationFailed = context =>
@@ -78,24 +77,38 @@ namespace Cadastro.Configuracoes
 
             return services;
         }
-
-        private static List<ClaimsIdentity> FillToken(TokenPayload payload)
+        private static TokenPayload FillToken(JwtSecurityToken tokenJwt)
         {
-            var claims = new List<Claim>();
-            if (payload != null && !string.IsNullOrEmpty(payload.GivenName))
-            {
-                claims.Add(new Claim(ClaimTypes.GivenName, payload.GivenName));
-                claims.Add(new Claim(ClaimTypes.Name, payload.Name));
-                claims.Add(new Claim(ClaimTypes.Email, payload.Email));
-                claims.Add(new Claim(ClaimTypes.Surname, payload.FamilyName));
-                claims.Add(new Claim("userId", payload.Sub));
+            if (tokenJwt == null || string.IsNullOrEmpty(tokenJwt.RawPayload))
+                return null;
 
-                AddClaimFromRoleList(claims, payload.Group);
-                AddClaimFromRoleList(claims, payload.RealmAccess?.Roles);
-                AddClaimFromRoleList(claims, payload.ResourceAccess?.Account?.Roles);
+            return JsonSerializer.Deserialize<TokenPayload>(tokenJwt.Payload.SerializeToJson(), new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+        private static List<ClaimsIdentity> FillClaims(TokenPayload tokenJwt)
+        {
+            if (tokenJwt == null)
+                return null;
+
+            var claims = new List<Claim>();
+            if (tokenJwt != null && !string.IsNullOrEmpty(tokenJwt.GivenName))
+            {
+                claims.Add(new Claim(ClaimTypes.GivenName, tokenJwt.GivenName));
+                claims.Add(new Claim(ClaimTypes.Name, tokenJwt.Name));
+                claims.Add(new Claim(ClaimTypes.Email, tokenJwt.Email));
+                claims.Add(new Claim(ClaimTypes.Surname, tokenJwt.FamilyName));
+                claims.Add(new Claim("userId", tokenJwt.Sub));
+
+                AddClaimFromRoleList(claims, tokenJwt.Group);
+                AddClaimFromRoleList(claims, tokenJwt.RealmAccess?.Roles);
+                AddClaimFromRoleList(claims, tokenJwt.ResourceAccess?.Account?.Roles);
             }
-            var identity = new ClaimsIdentity(claims);
-            return new List<ClaimsIdentity> { identity };
+
+            var list = new List<ClaimsIdentity> { new ClaimsIdentity(claims) };
+
+            return list;
         }
 
         private static void AddClaimFromRoleList(List<Claim> claims, List<string> roles)
@@ -203,12 +216,8 @@ namespace Cadastro.Configuracoes
             {
                 OnTokenValidated = context =>
                 {
-                    var tokenJwt = context.SecurityToken;
-                    if (tokenJwt != null && !string.IsNullOrEmpty(tokenJwt.RawPayload))
-                    {
-                        var payload = JsonSerializer.Deserialize<TokenPayload>(tokenJwt.Payload.SerializeToJson());
-                        context.Principal.AddIdentities(FillToken(payload));
-                    }
+                    context.Principal.AddIdentities(FillClaims(FillToken(context.SecurityToken)));
+
                     return Task.CompletedTask;
                 },
                 OnMessageReceived = context =>
