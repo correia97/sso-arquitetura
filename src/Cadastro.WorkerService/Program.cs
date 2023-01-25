@@ -66,11 +66,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         string serviceName = typeof(Worker).Assembly.GetName().Name;
         string serviceVersion = typeof(Worker).Assembly.GetName().Version?.ToString();
         var activity = new ActivitySource(serviceName, serviceVersion);
-        services.AddScoped<ActivitySource>(x => activity);
+        services.AddScoped(x => activity);
 
         Log.Logger = LoggingExtension.AddCustomLogging(services, configuration, serviceName);
-
-        services.AddHostedService<Worker>();
 
         services.AddScoped<IDbConnection>(sp =>
         {
@@ -94,7 +92,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<RabbitMQConsumer>();
         services.AddFluentMigratorCore();
-
         services.AddRabbitCustomConfiguration(configuration);
         services.ConfigureRunner(rb =>
         {
@@ -102,9 +99,9 @@ IHost host = Host.CreateDefaultBuilder(args)
             rb.WithGlobalConnectionString("Base");
             rb.ScanIn(typeof(CriarBaseMigration).Assembly).For.Migrations();
         });
+        services.AddCustomOpenTelemetry(serviceName, serviceVersion, configuration);
 
-        services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion);
-        services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, configuration);
+        services.AddHostedService<Worker>();
     })
     .Build();
 

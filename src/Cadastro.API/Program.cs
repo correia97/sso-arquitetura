@@ -27,6 +27,7 @@ string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 builder.Services.AddControllers()
                 .AddJsonOptions(opt =>
@@ -132,8 +133,7 @@ builder.Services.AddRabbitCustomConfiguration(builder.Configuration);
 string serviceName = typeof(FuncionarioAppService).Assembly.GetName().Name;
 string serviceVersion = typeof(FuncionarioAppService).Assembly.GetName().Version?.ToString();
 
-builder.Services.AddCustomOpenTelemetryMetrics(serviceName, serviceVersion);
-builder.Services.AddCustomOpenTelemetryTracing(serviceName, serviceVersion, builder.Configuration);
+builder.Services.AddCustomOpenTelemetry(serviceName, serviceVersion, builder.Configuration);
 
 var activity = new ActivitySource(serviceName, serviceVersion);
 builder.Services.AddScoped<ActivitySource>(x => activity);

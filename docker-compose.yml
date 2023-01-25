@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   cadastro.api:
-    image: ${DOCKER_REGISTRY-}cadastroapi
+    image: ${DOCKER_REGISTRY}/cadastroapi
     container_name: cadastro.api
     build:
       context: .
@@ -16,7 +16,7 @@ services:
          condition: service_healthy
 
   cadastro.mvc:
-    image: ${DOCKER_REGISTRY-}cadastromvc
+    image: ${DOCKER_REGISTRY}/cadastromvc
     container_name: cadastro.mvc
     build:
       context: .
@@ -30,7 +30,7 @@ services:
       condition: service_started
 
   cadastro.workerservice:
-    image: ${DOCKER_REGISTRY-}cadastroworker
+    image: ${DOCKER_REGISTRY}/cadastroworker
     container_name: cadastro.worker
     build:
       context: .
@@ -100,7 +100,7 @@ services:
       - externo
 
   # logstash:
-  #   image: ${DOCKER_REGISTRY-}logstash:7.17.6
+  #   image: ${DOCKER_REGISTRY}/logstash:7.17.6
   #   container_name: logstash  
   #   build: 
   #     context: ./src/elastic/logstash/
@@ -153,7 +153,7 @@ services:
         condition: service_started  
         
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
     container_name: cadvisor
     volumes:
     - /:/rootfs:ro

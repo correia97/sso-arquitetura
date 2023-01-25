@@ -63,7 +63,7 @@ scenarios:
           nome: "Paulo Eduardo"   
           sobreNome: "Correia"   
           email: "{{ userId }}@gmail.com"   
-          dataNascimento: "1987-08-14" 
+          dataNascimento: "2011-11-11" 
     - patch:
         headers: 
           correlationId:  "{{ correlationId }}"
@@ -78,25 +78,25 @@ scenarios:
           nome: "Paulo Eduardo"   
           sobreNome: "Correia"   
           email: "{{ userId }}@gmail.com"   
-          dataNascimento: "1987-08-14" 
+          dataNascimento: "2011-11-11" 
           telefones:
-            - telefone: "11949309294"
+            - telefone: "11900000000"
               ddi: "+55"
-            - telefone: "1127512101"
+            - telefone: "1127272727"
               ddi: "+55"
           enderecoComercial:
-            rua: "Jose Prado Montoro"
+            rua: "Rua Teste"
             numero: 47
-            cep: "04679290"
+            cep: "04600000"
             complemento: ""
             bairro: "Vila Santana"
             cidade: "São Paulo"
             uf: "SP"
             tipoEndereco": 1  
           enderecoResidencial:
-            rua: "Jose Prado Montoro"
+            rua: "Rua Teste"
             numero: 47
-            cep: "04679290"
+            cep: "04600000"
             complemento: ""
             bairro: "Vila Santana"
             cidade: "São Paulo"

@@ -284,7 +284,7 @@ namespace Cadastro.Test.Domain
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                  _mockNotificationService.Object, _mockLogger.Object, activity);
 
-            await Assert.ThrowsAsync<NullReferenceException>(async () => await service.Atualizar(funcionarioAtualizado));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Atualizar(funcionarioAtualizado));
 
             Output.WriteLine($"Result: ok");
 
