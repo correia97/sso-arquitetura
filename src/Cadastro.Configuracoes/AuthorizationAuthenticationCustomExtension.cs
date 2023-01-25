@@ -89,25 +89,23 @@ namespace Cadastro.Configuracoes
         }
         private static List<ClaimsIdentity> FillClaims(TokenPayload tokenJwt)
         {
-            if (tokenJwt == null)
-                return null;
-
-            var claims = new List<Claim>();
-            if (tokenJwt != null && !string.IsNullOrEmpty(tokenJwt.GivenName))
+            var list = new List<ClaimsIdentity>();
+            if (tokenJwt != null || !string.IsNullOrEmpty(tokenJwt.GivenName))
             {
-                claims.Add(new Claim(ClaimTypes.GivenName, tokenJwt.GivenName));
-                claims.Add(new Claim(ClaimTypes.Name, tokenJwt.Name));
-                claims.Add(new Claim(ClaimTypes.Email, tokenJwt.Email));
-                claims.Add(new Claim(ClaimTypes.Surname, tokenJwt.FamilyName));
-                claims.Add(new Claim("userId", tokenJwt.Sub));
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.GivenName, tokenJwt.GivenName),
+                    new Claim(ClaimTypes.Name, tokenJwt.Name),
+                    new Claim(ClaimTypes.Email, tokenJwt.Email),
+                    new Claim(ClaimTypes.Surname, tokenJwt.FamilyName),
+                    new Claim("userId", tokenJwt.Sub)
+                };
 
                 AddClaimFromRoleList(claims, tokenJwt.Group);
                 AddClaimFromRoleList(claims, tokenJwt.RealmAccess?.Roles);
                 AddClaimFromRoleList(claims, tokenJwt.ResourceAccess?.Account?.Roles);
+                list.Add(new ClaimsIdentity(claims));
             }
-
-            var list = new List<ClaimsIdentity> { new ClaimsIdentity(claims) };
-
             return list;
         }
 
@@ -209,7 +207,6 @@ namespace Cadastro.Configuracoes
             });
             return services;
         }
-
         private static OpenIdConnectEvents SetupOpenIdConnectEvents()
         {
             var events = new OpenIdConnectEvents

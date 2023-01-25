@@ -49,11 +49,18 @@ namespace Cadastro.Data.Repositories
         }
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             if (Status == TransactionStatus.Started)
                 Transaction?.Rollback();
             Status = TransactionStatus.None;
             Transaction?.Dispose();
-            GC.SuppressFinalize(this);
         }
     }
 }
