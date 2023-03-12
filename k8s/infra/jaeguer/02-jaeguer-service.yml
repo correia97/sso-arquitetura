@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-service
+spec:
+  selector:
+    app: jaeger
+  ports:
+  - port: 14268
+    targetPort: 14268
+    name: httpthrift
+  - port: 6831
+    targetPort: 6831
+    name: udpthrift
+  - port: 16686
+    targetPort: 16686
+    name: apiui
+  type: NodePort  

@@ -27,20 +27,17 @@ namespace Cadastro.Domain.Services
             _logger = logger;
             _activitySource = activitySource;
         }
-        private static string DataHoraAtual()
-        {
-            return DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-        }
+
         public async Task Atualizar(Funcionario funcionario)
         {
             using var activity = _activitySource.StartActivity("Atualizar Funcionario", ActivityKind.Internal);
-            _logger.LogInformation($"Atualizar Funcionário iniciado {DataHoraAtual()}");
+            _logger.LogInformation("Atualizar Funcionário iniciado");
             Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
             if (baseFuncionario == null)
             {
-                _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", false));
-                _logger.LogError($"Funcionario {funcionario.Id} não localizado {DataHoraAtual()}");
-                throw new InvalidOperationException($"Funcionario {funcionario.Id} não localizado");
+                _notificationService.SendEvent(new NotificationMessage<Funcionario>(funcionario.Id, funcionario.Id, TipoEvento.Atualizado, false, funcionario));
+                _logger.LogError($"Funcionario  não localizado");
+                throw new InvalidOperationException("Funcionario  não localizado");
             }
 
             baseFuncionario.Atualizar(funcionario.Nome, funcionario.DataNascimento, funcionario.Email, funcionario.Matricula, funcionario.Cargo);
@@ -55,9 +52,9 @@ namespace Cadastro.Domain.Services
             if (!result)
             {
                 _repositoryWrite.CancelarTransacao();
-                _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", false));
-                _logger.LogError($"Erro ao atualizar Funcionário {funcionario.Id} {DataHoraAtual()}");
-                throw new InvalidOperationException($"Erro ao atualizar Funcionário {funcionario.Id}");
+                _notificationService.SendEvent(new NotificationMessage<Funcionario>(funcionario.Id, funcionario.Id, TipoEvento.Atualizado, false, funcionario));
+                _logger.LogError($"Erro ao atualizar Funcionário ");
+                throw new InvalidOperationException($"Erro ao atualizar Funcionário ");
             }
 
             if (funcionario.Telefones != null && funcionario.Telefones.Any())
@@ -69,15 +66,15 @@ namespace Cadastro.Domain.Services
             if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                 await TratarEndereco(funcionario.EnderecoComercial);
 
-            _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Atualizar", true));
+            _notificationService.SendEvent(new NotificationMessage<Funcionario>(funcionario.Id, funcionario.Id, TipoEvento.Atualizado, true, funcionario));
             _repositoryWrite.CompletarTransacao();
-            _logger.LogInformation($"Atualizar Funcionário concluido {DataHoraAtual()}");
+            _logger.LogInformation("Atualizar Funcionário concluido");
         }
 
         public async Task Cadastrar(Funcionario funcionario)
         {
             using var activity = _activitySource.StartActivity("Cadastrar Funcionario", ActivityKind.Internal);
-            _logger.LogInformation($"Cadastrar Funcionário iniciado {DataHoraAtual()}");
+            _logger.LogInformation("Cadastrar Funcionário iniciado");
             Funcionario data = await _repositoryRead.ObterPorEmail(funcionario.Email.EnderecoEmail);
 
             if (data != null)
@@ -91,8 +88,8 @@ namespace Cadastro.Domain.Services
             if (!result)
             {
                 _repositoryWrite.CancelarTransacao();
-                _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Cadastrar", false));
-                _logger.LogError($"Erro ao cadastrar Funcionário {DataHoraAtual()}");
+                _notificationService.SendEvent(new NotificationMessage<Funcionario>(funcionario.Id, funcionario.Id, TipoEvento.Cadastrado, false, funcionario));
+                _logger.LogError("Erro ao cadastrar Funcionário");
                 throw new InvalidOperationException("Deu muito ruim!");
             }
 
@@ -108,16 +105,16 @@ namespace Cadastro.Domain.Services
             if (funcionario.EnderecoComercial != null && !string.IsNullOrEmpty(funcionario.EnderecoComercial.Rua))
                 await _repositoryWrite.InserirEndereco(funcionario.EnderecoComercial);
 
-            _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Cadastrar", true));
+            _notificationService.SendEvent(new NotificationMessage<Funcionario>(funcionario.Id, funcionario.Id, TipoEvento.Cadastrado, true, funcionario));
             _repositoryWrite.CompletarTransacao();
 
-            _logger.LogInformation($"Cadastrar Funcionário concluido {DataHoraAtual()}");
+            _logger.LogInformation("Cadastrar Funcionário concluido");
         }
 
         public async Task Desativar(Guid id)
         {
             using var activity = _activitySource.StartActivity("Desativar Funcionario", ActivityKind.Internal);
-            _logger.LogInformation($"Desativar Funcionário iniciado {DataHoraAtual()}");
+            _logger.LogInformation("Desativar Funcionário iniciado");
 
             _repositoryWrite.IniciarTransacao();
 
@@ -126,27 +123,27 @@ namespace Cadastro.Domain.Services
             if (!result)
             {
                 _repositoryWrite.CancelarTransacao();
-                _notificationService.SendEvent(new NotificationMessage(id, id, "Desativar", false));
-                _logger.LogError($"Erro ao Desativar Funcionário {DataHoraAtual()}");
+                _notificationService.SendEvent(new NotificationMessage<Guid>(id, id, TipoEvento.Desativado, false, id));
+                _logger.LogError("Erro ao Desativar Funcionário");
                 throw new InvalidOperationException("Deu muito ruim!");
             }
 
-            _notificationService.SendEvent(new NotificationMessage(id, id, "Desativar", true));
+            _notificationService.SendEvent(new NotificationMessage<Guid>(id, id, TipoEvento.Desativado, true, id));
             _repositoryWrite.CompletarTransacao();
-            _logger.LogInformation($"Desativar Funcionário concluido {DataHoraAtual()}");
+            _logger.LogInformation("Desativar Funcionário concluido");
         }
 
         public async Task Remover(Guid id)
         {
             using var activity = _activitySource.StartActivity("Remover Funcionario", ActivityKind.Internal);
-            _logger.LogInformation($"Remover Funcionário iniciado {DataHoraAtual()}");
+            _logger.LogInformation("Remover Funcionário iniciado");
             Funcionario funcionario = await ObterPorId(id);
 
             if (funcionario == null)
             {
-                _notificationService.SendEvent(new NotificationMessage(id, id, "Remover", false));
-                _logger.LogError($"Funcionário {id} não localizado {DataHoraAtual()}");
-                throw new InvalidOperationException($"Funcionário {id} não localizado");
+                _notificationService.SendEvent(new NotificationMessage<Guid>(id, id, TipoEvento.Deletado, false, id));
+                _logger.LogError("Funcionário não localizado");
+                throw new InvalidOperationException("Funcionário {id} não localizado");
             }
             _repositoryWrite.IniciarTransacao();
 
@@ -165,21 +162,21 @@ namespace Cadastro.Domain.Services
             if (!result)
             {
                 _repositoryWrite.CancelarTransacao();
-                _notificationService.SendEvent(new NotificationMessage(id, id, "Remover", false));
-                _logger.LogError($"Erro ao Remover Funcionário {DataHoraAtual()}");
+                _notificationService.SendEvent(new NotificationMessage<Guid>(id, id, TipoEvento.Deletado, false, id));
+                _logger.LogError("Erro ao Remover Funcionário");
                 throw new InvalidOperationException("Deu muito ruim!");
             }
 
-            _notificationService.SendEvent(new NotificationMessage(funcionario.Id, funcionario.Id, "Remover", true));
+            _notificationService.SendEvent(new NotificationMessage<Guid>(funcionario.Id, funcionario.Id, TipoEvento.Deletado, true, id));
             _repositoryWrite.CompletarTransacao();
-            _logger.LogInformation($"Remover Funcionário concluido {DataHoraAtual()}");
+            _logger.LogInformation("Remover Funcionário concluido");
         }
 
         public async Task<Funcionario> ObterPorId(Guid id)
         {
             using var activity = _activitySource.StartActivity("Obter Funcionario por Id", ActivityKind.Internal);
 
-            _logger.LogInformation($"ObterPorId Funcionário iniciado {DataHoraAtual()}");
+            _logger.LogInformation("ObterPorId Funcionário iniciado");
             Funcionario funcionario = await _repositoryRead.ObterPorId(id);
             if (funcionario == null)
                 return null;
@@ -198,7 +195,7 @@ namespace Cadastro.Domain.Services
                 if (enderecos.Any(x => x.TipoEndereco == TipoEndereco.Residencial))
                     funcionario.AtualizarEnderecoResidencial(enderecos.FirstOrDefault(x => x.TipoEndereco == TipoEndereco.Residencial));
             }
-            _logger.LogInformation($"ObterPorId Funcionário concluido {DataHoraAtual()}");
+            _logger.LogInformation("ObterPorId Funcionário concluido");
             return funcionario;
         }
 
@@ -212,27 +209,27 @@ namespace Cadastro.Domain.Services
             if (qtdItens < 1 || qtdItens > 50)
                 qtdItens = 50;
 
-            _logger.LogInformation($"ObterTodos Funcionário iniciado pagina {pagina} qtd {qtdItens} Data {DataHoraAtual()}");
+            _logger.LogInformation($"ObterTodos Funcionário iniciado");
             var data = await _repositoryRead.ObterTodos(pagina, qtdItens);
-            _logger.LogInformation($"ObterTodos Funcionário concluido pagina {pagina} qtd {qtdItens} Data {DataHoraAtual()}");
+            _logger.LogInformation($"ObterTodos Funcionário concluido pagina");
             return data;
         }
 
         private async Task TratarEndereco(Endereco endereco)
         {
             using var activity = _activitySource.StartActivity("Atualizar/Inserir Endereço", ActivityKind.Internal);
-            _logger.LogInformation($"Tratar Endereco Iniciado {DataHoraAtual()}");
+            _logger.LogInformation("Tratar Endereco Iniciado");
             if (endereco.Id > 0)
                 await _repositoryWrite.AtualizarEndereco(endereco);
             else
                 await _repositoryWrite.InserirEndereco(endereco);
-            _logger.LogInformation($"Tratar Endereco concluido {DataHoraAtual()}");
+            _logger.LogInformation("Tratar Endereco concluido");
         }
 
         private async Task TratarTelefones(IEnumerable<Telefone> telefones)
         {
             using var activity = _activitySource.StartActivity("Atualizar/Inserir Telefones", ActivityKind.Internal);
-            _logger.LogInformation($"Tratar Telefone Iniciado {DataHoraAtual()}");
+            _logger.LogInformation("Tratar Telefone Iniciado");
             foreach (var item in telefones)
             {
                 if (item.Id > 0)
@@ -240,7 +237,7 @@ namespace Cadastro.Domain.Services
                 else
                     await _repositoryWrite.InserirTelefone(item);
             }
-            _logger.LogInformation($"Tratar Telefone concluido {DataHoraAtual()}");
+            _logger.LogInformation("Tratar Telefone concluido");
         }
     }
 }

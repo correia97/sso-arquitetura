@@ -1,6 +1,6 @@
 # my global config
 global:
-  scrape_interval:     15s
+  scrape_interval:     30s
   evaluation_interval: 30s
   # scrape_timeout is set to the global default (10s).
 
@@ -8,24 +8,20 @@ global:
     monitor: codelab    
 
 scrape_configs: 
-  - job_name: 'cadastro.api'    
-    scrape_interval: 15s   
+  - job_name: 'cadastro.api'
     static_configs:
       - targets: ['cadastro.api']
       
-  - job_name: 'cadastro.mvc'    
-    scrape_interval: 15s   
+  - job_name: 'cadastro.mvc'
     static_configs:
       - targets: ['cadastro.mvc']
       
   - job_name: 'nginx'    
-    scrape_interval: 15s   
     metrics_path: '/metrics'
     static_configs:
       - targets: ['nginx_exporter:9113']
       
-  - job_name: 'nginx_angular'    
-    scrape_interval: 15s   
+  - job_name: 'nginx_angular'
     metrics_path: '/metrics'
     static_configs:
       - targets: ['angular_exporter:9113']
@@ -34,19 +30,14 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']  
   
-  - job_name: 'rabbitmq-server' 
-    scrape_interval: 15s
+  - job_name: 'rabbitmq-server'
     static_configs:
       - targets: ['rabbitmq:15692']
 
   - job_name: cadvisor
-    scrape_interval: 5s
     static_configs:
-    - targets:
-      - cadvisor:8080  
+    - targets: ['cadvisor:8080']
 
   - job_name: keycloak
-    scrape_interval: 5s
     static_configs:
-    - targets:
-      - keycloak:8080             
+    - targets: ['keycloak:8080']             

@@ -513,7 +513,7 @@ namespace Cadastro.Test.Domain
                     Assert.Equal(id, currentId);
                 });
 
-            _mockNotificationService.Setup(x => x.SendEvent(It.IsAny<NotificationMessage>()));
+            _mockNotificationService.Setup(x => x.SendEvent(It.IsAny<NotificationMessage<Guid>>()));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
                                                  _mockNotificationService.Object, _mockLogger.Object, activity);
@@ -523,7 +523,7 @@ namespace Cadastro.Test.Domain
             Output.WriteLine($"Result: ok");
 
             _mockFuncionarioRepositorioLeitura.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once);
-            _mockNotificationService.Verify(x => x.SendEvent(It.IsAny<NotificationMessage>()), Times.Once);
+            _mockNotificationService.Verify(x => x.SendEvent(It.IsAny<NotificationMessage<Guid>>()), Times.Once);
             _mockFuncionarioRepositorioEscrita.Verify(x => x.IniciarTransacao(), Times.Never);
         }
 

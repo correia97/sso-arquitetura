@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: correia97/rabbitmq:3.10.7-management-plugins
+        envFrom: 
+          - secretRef: 
+              name: rabbitmq-secret
+        ports:
+        - containerPort: 15672
+          name: management      
+        - containerPort: 5672
+          name: amqp      
+        - containerPort: 15692
+          name: metrics        
+        imagePullPolicy: IfNotPresent

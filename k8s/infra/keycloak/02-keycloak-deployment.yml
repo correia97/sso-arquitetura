@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+spec:
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:19.0.1
+        ports:
+        - containerPort: 8080
+          name: http 
+        - containerPort: 9090
+          name: http2
+        imagePullPolicy: IfNotPresent
+        args:
+            - start-dev --import-realm
+        env:
+        - name: DB_DATABASE
+          value: "keycloak"
+        - name: "DB_VENDOR"
+          value: "POSTGRES"
+        - name: "DB_ADDR"
+          value: "postgres-service"
+        - name: "DB_PORT"
+          value: "5432"
+        - name: "DB_DATABASE"
+          value: "keycloak"
+        - name: "DB_USER"
+          valueFrom: 
+            secretKeyRef:
+             name: postgres-secret
+             key: POSTGRES_USER
+        - name: "DB_PASSWORD"
+          valueFrom: 
+            secretKeyRef:
+             name: postgres-secret
+             key: POSTGRES_PASSWORD
+        - name: KC_DB
+          value: postgres
+        - name: KC_DB_URL
+          value: "jdbc:postgresql://postgres-service/keycloak"
+        - name: KC_DB_USERNAME
+          valueFrom: 
+            secretKeyRef:
+             name: postgres-secret
+             key: POSTGRES_USER
+        - name: KC_DB_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+             name: postgres-secret
+             key: POSTGRES_PASSWORD
+        - name: PROXY_ADDRESS_FORWARDING
+          value: "true"
+        - name: KC_HTTP_ENABLED
+          value: "true"
+        - name: KC_HTTP_PORT
+          value: "8080"
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_HOSTNAME
+          value: "keycloak-service"
+        - name: KC_FEATURES
+          value: "token-exchange"
+        - name: KC_LOG
+          value: "console"
+        # - name: KC_METRICS_ENABLED
+        #   value: "true"
+        envFrom: 
+          - secretRef: 
+              name: keycloak-secret
+        volumeMounts:
+          - name: keycloak-init
+            mountPath: /opt/keycloak/data/import/realm.json   
+      volumes:
+       - name: keycloak-init
+         configMap:
+            name: keycloak-init-config

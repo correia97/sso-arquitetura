@@ -1,4 +1,5 @@
-﻿using Cadastro.Domain.Enums;
+﻿using Cadastro.Configuracoes;
+using Cadastro.Domain.Enums;
 using Cadastro.Domain.Interfaces;
 using Dapper;
 using Domain.Entities;
@@ -28,7 +29,7 @@ namespace Cadastro.Data.Repositories
                         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(3, retryAttempt)),
                         (exception, timeSpan, retryCount, context) =>
                         {
-                            _logger.LogError(exception, $"Retry {retryCount} at: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+                            _logger.CustomLogError(exception, $"Retry {retryCount}");
 
                             if (exception.Message.Contains("A transaction is already in progress"))
                                 Thread.Sleep(100);
@@ -107,7 +108,6 @@ namespace Cadastro.Data.Repositories
                         ORDER BY datacadastro
                         LIMIT @qtd
                         OFFSET @pular";
-
 
             var @params = new DynamicParameters();
             @params.Add("@qtd", qtdItens, DbType.Int32);
@@ -267,7 +267,6 @@ namespace Cadastro.Data.Repositories
                         , ddd                       =@ddd
                         , numeroTelefone            =@numeroTelefone
                         WHERE id                    =@id";
-
 
             var param = new DynamicParameters();
             param.Add("@id", telefone.Id);

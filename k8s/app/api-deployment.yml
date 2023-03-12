@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  selector:
+    matchLabels:
+      app: cadastroapi
+  template:
+    metadata:
+      labels:
+        app: cadastroapi
+    spec:
+      containers:
+      - name: cadastroapi
+        image: correia97/cadastroapi
+        ports:
+        - containerPort: 80
+          name: http        
+        imagePullPolicy: Always  
+        env:
+        - name: AllowedHosts
+          value: "*"
+        - name: http://keycloak-service:8080
+          value: "*"
+        - name: UrlComplement
+          value: "/realms/Sample/"
+        - name: Audience
+          value: "account"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cadastroapi-service
+spec:
+  selector:
+    app: cadastroapi
+  ports:
+  - port: 80
+    targetPort: 80
+  type: NodePort  
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cadastroapi-secret
+type: Opaque
+data:  
+  ClientSecret: aFZXUU5XV2dhYXpCeHdkQkZpRmRtSlhGd3NhVlVIUFk=
+  ClientId: ZXhlbXBsbzE=

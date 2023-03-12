@@ -1,20 +1,24 @@
-﻿using System;
+﻿using Cadastro.Domain.Enums;
+using System;
 
 namespace Cadastro.Domain.Entities
 {
-    public class NotificationMessage
+    public class NotificationMessage<T>
     {
-        public NotificationMessage(Guid correlationId, Guid userId, string eventName, bool success)
+        public NotificationMessage(Guid correlationId, Guid userId, TipoEvento tipo, bool success, T data)
         {
             CorrelationId = correlationId;
             UserId = userId;
-            EventName = eventName;
+            Tipo = tipo;
             Success = success;
+            Data = data;
         }
 
         public Guid CorrelationId { get; private set; }
         public Guid UserId { get; private set; }
-        public string EventName { get; private set; }
+        public TipoEvento Tipo { get; private set; }
         public bool Success { get; private set; }
+
+        public T Data { get; private set; }
     }
 }

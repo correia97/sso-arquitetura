@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  selector:
+    matchLabels:
+      app: cadastroworker
+  template:
+    metadata:
+      labels:
+        app: cadastroworker
+    spec:
+      containers:
+      - name: cadastroworker
+        image: correia97/cadastroworker
+        ports:
+        - containerPort: 80
+          name: http        
+        imagePullPolicy: Always  
+        env:
+        - name: Mongo__User
+          valueFrom:
+           secretKeyRef:
+             name:
+             key: 

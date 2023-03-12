@@ -1,5 +1,6 @@
 ﻿using Cadastro.Data.Services;
 using Cadastro.Domain.Entities;
+using Cadastro.Domain.Enums;
 using RabbitMQ.Client;
 using Xunit;
 using Xunit.Abstractions;
@@ -8,8 +9,8 @@ namespace Cadastro.Test.Infra.Services
 {
     public class NotificationServiceTest
     {
-        private Mock<IModel> _mockModel;
-        private Mock<IBasicProperties> _mockBasicProperties;
+        private readonly Mock<IModel> _mockModel;
+        private readonly Mock<IBasicProperties> _mockBasicProperties;
 
         public readonly Faker _faker;
         private ITestOutputHelper Output { get; }
@@ -28,13 +29,15 @@ namespace Cadastro.Test.Infra.Services
             _mockModel.Setup(x => x.CreateBasicProperties())
                 .Returns(_mockBasicProperties.Object);
 
-            var notification = new NotificationMessage(Guid.NewGuid(), Guid.NewGuid(), _faker.Random.String(), true);
+            var notification = new NotificationMessage<string>(Guid.NewGuid(), Guid.NewGuid(), TipoEvento.None, true, _faker.Random.String());
 
             var appService = new NotificationService(_mockModel.Object);
 
             appService.SendEvent(notification);
 
             _mockModel.Verify(x => x.CreateBasicProperties(), Times.Once);
+
+            Output.WriteLine(notification.ToString());
         }
     }
 }

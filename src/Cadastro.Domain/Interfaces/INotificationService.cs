@@ -4,6 +4,6 @@ namespace Cadastro.Domain.Interfaces
 {
     public interface INotificationService
     {
-        void SendEvent(NotificationMessage message);
+        void SendEvent<T>(NotificationMessage<T> message);
     }
 }

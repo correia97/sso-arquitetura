@@ -14,8 +14,8 @@ namespace Cadastro.Configuracoes
     [ExcludeFromCodeCoverage]
     public class RabbitMQConsumer
     {
-        private readonly ILogger<RabbitMQConsumer> _logger;
-        private IModel _model { get; set; }
+        private IModel Model { get; set; }
+        private readonly ILogger<RabbitMQConsumer> _logger; 
         private readonly IServiceProvider _serviceProvider;
         private readonly AsyncPolicy _retryAsyncPolicy;
         private readonly ActivitySource _activity;
@@ -23,7 +23,7 @@ namespace Cadastro.Configuracoes
         public RabbitMQConsumer(ILogger<RabbitMQConsumer> logger, ActivitySource activity, IModel model, IServiceProvider serviceProvider, IConfiguration configuration)
         {
             _logger = logger;
-            _model = model;
+            Model = model;
             _serviceProvider = serviceProvider;
             _activity = activity;
             _configuration = configuration;
@@ -37,22 +37,22 @@ namespace Cadastro.Configuracoes
         }
         public void AddConsumer<TService, TMessage>(Func<TService, TMessage, Task> action, string queue)
         {
-            if (_model.IsClosed)
+            if (Model.IsClosed)
                 Reconnect();
 
-            _model.BasicQos(prefetchSize: 0, prefetchCount: 20, global: false);
+            Model.BasicQos(prefetchSize: 0, prefetchCount: 20, global: false);
 
-            var consumer = new EventingBasicConsumer(_model);
+            var consumer = new EventingBasicConsumer(Model);
 
             consumer.Received += async (sender, ea) => await ReceiveidMessage(ea, action, queue);
 
-            _model.BasicConsume(queue, false, consumer);
+            Model.BasicConsume(queue, false, consumer);
         }
 
         private void Reconnect()
         {
             var connection = RabbitConfigExtension.CreateConnection(_configuration);
-            _model = connection.CreateModel();
+            Model = connection.CreateModel();
         }
 
         protected async Task ReceiveidMessage<TService, TMessage>(BasicDeliverEventArgs ea, Func<TService, TMessage, Task> action, string queue)
@@ -60,8 +60,8 @@ namespace Cadastro.Configuracoes
             _logger.CustomLogInformation($"Message received from {queue} ");
             using var act = _activity.StartActivity("ReceiveidMessage");
 
-            if (_model.IsClosed)
-                Reconnect();
+            if (Model.IsClosed)               
+               Reconnect();
 
             TMessage messageObject = default;
             bool canDispatch = false;
@@ -79,7 +79,7 @@ namespace Cadastro.Configuracoes
             catch (Exception ex)
             {
                 _logger.CustomLogError(ex, $"Consume {queue} failed ");
-                _model.BasicReject(ea.DeliveryTag, false);
+                Model.BasicReject(ea.DeliveryTag, false);
             }
 
             if (!canDispatch)
@@ -89,22 +89,22 @@ namespace Cadastro.Configuracoes
             {
                 _logger.CustomLogInformation($"Consume started ");
                 await Dispatch(action, messageObject);
-                _model.BasicAck(ea.DeliveryTag, false);
+                Model.BasicAck(ea.DeliveryTag, false);
                 _logger.CustomLogInformation($"Consume {queue} success ");
             }
             catch (NullReferenceException ex)
             {
                 _logger.CustomLogError(ex, $"Consume {queue} failed ");
-                _model.BasicNack(ea.DeliveryTag, false, dlqCount < 4);
+                Model.BasicNack(ea.DeliveryTag, false, dlqCount < 4);
             }
             catch (InvalidOperationException ex)
             {
-                _model.BasicReject(ea.DeliveryTag, false);
+                Model.BasicReject(ea.DeliveryTag, false);
                 _logger.CustomLogError(ex, $"Consume {queue} failed ");
             }
             catch (Exception ex)
             {
-                _model.BasicNack(ea.DeliveryTag, false, dlqCount < 4);
+                Model.BasicNack(ea.DeliveryTag, false, dlqCount < 4);
                 _logger.CustomLogError(ex, $"Consume {queue} failed ");
             }
         }

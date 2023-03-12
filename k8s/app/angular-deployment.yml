@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  selector:
+    matchLabels:
+      app: cadastroangular
+  template:
+    metadata:
+      labels:
+        app: cadastroangular
+    spec:
+      containers:
+      - name: cadastroangular
+        image: correia97/cadastroangular
+        ports:
+        - containerPort: 80
+          name: http        
+        imagePullPolicy: Always  
+        env:
+        - name: Mongo__User
+          valueFrom:
+           secretKeyRef:
+             name:
+             key: 
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cadastroangular-service
+spec:
+  selector:
+    app: cadastroangular
+  ports:
+  - port: 80
+    targetPort: 80
+  type: NodePort  
+

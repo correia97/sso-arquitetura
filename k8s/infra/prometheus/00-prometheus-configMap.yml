@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-init-config
+data:
+  prometheus.yaml: |          
+      # my global config
+      global:
+        scrape_interval:     30s
+        evaluation_interval: 30s
+        # scrape_timeout is set to the global default (10s).
+
+        external_labels:
+          monitor: codelab    
+
+      scrape_configs: 
+        - job_name: 'cadastro.api'
+          static_configs:
+            - targets: ['cadastroapi-service']
+            
+        - job_name: 'cadastro.mvc'
+          static_configs:
+            - targets: ['cadastromvc-service']
+            
+        - job_name: 'nginx'    
+          metrics_path: '/metrics'
+          static_configs:
+            - targets: ['nginx_exporter:9113']
+            
+        - job_name: 'nginx_angular'
+          metrics_path: '/metrics'
+          static_configs:
+            - targets: ['angular_exporter:9113']
+
+        - job_name: 'prometheus'        
+          static_configs:
+            - targets: ['localhost:9090']  
+        
+        - job_name: 'rabbitmq-server'
+          static_configs:
+            - targets: ['rabbitmq-service:15692']
+
+        - job_name: cadvisor
+          static_configs:
+          - targets: ['cadvisor-service:8080']
+
+        - job_name: keycloak
+          static_configs:
+          - targets: ['keycloak-service:8080']        

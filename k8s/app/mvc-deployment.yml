@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  selector:
+    matchLabels:
+      app: cadastromvc
+  template:
+    metadata:
+      labels:
+        app: cadastromvc
+    spec:
+      containers:
+      - name: cadastromvc
+        image: correia97/cadastromvc
+        ports:
+        - containerPort: 80
+          name: http        
+        imagePullPolicy: Always  
+        env:
+        - name: Mongo__User
+          valueFrom:
+           secretKeyRef:
+             name:
+             key: 
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cadastromvc-service
+spec:
+  selector:
+    app: cadastromvc
+  ports:
+  - port: 80
+    targetPort: 80
+  type: NodePort  
+

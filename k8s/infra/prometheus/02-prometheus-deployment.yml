@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.37.0
+        ports:
+        - containerPort: 9090
+          name: http        
+        imagePullPolicy: IfNotPresent  
+        envFrom: 
+          - secretRef: 
+              name: prometheus-secret
+        volumeMounts:
+          - name: prometheus-init
+            mountPath: /etc/prometheus/prometheus.yml
+      volumes:
+       - name: prometheus-init
+         configMap:
+            name: prometheus-init-config
