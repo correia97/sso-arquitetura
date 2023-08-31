@@ -1,0 +1,15 @@
+[submodule "src/cadastro.angular"]
+	path = src/cadastro.angular
+	url = https://github.com/correia97/sso-cadastro-angular
+[submodule "src/Cadastro.API"]
+	path = src/Cadastro.API
+	url = https://github.com/correia97/sso-cadastro-api
+[submodule "src/Cadastro.MVC"]
+	path = src/Cadastro.MVC
+	url = https://github.com/correia97/sso-cadastro-mvc
+[submodule "src/Cadastro.GRPC"]
+	path = src/Cadastro.GRPC
+	url = https://github.com/correia97/sso-cadastro-grpc
+[submodule "src/Cadastro.WorkerService"]
+	path = src/Cadastro.WorkerService
+	url = https://github.com/correia97/sso-cadastro-workerservice
