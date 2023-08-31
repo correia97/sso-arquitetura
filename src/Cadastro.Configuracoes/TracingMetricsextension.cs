@@ -47,12 +47,7 @@ namespace Cadastro.Configuracoes
                          options.SetDbStatementForText = true;
                          options.RecordException = true;
                      })
-                     .AddConsoleExporter()
-                     .AddJaegerExporter(opt =>
-                     {
-                         opt.AgentHost = config.GetSection("jaeger:host").Value;
-                         opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
-                     });
+                     .AddConsoleExporter();
                 });
 
             return services;
