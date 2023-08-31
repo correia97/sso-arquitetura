@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -55,7 +54,7 @@ namespace Cadastro.Configuracoes
                          opt.AgentPort = int.Parse(config.GetSection("jaeger:port").Value);
                      });
                 });
-                
+
             return services;
         }
 

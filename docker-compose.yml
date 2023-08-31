@@ -77,7 +77,7 @@ services:
       - ./src/database/create_dbs.sql:/docker-entrypoint-initdb.d/init.sql
 
   rabbitmq:    
-    image: ${DOCKER_REGISTRY}/rabbitmq:3.10.7-management-plugins
+    image: ${DOCKER_REGISTRY}/rabbitmq:3.12-management-plugins
     container_name: rabbitmq
     build:
       context: ./src/Rabbitmq
@@ -119,7 +119,7 @@ services:
   #     - base 
 
   jaeger:
-     image: jaegertracing/all-in-one:1.37
+     image: jaegertracing/all-in-one:1.46
      container_name: jaeger
      environment:
          - PROMETHEUS_SERVER_URL=http://prometheus:9090
@@ -137,7 +137,7 @@ services:
          condition: service_started            
 
   prometheus:
-    image: prom/prometheus:v2.37.0
+    image: prom/prometheus:v2.44.0
     container_name: prometheus    
     volumes: 
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
@@ -153,7 +153,7 @@ services:
         condition: service_started  
         
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    image: gcr.io/cadvisor/cadvisor:v0.47.1
     container_name: cadvisor
     volumes:
     - /:/rootfs:ro
@@ -164,7 +164,7 @@ services:
       - externo
 
   grafana:
-    image: grafana/grafana-oss:9.0.6
+    image: grafana/grafana-oss:10.0.0
     container_name: grafana     
     environment:
         - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
@@ -178,10 +178,10 @@ services:
       - externo
 
   keycloak:
-   image: quay.io/keycloak/keycloak:19.0.1
+   image: quay.io/keycloak/keycloak:21.1
    container_name: keycloak
    command:
-     - start-dev --import-realm
+     - start-dev 
    environment:
      - DB_DATABASE=keycloak
      - KEYCLOAK_ADMIN=admin
@@ -341,7 +341,7 @@ services:
         condition: service_started        
 
   nginx:
-    image: nginx:1.23.1-alpine
+    image: nginx:1.25.1-alpine
     container_name: nginx
     domainname: localhost
     volumes:

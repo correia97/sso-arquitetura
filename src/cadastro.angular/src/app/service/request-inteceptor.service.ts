@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { env } from 'process';
 import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root'

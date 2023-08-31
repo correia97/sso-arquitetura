@@ -7,8 +7,11 @@
 # Only exists if Bazel was run
 /bazel-out
 
-# dependencies
+
+# Node
 /node_modules
+npm-debug.log
+yarn-error.log
 
 # profiling files
 chrome-profiler-events*.json
@@ -31,8 +34,9 @@ speed-measure-plugin*.json
 !.vscode/extensions.json
 .history/*
 
-# misc
-/.sass-cache
+# Miscellaneous
+/.angular/cache
+.sass-cache/
 /connect.lock
 /coverage
 /libpeerconnection.log

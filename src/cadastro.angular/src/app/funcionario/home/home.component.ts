@@ -34,15 +34,15 @@ export class HomeComponent implements OnInit {
     });
 
     this.route.queryParams.pipe(
-      filter(params => params.page))
+      filter(params => params['page']))
       .subscribe(params => {
-        this.page = params.page;
+        this.page = params['page'];
       });
 
     this.route.queryParams.pipe(
-      filter(params => params.qtd))
+      filter(params => params['qtd']))
       .subscribe(params => {
-        this.qtd = params.qtd;
+        this.qtd = params['qtd'];
       });
 
     if (this.isAuthenticated) {

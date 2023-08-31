@@ -15,7 +15,7 @@ namespace Cadastro.Configuracoes
     public class RabbitMQConsumer
     {
         private IModel Model { get; set; }
-        private readonly ILogger<RabbitMQConsumer> _logger; 
+        private readonly ILogger<RabbitMQConsumer> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly AsyncPolicy _retryAsyncPolicy;
         private readonly ActivitySource _activity;
@@ -60,8 +60,8 @@ namespace Cadastro.Configuracoes
             _logger.CustomLogInformation($"Message received from {queue} ");
             using var act = _activity.StartActivity("ReceiveidMessage");
 
-            if (Model.IsClosed)               
-               Reconnect();
+            if (Model.IsClosed)
+                Reconnect();
 
             TMessage messageObject = default;
             bool canDispatch = false;
