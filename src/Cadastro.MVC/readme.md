@@ -1,2 +1,0 @@
-# Exemplos de MVC protegida 
-
