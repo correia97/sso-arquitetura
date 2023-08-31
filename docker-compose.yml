@@ -5,7 +5,7 @@ services:
     container_name: cadastro.api
     build:
       context: .
-      dockerfile: src/Cadastro.API/Dockerfile
+      dockerfile: src/Cadastro.API/src/Dockerfile
     networks:
       - externo
       - base 
@@ -20,7 +20,7 @@ services:
     container_name: cadastro.mvc
     build:
       context: .
-      dockerfile: src/Cadastro.MVC/Dockerfile
+      dockerfile: src/Cadastro.MVC/src/Dockerfile
     networks:
       - externo
     depends_on:
@@ -34,7 +34,7 @@ services:
     container_name: cadastro.worker
     build:
       context: .
-      dockerfile: src/Cadastro.WorkerService/Dockerfile
+      dockerfile: src/Cadastro.WorkerService/src/Dockerfile
     networks:
       - base
     depends_on:

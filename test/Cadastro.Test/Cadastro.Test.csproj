@@ -55,14 +55,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Cadastro.API\Cadastro.API.csproj" />
     <ProjectReference Include="..\..\src\Cadastro.Data\Cadastro.Data.csproj" />
     <ProjectReference Include="..\..\src\Cadastro.Domain\Cadastro.Domain.csproj" />
-    <ProjectReference Include="..\..\src\Cadastro.WorkerService\Cadastro.WorkerService.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Apresentacao\WokerService\" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.API", "src\Cadastro.API\Cadastro.API.csproj", "{4B1FA99D-60E3-4DB7-A680-99BF78C197E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.API", "src\Cadastro.API\src\Cadastro.API.csproj", "{4B1FA99D-60E3-4DB7-A680-99BF78C197E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9F52609-C72C-4699-BCD2-6E52BE08454E}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		readme.md = readme.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.MVC", "src\Cadastro.MVC\Cadastro.MVC.csproj", "{E8008076-B2D5-4FF8-833C-2CF28FBCACF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.MVC", "src\Cadastro.MVC\src\Cadastro.MVC.csproj", "{E8008076-B2D5-4FF8-833C-2CF28FBCACF9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Domain", "src\Cadastro.Domain\Cadastro.Domain.csproj", "{A2F9F6BD-167E-4CF7-8536-8BE66C345BB9}"
 EndProject
@@ -21,11 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Data", "src\Cadast
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Test", "test\Cadastro.Test\Cadastro.Test.csproj", "{D084F369-4CFB-4FF2-B0C4-DB1A1E0D0BB8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.WorkerService", "src\Cadastro.WorkerService\Cadastro.WorkerService.csproj", "{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.WorkerService", "src\Cadastro.WorkerService\src\Cadastro.WorkerService.csproj", "{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5AC31D5A-0379-41F3-A0D9-F8C608AD44CE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.GRPC", "src\Cadastro.GRPC\Cadastro.GRPC.csproj", "{B04A9259-C402-42A4-9107-B048D28AC071}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.GRPC", "src\Cadastro.GRPC\src\Cadastro.GRPC.csproj", "{B04A9259-C402-42A4-9107-B048D28AC071}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apresentacao", "Apresentacao", "{443A5A1E-607F-4821-BB47-9D321EE252A7}"
 EndProject
@@ -36,6 +36,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testes", "Testes", "{80237313-A97C-488A-984D-D883E16F875B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cadastro.Configuracoes", "src\Cadastro.Configuracoes\Cadastro.Configuracoes.csproj", "{00194BA4-479F-41FE-9439-AF91883CAD21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.API.Test", "src\Cadastro.API\test\Cadastro.API.Test.csproj", "{9262FEBD-38EF-44AC-8571-8E8627A597A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.GRPC.Test", "src\Cadastro.GRPC\test\Cadastro.GRPC.Test.csproj", "{1C41D2FE-3DE3-45A8-B9A5-4AFEDE28D0F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.MVC.Test", "src\Cadastro.MVC\test\Cadastro.MVC.Test.csproj", "{DBDCE19D-4ECE-4DCE-972B-72F554935886}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cadastro.WorkerService.Test", "src\Cadastro.WorkerService\test\Cadastro.WorkerService.Test.csproj", "{4760852E-81C1-402A-8675-CBC5297761A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +87,22 @@ Global
 		{00194BA4-479F-41FE-9439-AF91883CAD21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00194BA4-479F-41FE-9439-AF91883CAD21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00194BA4-479F-41FE-9439-AF91883CAD21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9262FEBD-38EF-44AC-8571-8E8627A597A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9262FEBD-38EF-44AC-8571-8E8627A597A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9262FEBD-38EF-44AC-8571-8E8627A597A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9262FEBD-38EF-44AC-8571-8E8627A597A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C41D2FE-3DE3-45A8-B9A5-4AFEDE28D0F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C41D2FE-3DE3-45A8-B9A5-4AFEDE28D0F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C41D2FE-3DE3-45A8-B9A5-4AFEDE28D0F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C41D2FE-3DE3-45A8-B9A5-4AFEDE28D0F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBDCE19D-4ECE-4DCE-972B-72F554935886}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBDCE19D-4ECE-4DCE-972B-72F554935886}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBDCE19D-4ECE-4DCE-972B-72F554935886}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBDCE19D-4ECE-4DCE-972B-72F554935886}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4760852E-81C1-402A-8675-CBC5297761A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4760852E-81C1-402A-8675-CBC5297761A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4760852E-81C1-402A-8675-CBC5297761A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4760852E-81C1-402A-8675-CBC5297761A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +116,10 @@ Global
 		{BA089BAA-D43D-4C1F-AC8F-F9802AD40D9B} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
 		{B04A9259-C402-42A4-9107-B048D28AC071} = {443A5A1E-607F-4821-BB47-9D321EE252A7}
 		{00194BA4-479F-41FE-9439-AF91883CAD21} = {7666157F-6CAE-42A3-A8B1-CD6F505F12AC}
+		{9262FEBD-38EF-44AC-8571-8E8627A597A7} = {80237313-A97C-488A-984D-D883E16F875B}
+		{1C41D2FE-3DE3-45A8-B9A5-4AFEDE28D0F4} = {80237313-A97C-488A-984D-D883E16F875B}
+		{DBDCE19D-4ECE-4DCE-972B-72F554935886} = {80237313-A97C-488A-984D-D883E16F875B}
+		{4760852E-81C1-402A-8675-CBC5297761A6} = {80237313-A97C-488A-984D-D883E16F875B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17F3FC41-68DB-45B0-8531-7820A89DCDF3}
