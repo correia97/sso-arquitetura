@@ -10,6 +10,7 @@ jobs:
      - image: mcr.microsoft.com/dotnet/sdk:6.0
    # Definição dos passos para a realização do build dentro da imagem  
    steps:
+     - run: apt-get update && apt-get install -y openssh-client git
      # Clone do projeto
      - checkout
      - run: git submodule sync --recursive
