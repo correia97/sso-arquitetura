@@ -1,4 +1,4 @@
-[submodule "src/cadastro.angular"]
+[submodule "src/Cadastro.angular"]
 	path = src/cadastro.angular
 	url = https://github.com/correia97/sso-cadastro-angular
 [submodule "src/Cadastro.API"]
