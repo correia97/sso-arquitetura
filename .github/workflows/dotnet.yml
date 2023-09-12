@@ -13,6 +13,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+        submodules: 'true'
     - name: Restore dependencies
       run: dotnet restore Exemplo.SSO.sln
     - name: Intalação do SonarSacanner

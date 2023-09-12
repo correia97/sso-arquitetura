@@ -11,7 +11,7 @@ build:
   verbosity: minimal
 
 test_script:
-- dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="./results/" -r ./test/Cadastro.Test/output/  --logger "trx"
+- dotnet test Exemplo.SSO.sln /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="./results/" -r ./test/Cadastro.Test/output/  --logger "trx"
 - codecov -f "./test/Cadastro.Test/result/coverage.opencover.xml" -t $CODECOV_TOKEN
 - reportgenerator "-reports:./test/Cadastro.Test/result/coverage.opencover.xml" \
                             "-targetdir:./test/Cadastro.Test/report/" \
@@ -21,3 +21,7 @@ test_script:
 artifacts:
  - path: ./test/Cadastro.Test/output/
  - path: ./test/Cadastro.Test/report/
+ - path: ./src/Cadastro.API/test/
+ - path: ./src/Cadastro.GRPC/test/
+ - path: ./src/Cadastro.MVC/test/
+ - path: ./src/Cadastro.WorkerService/test/

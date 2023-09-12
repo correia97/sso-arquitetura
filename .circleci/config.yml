@@ -12,6 +12,8 @@ jobs:
    steps:
      # Clone do projeto
      - checkout
+     - run: git submodule sync --recursive
+     - run: git submodule update --init
      # Execução de uma linha de comando
      - run:
          name: Restore packages

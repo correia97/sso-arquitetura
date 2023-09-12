@@ -11,13 +11,17 @@ comment:
 flags:
   production:
     paths:
-      - src/Cadastro.API/
+      - src/Cadastro.API/src/
       - src/Cadastro.Configuracoes/
       - src/Cadastro.Data/
       - src/Cadastro.Domain/
-      - src/Cadastro.GRPC/
-      - src/Cadastro.MVC/
-      - src/Cadastro.WorkerService/
+      - src/Cadastro.GRPC/src/
+      - src/Cadastro.MVC/src/
+      - src/Cadastro.WorkerService/src/
   test:
     paths:
       - test/Cadastro.Test/
+      - src/Cadastro.API/test/
+      - src/Cadastro.GRPC/test/
+      - src/Cadastro.MVC/test/
+      - src/Cadastro.WorkerService/test/
