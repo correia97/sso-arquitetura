@@ -1,6 +1,3 @@
-[submodule "src/Cadastro.angular"]
-	path = src/cadastro.angular
-	url = https://github.com/correia97/sso-cadastro-angular
 [submodule "src/Cadastro.API"]
 	path = src/Cadastro.API
 	url = https://github.com/correia97/sso-cadastro-api
@@ -13,3 +10,6 @@
 [submodule "src/Cadastro.WorkerService"]
 	path = src/Cadastro.WorkerService
 	url = https://github.com/correia97/sso-cadastro-workerservice
+[submodule "src/cadastro.angular"]
+	path = src/cadastro.angular
+	url = https://github.com/correia97/sso-cadastro-angular
