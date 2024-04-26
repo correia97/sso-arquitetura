@@ -6,7 +6,6 @@ using Serilog.Events;
 using Serilog.Filters;
 using Serilog.Formatting.Elasticsearch;
 using Serilog.Sinks.RabbitMQ;
-using Serilog.Sinks.RabbitMQ.Sinks.RabbitMQ;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cadastro.Configuracoes
@@ -31,7 +30,6 @@ namespace Cadastro.Configuracoes
                 Period = TimeSpan.FromDays(1),
                 TextFormatter = logFormatter,
             };
-
             Log.Logger = new Serilog.LoggerConfiguration()
                       .MinimumLevel.Information()
                       .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -40,7 +38,7 @@ namespace Cadastro.Configuracoes
                       .Enrich.WithEnvironmentName()
                       .WriteTo.Logger(lc => lc.Filter.ByExcluding(Matching.WithProperty("AuditLog"))
                             .WriteTo.Console(logFormatter)
-                            .WriteTo.RabbitMQ(rabbitCliente, rabbitConfiguration, logFormatter)
+                            .WriteTo.RabbitMQ(rabbitCliente, rabbitConfiguration)
                       )
                       .CreateLogger();
 
