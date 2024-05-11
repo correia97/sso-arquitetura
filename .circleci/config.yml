@@ -49,6 +49,10 @@ jobs:
       - run:
           name: JavaConfig
           command: |
+            apt-get update && \
+            apt-get install -y \
+            software-properties-common
+            
             add-apt-repository ppa:openjdk-r/ppa -y && \
             apt-get update && \
             apt-get install -y \
