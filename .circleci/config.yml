@@ -42,10 +42,10 @@ jobs:
         # Execução de uma linha de comando
       - run:
           name: install Tool ReportGenerator
-          command: dotnet tool install --tool-path ./ dotnet-reportgenerator-globaltool
+          command: dotnet tool install --tool-path ./ dotnet-reportgenerator-globaltool --version 5.2.0
       - run:
           name: install Tool sonarscanner
-          command: dotnet tool install --tool-path ./ dotnet-sonarscanner
+          command: dotnet tool install --tool-path ./ dotnet-sonarscanner --version 5.15.0
       - run:
           name: JavaConfig
           command: |
