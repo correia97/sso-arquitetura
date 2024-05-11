@@ -51,14 +51,15 @@ jobs:
           command: |
             apt-get update && \
             apt-get install -y \
-            software-properties-common
+            software-properties-common \
+            default-jdk
+
             
             add-apt-repository ppa:openjdk-r/ppa -y && \
             apt-get update && \
             apt-get install -y \
             gnupg \
-            ca-certificates \
-            default-jdk \
+            ca-certificates \            
             openjdk-21-jdk\
             apt-transport-https  && \
             rm -rf /var/lib/apt/lists/*
