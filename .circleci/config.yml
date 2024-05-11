@@ -51,6 +51,7 @@ jobs:
           command: |
             apt-get update && \
             apt-get install -y \
+            gnupg \
             ca-certificates \
             default-jdk  \
             default-jre \
