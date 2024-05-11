@@ -50,9 +50,10 @@ jobs:
           name: JavaConfig
           command: |
             apt-get update && \
+            java --version \
             apt-get install -y \
             ca-certificates  \
-            openjdk-19-jre-headless \
+            openjdk-17-jre-headless \
             apt-transport-https && \
             rm -rf /var/lib/apt/lists/*
 
