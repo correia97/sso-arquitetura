@@ -58,6 +58,8 @@ jobs:
             apt-transport-https  && \
             rm -rf /var/lib/apt/lists/*
 
+            java --version
+            java --version
             update-alternatives --config java
 
       - run:
