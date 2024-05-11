@@ -51,10 +51,16 @@ jobs:
           command: |
             apt-get update && \
             apt-get install -y \
-            ca-certificates  default-jdk  \
+            ca-certificates \
+            software-properties-common  \
             apt-transport-https && \
+            add-apt-repository ppa:linuxuprising/java -y && \
+            apt-get update && \
+            apt-get install -y \
+            oracle-java17-installer \
             rm -rf /var/lib/apt/lists/*
 
+            echo 'oi'
             java --version
             # JAVA download, descompacta, move e deleta arquivo gz
             curl -O https://download.java.net/java/early_access/jdk23/22/GPL/openjdk-23-ea+22_linux-x64_bin.tar.gz \
