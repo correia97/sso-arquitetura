@@ -51,18 +51,21 @@ jobs:
           command: |
             apt-get update && \
             apt-get install -y \
-            ca-certificates  default-jdk  \
+            ca-certificates  \
+            openjdk-19-jre-headless \
             apt-transport-https && \
             rm -rf /var/lib/apt/lists/*
 
-            # JAVA download, descompacta, move e deleta arquivo gz
-            curl -O https://download.java.net/java/early_access/jdk23/22/GPL/openjdk-23-ea+22_linux-x64_bin.tar.gz \
-            && tar xvf openjdk-23-ea+22_linux-x64_bin.tar.gz \
-            && mv jdk-23 /usr/lib/jvm/ \
-            && rm openjdk-23-ea+22_linux-x64_bin.tar.gz
+            # # JAVA download, descompacta, move e deleta arquivo gz
+            # curl -O https://download.java.net/java/early_access/jdk23/22/GPL/openjdk-23-ea+22_linux-x64_bin.tar.gz \
+            # && tar xvf openjdk-23-ea+22_linux-x64_bin.tar.gz \
+            # && mv jdk-23 /usr/lib/jvm/ \
+            # && rm openjdk-23-ea+22_linux-x64_bin.tar.gz
 
             update-alternatives --config java
-            export JAVA_HOME=/usr/lib/jvm/jdk-23
+            java --version
+            echo $JAVA_HOME
+            # export JAVA_HOME=/usr/lib/jvm/jdk-23
 
       - run:
           name: inicio da analise
