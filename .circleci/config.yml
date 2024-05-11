@@ -54,6 +54,7 @@ jobs:
             apt-get install -y \
             gnupg \
             ca-certificates \
+            default-jdk \
             openjdk-21-jdk\
             apt-transport-https  && \
             rm -rf /var/lib/apt/lists/*
