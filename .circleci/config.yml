@@ -52,12 +52,7 @@ jobs:
             apt-get update && \
             apt-get install -y \
             software-properties-common \
-            default-jdk
-
-            
-            add-apt-repository  ppa:openjdk-r/ppa -y && \
-            apt-get update && \
-            apt-get install -y \
+            default-jdk \
             gnupg \
             ca-certificates \            
             openjdk-21 \
@@ -68,7 +63,9 @@ jobs:
             echo '--------------------------------------------------------------------------'
             echo '--------------------------------------------------------------------------'
             echo '--------------------------------------------------------------------------'
-            java --version
+            curl https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.deb -o jdk-21_linux-x64_bin.deb
+            apt-get install ./jdk-21_linux-x64_bin.deb -y
+
             echo '--------------------------------------------------------------------------'
             echo '--------------------------------------------------------------------------'
             echo '--------------------------------------------------------------------------'
