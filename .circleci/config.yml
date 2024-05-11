@@ -55,7 +55,7 @@ jobs:
             ca-certificates \
             default-jdk  \
             default-jre \
-            apt-transport-https  \
+            apt-transport-https  && \
             rm -rf /var/lib/apt/lists/*
 
             update-alternatives --config java
