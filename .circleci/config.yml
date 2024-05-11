@@ -42,31 +42,28 @@ jobs:
         # Execução de uma linha de comando
       - run:
           name: install Tool ReportGenerator
-          command: dotnet tool install --tool-path ./ dotnet-reportgenerator-globaltool --version 5.2.0
+          command: dotnet tool install --tool-path ./ dotnet-reportgenerator-globaltool --version 5.1.15
       - run:
           name: install Tool sonarscanner
-          command: dotnet tool install --tool-path ./ dotnet-sonarscanner --version 5.15.0
+          command: dotnet tool install --tool-path ./ dotnet-sonarscanner --version 5.5.0
       - run:
           name: JavaConfig
           command: |
             apt-get update && \
-            java --version \
             apt-get install -y \
-            ca-certificates  \
-            openjdk-17-jre-headless \
+            ca-certificates  default-jdk  \
             apt-transport-https && \
             rm -rf /var/lib/apt/lists/*
 
-            # # JAVA download, descompacta, move e deleta arquivo gz
-            # curl -O https://download.java.net/java/early_access/jdk23/22/GPL/openjdk-23-ea+22_linux-x64_bin.tar.gz \
-            # && tar xvf openjdk-23-ea+22_linux-x64_bin.tar.gz \
-            # && mv jdk-23 /usr/lib/jvm/ \
-            # && rm openjdk-23-ea+22_linux-x64_bin.tar.gz
+            java --version
+            # JAVA download, descompacta, move e deleta arquivo gz
+            curl -O https://download.java.net/java/early_access/jdk23/22/GPL/openjdk-23-ea+22_linux-x64_bin.tar.gz \
+            && tar xvf openjdk-23-ea+22_linux-x64_bin.tar.gz \
+            && mv jdk-23 /usr/lib/jvm/ \
+            && rm openjdk-23-ea+22_linux-x64_bin.tar.gz
 
             update-alternatives --config java
-            java --version
-            echo $JAVA_HOME
-            # export JAVA_HOME=/usr/lib/jvm/jdk-23
+            export JAVA_HOME=/usr/lib/jvm/jdk-23
 
       - run:
           name: inicio da analise
