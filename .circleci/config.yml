@@ -55,14 +55,17 @@ jobs:
             default-jdk
 
             
-            add-apt-repository ppa:openjdk-r/ppa -y && \
+            add-apt-repository  ppa:linuxuprising/java -y && \
             apt-get update && \
             apt-get install -y \
             gnupg \
             ca-certificates \            
-            openjdk-21-jdk\
+            oracle-java17-installer \
+            oracle-java17-set-default\
             apt-transport-https  && \
             rm -rf /var/lib/apt/lists/*
+
+
             echo '--------------------------------------------------------------------------'
             echo '--------------------------------------------------------------------------'
             echo '--------------------------------------------------------------------------'
