@@ -22,7 +22,7 @@ export const options = {
 const BASE_URL = 'http://localhost:56701';
 
 export default () => {
-    const loginRes = http.post(`http://192.168.0.17:8088/realms/Sample/protocol/openid-connect/token`, {
+    const loginRes = http.post(`http://192.168.0.62:8088/realms/Sample/protocol/openid-connect/token`, {
         grant_type: "password",
         client_id: "exemplo1",
         username: "drstranger@marvel.com",

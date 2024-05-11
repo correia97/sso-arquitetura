@@ -1,58 +1,57 @@
 name: .NET
 
-on: [ push, pull_request]
+on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: 'true'
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore Exemplo.SSO.sln
-    - name: Intalação do SonarSacanner
-      run: dotnet tool install --global dotnet-sonarscanner
-    - name: Inicio da analise
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
-    - name: Build
-      run: dotnet build Exemplo.SSO.sln --no-restore
-    - name: Test
-      run: dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover"  -r /home/runner/work/sso/sso/test/Cadastro.Test/output/  --logger "trx"
-    - name: Fim da analise
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: dotnet-sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
-    - name: Instalaçõ do gerador de relatório de cobertura
-      run: dotnet tool install --global  dotnet-reportgenerator-globaltool
-    # Execução de uma linha de comando    
-    - name: Geração do relatorio de cobertura
-      run: reportgenerator "-reports:/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml" \
-                            "-targetdir:/home/runner/work/sso/sso/test/Cadastro.Test/report/" \
-                            "-reporttypes:Html" \
-                            "-sourcedirs:/home/runner/work/sso/sso/test/Cadastro.Test/"
-    - uses: dorny/test-reporter@v1.5.0
-      with:
-        #artifact: test-results                                             # artifact name
-        list-tests: 'all'
-        fail-on-error: 'false'
-        only-summary: 'false'
-        name: Testes                                                       # Name of the check run which will be created
-        path: '/home/runner/work/sso/sso/test/Cadastro.Test/output/*.trx'  # Path to test results (inside artifact .zip)
-        reporter: dotnet-trx
-    # Armazenamento dos arquivos gerados pelo resultado dos testes
-    - name: Armazenamento dos relatório
-      uses: actions/upload-artifact@v1
-      with:
-        name: code-coverage-report
-        path: /home/runner/work/sso/sso/test/Cadastro.Test/report/    
-    - name: Upload coverage reports to Codecov with GitHub Action
-      uses: codecov/codecov-action@v3  
+      - uses: actions/checkout@v2
+        with:
+          submodules: "true"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore Exemplo.SSO.sln
+      - name: Intalação do SonarSacanner
+        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Inicio da analise
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
+      - name: Build
+        run: dotnet build Exemplo.SSO.sln --no-restore
+      - name: Test
+        run: dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover"  -r /home/runner/work/sso/sso/test/Cadastro.Test/output/  --logger "trx"
+      - name: Fim da analise
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet-sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
+      - name: Instalaçõ do gerador de relatório de cobertura
+        run: dotnet tool install --global  dotnet-reportgenerator-globaltooly
+      # Execução de uma linha de comando
+      - name: Geração do relatorio de cobertura
+        run:
+          reportgenerator "-reports:/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml" \
+          "-targetdir:/home/runner/work/sso/sso/test/Cadastro.Test/report/" \
+          "-reporttypes:Html" \
+          "-sourcedirs:/home/runner/work/sso/sso/test/Cadastro.Test/"
+      - uses: dorny/test-reporter@v1.5.0
+        with:
+          #artifact: test-results                                             # artifact name
+          list-tests: "all"
+          fail-on-error: "false"
+          only-summary: "false"
+          name: Testes # Name of the check run which will be created
+          path: "/home/runner/work/sso/sso/test/Cadastro.Test/output/*.trx" # Path to test results (inside artifact .zip)
+          reporter: dotnet-trx
+      # Armazenamento dos arquivos gerados pelo resultado dos testes
+      - name: Armazenamento dos relatório
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage-report
+          path: /home/runner/work/sso/sso/test/Cadastro.Test/report/
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3

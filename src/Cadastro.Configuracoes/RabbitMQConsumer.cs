@@ -18,14 +18,12 @@ namespace Cadastro.Configuracoes
         private readonly ILogger<RabbitMQConsumer> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly AsyncPolicy _retryAsyncPolicy;
-        private readonly ActivitySource _activity;
         private readonly IConfiguration _configuration;
-        public RabbitMQConsumer(ILogger<RabbitMQConsumer> logger, ActivitySource activity, IModel model, IServiceProvider serviceProvider, IConfiguration configuration)
+        public RabbitMQConsumer(ILogger<RabbitMQConsumer> logger,  IModel model, IServiceProvider serviceProvider, IConfiguration configuration)
         {
             _logger = logger;
             Model = model;
             _serviceProvider = serviceProvider;
-            _activity = activity;
             _configuration = configuration;
             _retryAsyncPolicy = Policy.Handle<TimeoutException>()
                         .Or<Exception>()
@@ -58,7 +56,6 @@ namespace Cadastro.Configuracoes
         protected async Task ReceiveidMessage<TService, TMessage>(BasicDeliverEventArgs ea, Func<TService, TMessage, Task> action, string queue)
         {
             _logger.CustomLogInformation($"Message received from {queue} ");
-            using var act = _activity.StartActivity("ReceiveidMessage");
 
             if (Model.IsClosed)
                 Reconnect();

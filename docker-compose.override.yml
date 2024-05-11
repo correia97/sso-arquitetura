@@ -3,7 +3,7 @@ version: '3.4'
 services:
   cadastro.api:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Keycloak
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
     ports:
       - 56701:80
@@ -11,7 +11,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
   cadastro.mvc:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Keycloak
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
     ports:
       - 56702:80

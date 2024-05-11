@@ -35,7 +35,7 @@ before:
   flow:
     - log: "Get auth token"
     - post:
-        url: "http://192.168.0.17:8088/realms/Sample/protocol/openid-connect/token"        
+        url: "http://192.168.0.62:8088/realms/Sample/protocol/openid-connect/token"        
         afterResponse: "logBody"
         form:
           grant_type: "password"

@@ -5,13 +5,19 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "db": "StartWithoutDebugging",
-        //"keycloak": "StartWithoutDebugging",
         "nginx": "StartWithoutDebugging",
         "rabbitmq": "StartWithoutDebugging",
         "cadastro.angular": "StartWithoutDebugging",
         "cadastro.api": "StartDebugging",
         "cadastro.mvc": "StartDebugging",
-        "cadastro.workerservice": "StartDebugging"
+        "cadastro.workerservice": "StartDebugging",
+        "angular_exporter": "StartWithoutDebugging",
+        "cadvisor": "StartWithoutDebugging",
+        "grafana": "StartWithoutDebugging",
+        "jaeger": "StartWithoutDebugging",
+        "keycloak": "StartWithoutDebugging",
+        "nginx_exporter": "StartWithoutDebugging",
+        "prometheus": "StartWithoutDebugging"
       }
     }
   }

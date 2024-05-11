@@ -17,20 +17,17 @@ namespace Cadastro.Domain.Services
         private readonly IFuncionarioWriteRepository _repositoryWrite;
         private readonly INotificationService _notificationService;
         private readonly ILogger<FuncionarioService> _logger;
-        private readonly ActivitySource _activitySource;
         public FuncionarioService(IFuncionarioReadRepository repositoryRead, IFuncionarioWriteRepository repositoryWrite,
-                                 INotificationService notificationService, ILogger<FuncionarioService> logger, ActivitySource activitySource)
+                                 INotificationService notificationService, ILogger<FuncionarioService> logger)
         {
             _repositoryRead = repositoryRead;
             _repositoryWrite = repositoryWrite;
             _notificationService = notificationService;
             _logger = logger;
-            _activitySource = activitySource;
         }
 
         public async Task Atualizar(Funcionario funcionario)
         {
-            using var activity = _activitySource.StartActivity("Atualizar Funcionario", ActivityKind.Internal);
             _logger.LogInformation("Atualizar Funcionário iniciado");
             Funcionario baseFuncionario = await _repositoryRead.ObterPorId(funcionario.Id);
             if (baseFuncionario == null)
@@ -73,7 +70,6 @@ namespace Cadastro.Domain.Services
 
         public async Task Cadastrar(Funcionario funcionario)
         {
-            using var activity = _activitySource.StartActivity("Cadastrar Funcionario", ActivityKind.Internal);
             _logger.LogInformation("Cadastrar Funcionário iniciado");
             Funcionario data = await _repositoryRead.ObterPorEmail(funcionario.Email.EnderecoEmail);
 
@@ -113,7 +109,6 @@ namespace Cadastro.Domain.Services
 
         public async Task Desativar(Guid id)
         {
-            using var activity = _activitySource.StartActivity("Desativar Funcionario", ActivityKind.Internal);
             _logger.LogInformation("Desativar Funcionário iniciado");
 
             _repositoryWrite.IniciarTransacao();
@@ -135,7 +130,6 @@ namespace Cadastro.Domain.Services
 
         public async Task Remover(Guid id)
         {
-            using var activity = _activitySource.StartActivity("Remover Funcionario", ActivityKind.Internal);
             _logger.LogInformation("Remover Funcionário iniciado");
             Funcionario funcionario = await ObterPorId(id);
 
@@ -174,8 +168,6 @@ namespace Cadastro.Domain.Services
 
         public async Task<Funcionario> ObterPorId(Guid id)
         {
-            using var activity = _activitySource.StartActivity("Obter Funcionario por Id", ActivityKind.Internal);
-
             _logger.LogInformation("ObterPorId Funcionário iniciado");
             Funcionario funcionario = await _repositoryRead.ObterPorId(id);
             if (funcionario == null)
@@ -201,7 +193,6 @@ namespace Cadastro.Domain.Services
 
         public async Task<(IEnumerable<Funcionario>, int)> ObterTodos(int pagina, int qtdItens)
         {
-            using var activity = _activitySource.StartActivity("Obter Funcionarios", ActivityKind.Internal);
             pagina--;
             if (pagina < 0)
                 pagina = 0;
@@ -217,7 +208,6 @@ namespace Cadastro.Domain.Services
 
         private async Task TratarEndereco(Endereco endereco)
         {
-            using var activity = _activitySource.StartActivity("Atualizar/Inserir Endereço", ActivityKind.Internal);
             _logger.LogInformation("Tratar Endereco Iniciado");
             if (endereco.Id > 0)
                 await _repositoryWrite.AtualizarEndereco(endereco);
@@ -228,7 +218,6 @@ namespace Cadastro.Domain.Services
 
         private async Task TratarTelefones(IEnumerable<Telefone> telefones)
         {
-            using var activity = _activitySource.StartActivity("Atualizar/Inserir Telefones", ActivityKind.Internal);
             _logger.LogInformation("Tratar Telefone Iniciado");
             foreach (var item in telefones)
             {

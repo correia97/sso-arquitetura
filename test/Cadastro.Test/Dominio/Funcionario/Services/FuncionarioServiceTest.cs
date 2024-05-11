@@ -61,7 +61,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                  _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                  _mockNotificationService.Object, _mockLogger.Object);
 
             await service.Cadastrar(funcionario);
 
@@ -92,7 +92,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                 _mockNotificationService.Object, _mockLogger.Object, activity);
+                 _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
@@ -118,7 +118,7 @@ namespace Cadastro.Test.Domain
                 .Throws(new Exception());
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                _mockNotificationService.Object, _mockLogger.Object, activity);
+                _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.Cadastrar(funcionario));
 
@@ -157,7 +157,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                 _mockNotificationService.Object, _mockLogger.Object);
 
             await service.Cadastrar(funcionario);
 
@@ -194,7 +194,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                  _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                  _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
@@ -237,7 +237,7 @@ namespace Cadastro.Test.Domain
                                                 .ReturnsAsync(false);
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                 _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Cadastrar(funcionario));
 
@@ -282,7 +282,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                 _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Atualizar(funcionarioAtualizado));
 
@@ -334,7 +334,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+                                               _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => service.Atualizar(funcionarioAtualizado));
 
@@ -416,7 +416,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                _mockNotificationService.Object, _mockLogger.Object);
 
             await service.Atualizar(funcionarioAtualizado);
 
@@ -454,7 +454,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+                                               _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => service.Desativar(id));
 
@@ -484,7 +484,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+                                               _mockNotificationService.Object, _mockLogger.Object);
 
             await service.Desativar(id);
 
@@ -516,7 +516,7 @@ namespace Cadastro.Test.Domain
             _mockNotificationService.Setup(x => x.SendEvent(It.IsAny<NotificationMessage<Guid>>()));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                 _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                 _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.Remover(id));
 
@@ -568,7 +568,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+                                               _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => service.Remover(id));
 
@@ -622,7 +622,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                               _mockNotificationService.Object, _mockLogger.Object, activity);
+                                               _mockNotificationService.Object, _mockLogger.Object);
 
             await service.Remover(id);
 
@@ -680,7 +680,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                _mockNotificationService.Object, _mockLogger.Object);
 
             var result = await service.ObterPorId(funcionario.Id);
 
@@ -706,7 +706,7 @@ namespace Cadastro.Test.Domain
                 });
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                    _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                    _mockNotificationService.Object, _mockLogger.Object);
 
             var result = await service.ObterPorId(Guid.NewGuid());
 
@@ -724,7 +724,7 @@ namespace Cadastro.Test.Domain
                 .Throws(new Exception("Teste"));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.ObterPorId(Guid.NewGuid()));
 
@@ -753,7 +753,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync((new List<Funcionario>() { funcionario }, 1));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                _mockNotificationService.Object, _mockLogger.Object);
 
             var result = await service.ObterTodos(1, 10);
 
@@ -772,7 +772,7 @@ namespace Cadastro.Test.Domain
                 .ReturnsAsync((new List<Funcionario>(), 0));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                    _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                    _mockNotificationService.Object, _mockLogger.Object);
 
             var result = await service.ObterTodos(1, 10);
 
@@ -791,7 +791,7 @@ namespace Cadastro.Test.Domain
                 .Throws(new Exception("Teste"));
 
             var service = new FuncionarioService(_mockFuncionarioRepositorioLeitura.Object, _mockFuncionarioRepositorioEscrita.Object,
-                                                _mockNotificationService.Object, _mockLogger.Object, activity);
+                                                _mockNotificationService.Object, _mockLogger.Object);
 
             await Assert.ThrowsAsync<Exception>(async () => await service.ObterTodos(1, 10));
 
