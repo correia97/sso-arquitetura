@@ -18,25 +18,10 @@ jobs:
       - name: Intalação do SonarSacanner
         run: dotnet tool install --global dotnet-sonarscanner --version 5.5.0
       - name: Intalação do Java
-        run: |
-            apt-get update && \
-            apt-get install -y \
-            ca-certificates \
-            apt-transport-https && \
-            rm -rf /var/lib/apt/lists/*
-
-            echo '--------------------------------------------------------------------------'
-            echo '--------------------------------------------------------------------------'
-            echo '--------------------------------------------------------------------------'
-            curl https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.deb -o jdk-21_linux-x64_bin.deb
-            dpkg -i jdk-21_linux-x64_bin.deb
-
-            echo '--------------------------------------------------------------------------'
-            echo '--------------------------------------------------------------------------'
-            echo '--------------------------------------------------------------------------'
-            
-            java --version
-            update-alternatives --config java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '21'
       - name: Inicio da analise
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
