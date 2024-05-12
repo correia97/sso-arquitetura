@@ -35,7 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: dotnet-sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
       - name: Instalaçõ do gerador de relatório de cobertura
-        run: dotnet tool install --global dotnet-reportgenerator-globaltooly --version 5.1.15
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.15
       # Execução de uma linha de comando
       - name: Geração do relatorio de cobertura
         run:
