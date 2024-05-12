@@ -16,7 +16,27 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore Exemplo.SSO.sln
       - name: Intalação do SonarSacanner
-        run: dotnet tool install --global dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner --version 5.5.0
+      - name: Intalação do Java
+        run: |
+            apt-get update && \
+            apt-get install -y \
+            ca-certificates \
+            apt-transport-https && \
+            rm -rf /var/lib/apt/lists/*
+
+            echo '--------------------------------------------------------------------------'
+            echo '--------------------------------------------------------------------------'
+            echo '--------------------------------------------------------------------------'
+            curl https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.deb -o jdk-21_linux-x64_bin.deb
+            dpkg -i jdk-21_linux-x64_bin.deb
+
+            echo '--------------------------------------------------------------------------'
+            echo '--------------------------------------------------------------------------'
+            echo '--------------------------------------------------------------------------'
+            
+            java --version
+            update-alternatives --config java
       - name: Inicio da analise
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -30,7 +50,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: dotnet-sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
       - name: Instalaçõ do gerador de relatório de cobertura
-        run: dotnet tool install --global  dotnet-reportgenerator-globaltooly
+        run: dotnet tool install --global dotnet-reportgenerator-globaltooly --version 5.1.15
       # Execução de uma linha de comando
       - name: Geração do relatorio de cobertura
         run:
