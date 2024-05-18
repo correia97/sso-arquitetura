@@ -3,7 +3,7 @@ image:
 
 before_build:
   - nuget restore
-  - dotnet tool install --global  dotnet-reportgenerator-globaltool
+  - dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.15
   - choco install codecov
 
 build:

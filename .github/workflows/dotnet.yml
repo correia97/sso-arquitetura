@@ -25,11 +25,11 @@ jobs:
       - name: Inicio da analise
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
+        run: dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.API/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.MVC/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.GRPC/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.WorkerService/results/coverage.opencover.xml" /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
       - name: Build
         run: dotnet build Exemplo.SSO.sln --no-restore
       - name: Test
-        run: dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover"  -r /home/runner/work/sso/sso/test/Cadastro.Test/output/  --logger "trx"
+        run: dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="../results/" --results-directory /home/runner/work/sso/sso/test/Cadastro.Test/output/  --logger "trx"
       - name: Fim da analise
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +39,7 @@ jobs:
       # Execução de uma linha de comando
       - name: Geração do relatorio de cobertura
         run:
-          reportgenerator "-reports:/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml" \
+          reportgenerator "-reports:/home/runner/work/sso/sso/test/Cadastro.Test/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.API/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.MVC/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.GRPC/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.WorkerService/results/coverage.opencover.xml" \
           "-targetdir:/home/runner/work/sso/sso/test/Cadastro.Test/report/" \
           "-reporttypes:Html" \
           "-sourcedirs:/home/runner/work/sso/sso/test/Cadastro.Test/"
