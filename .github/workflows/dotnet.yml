@@ -39,7 +39,7 @@ jobs:
       # Execução de uma linha de comando
       - name: Geração do relatorio de cobertura
         run:
-          reportgenerator "-reports:*/results/*/coverage.opencover.xml" \
+          reportgenerator "-reports:/home/runner/work/sso-arquitetura/sso-arquitetura/**/coverage.opencover.xml" \
           "-targetdir:/home/runner/work/sso-arquitetura/sso-arquitetura/test/Cadastro.Test/report/" \
           "-reporttypes:Html" \
           "-sourcedirs:/home/runner/work/sso-arquitetura/sso-arquitetura/test/results/"
