@@ -71,7 +71,7 @@ jobs:
 
       - run:
           name: inicio da analise
-          command: ./dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="/root/project/test/Cadastro.Test/results/coverage.opencover.xml,/root/project/src/Cadastro.API/results/coverage.opencover.xml,/root/project/src/Cadastro.MVC/results/coverage.opencover.xml,/root/project/src/Cadastro.GRPC/results/coverage.opencover.xml,/root/project/src/Cadastro.WorkerService/results/coverage.opencover.xml" /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
+          command: ./dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${sonarkey} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="/root/project/test/results/coverage.opencover.xml,/root/project/src/Cadastro.API/results/coverage.opencover.xml,/root/project/src/Cadastro.MVC/results/coverage.opencover.xml,/root/project/src/Cadastro.GRPC/results/coverage.opencover.xml,/root/project/src/Cadastro.WorkerService/results/coverage.opencover.xml" /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
         # Execução de uma linha de comando
       - run:
           name: Build App
@@ -88,10 +88,10 @@ jobs:
       - run:
           name: Generate Report
           command:
-            ./reportgenerator "-reports:/root/project/test/Cadastro.Test/results/coverage.opencover.xml,/root/project/src/Cadastro.API/results/coverage.opencover.xml,/root/project/src/Cadastro.MVC/results/coverage.opencover.xml,/root/project/src/Cadastro.GRPC/results/coverage.opencover.xml,/root/project/src/Cadastro.WorkerService/results/coverage.opencover.xml" \
+            ./reportgenerator "-reports:/root/project/test/results/coverage.opencover.xml,/root/project/src/Cadastro.API/results/coverage.opencover.xml,/root/project/src/Cadastro.MVC/results/coverage.opencover.xml,/root/project/src/Cadastro.GRPC/results/coverage.opencover.xml,/root/project/src/Cadastro.WorkerService/results/coverage.opencover.xml" \
             "-targetdir:/root/project/results/report/" \
             "-reporttypes:Html" \
-            "-sourcedirs:/root/project/test/Cadastro.Test/results/"
+            "-sourcedirs:/root/project/test/results/"
 
       - run:
           name: Teste result for circleci
