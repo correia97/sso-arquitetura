@@ -89,7 +89,7 @@ jobs:
           name: Generate Report
           command:
             ./reportgenerator "-reports:*/results/*/coverage.opencover.xml" \
-            "-targetdir:/root/project/results/report/" \
+            "-targetdir:/root/project/test/results/report/" \
             "-reporttypes:Html" \
             "-sourcedirs:/root/project/test/results/"
 

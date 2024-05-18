@@ -25,11 +25,11 @@ jobs:
       - name: Inicio da analise
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="/home/runner/work/sso/sso/test/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.API/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.MVC/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.GRPC/results/coverage.opencover.xml,/home/runner/work/sso/sso/src/Cadastro.WorkerService/results/coverage.opencover.xml" /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
+        run: dotnet-sonarscanner begin /o:correia97 /k:correia97_sso /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="/home/runner/work/sso-arquitetura/sso-arquitetura/test/results/,/home/runner/work/sso-arquitetura/sso-arquitetura/src/Cadastro.API/results/coverage.opencover.xml,/home/runner/work/sso-arquitetura/sso-arquitetura/src/Cadastro.MVC/results/coverage.opencover.xml,/home/runner/work/sso-arquitetura/sso-arquitetura/src/Cadastro.GRPC/results/coverage.opencover.xml,/home/runner/work/sso-arquitetura/sso-arquitetura/src/Cadastro.WorkerService/results/coverage.opencover.xml" /d:sonar.exclusions=**\bin\**,**\obj\**,**\node_modules\**,**\wwwroot\**
       - name: Build
         run: dotnet build Exemplo.SSO.sln --no-restore
       - name: Test
-        run: dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="../results/" --results-directory /home/runner/work/sso/sso/test/Cadastro.Test/output/  --logger "trx"
+        run: dotnet test Exemplo.SSO.sln --no-build /p:ExcludeByFile=\"**/Program.cs\" /p:Exclude="[*]Cadastro.Configuracoes.*" /p:CollectCoverage=true /p:CoverletOutputFormat="opencover" /p:CoverletOutput="../results/" --results-directory /home/runner/work/sso-arquitetura/sso-arquitetura/test/Cadastro.Test/output/  --logger "trx"
       - name: Fim da analise
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,9 +40,9 @@ jobs:
       - name: Geração do relatorio de cobertura
         run:
           reportgenerator "-reports:*/results/*/coverage.opencover.xml" \
-          "-targetdir:/home/runner/work/sso/sso/test/Cadastro.Test/report/" \
+          "-targetdir:/home/runner/work/sso-arquitetura/sso-arquitetura/test/Cadastro.Test/report/" \
           "-reporttypes:Html" \
-          "-sourcedirs:/home/runner/work/sso/sso/test/results/"
+          "-sourcedirs:/home/runner/work/sso-arquitetura/sso-arquitetura/test/results/"
       - uses: dorny/test-reporter@v1.5.0
         with:
           #artifact: test-results                                             # artifact name
@@ -50,13 +50,13 @@ jobs:
           fail-on-error: "false"
           only-summary: "false"
           name: Testes # Name of the check run which will be created
-          path: "/home/runner/work/sso/sso/test/Cadastro.Test/output/*.trx" # Path to test results (inside artifact .zip)
+          path: "/home/runner/work/sso-arquitetura/sso-arquitetura/test/Cadastro.Test/output/*.trx" # Path to test results (inside artifact .zip)
           reporter: dotnet-trx
       # Armazenamento dos arquivos gerados pelo resultado dos testes
       - name: Armazenamento dos relatório
         uses: actions/upload-artifact@v1
         with:
           name: code-coverage-report
-          path: /home/runner/work/sso/sso/test/Cadastro.Test/report/
+          path: /home/runner/work/sso-arquitetura/sso-arquitetura/test/Cadastro.Test/report/
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
