@@ -101,10 +101,33 @@ jobs:
             trx2junit /root/project/test/Cadastro.Test/output/*.trx
       # Armazenamento do conteudo da pasta result
       - store_artifacts:
-          path: /root/project/results/report/
+          path: /root/project/test/results/report/
+          destination: covarage-report
+
+      - store_artifacts:
+          path: /root/project/test/results/         
+          destination: arquitetura-report
+
+      - store_artifacts:
+          path: /root/project/src/Cadastro.API/results/       
+          destination: api-report
+
+      - store_artifacts:
+          path: /root/project/src/Cadastro.MVC/results/       
+          destination: mvc-report
+
+      - store_artifacts:
+          path: /root/project/src/Cadastro.GRPC/results/      
+          destination: grpc-report
+
+      - store_artifacts:
+          path: /root/project/src/Cadastro.WorkerService/results/    
+          destination: worker-report
 
       - store_test_results:
-          path: /root/project/test/Cadastro.Test/output/
+          path: /root/project/test/Cadastro.Test/output/ 
+
+
 
 # Definição dos trabalhos que serção executados
 workflows:
