@@ -47,7 +47,11 @@ namespace Cadastro.Configuracoes
                          options.SetDbStatementForText = true;
                          options.RecordException = true;
                      })
-                     .AddConsoleExporter();
+                     .AddConsoleExporter()
+                     .AddOtlpExporter(opts =>
+                     {
+                         opts.Endpoint = new Uri(config.GetValue<string>("jaeger:url"));
+                     }); ;
                 });
 
             return services;
